@@ -52,17 +52,248 @@
     <summary>A Fragment is a piece of an application's user interface or behavior
             that can be placed in an <c>Activity</c>.</summary>
     <remarks>
-      <para>This class was deprecated in API level 28. Use the Jetpack Fragment Library Fragment for consistent behavior across all devices and access to Lifecycle.</para>
-      <para>A Fragment is a piece of an application's user interface or behavior that can be placed in an Activity. Interaction with fragments is done through FragmentManager, which can be obtained via Activity.getFragmentManager() and Fragment.getFragmentManager(). The Fragment class can be used many ways to achieve a wide variety of results. In its core, it represents a particular operation or interface that is running within a larger Activity. A Fragment is closely tied to the Activity it is in, and can not be used apart from one. Though Fragment defines its own lifecycle, that lifecycle is dependent on its activity: if the activity is stopped, no fragments inside of it can be started; when the activity is destroyed, all fragments will be destroyed. All subclasses of Fragment must include a public no-argument constructor. The framework will often re-instantiate a fragment class when needed, in particular during state restore, and needs to be able to find this constructor to instantiate it. If the no-argument constructor is not available, a runtime exception will occur in some cases during state restore. Topics covered here: Older Platforms Lifecycle Layout Back Stack Developer Guides For more information about using fragments, read the Fragments developer guide.</para>
+      <para>This class was deprecated in API level 28. Use the <see href="https://developer.android.com/jetpack">Jetpack Fragment Library</see> <c>androidx.fragment.app.Fragment</c> for consistent behavior across all devices and access to <see href="https://developer.android.com/topic/libraries/architecture/lifecycle.html">Lifecycle</see>.</para>
+      <para>A Fragment is a piece of an application's user interface or behavior that can be placed in an Activity. Interaction with fragments is done through FragmentManager, which can be obtained via Activity.getFragmentManager() and Fragment.getFragmentManager(). The Fragment class can be used many ways to achieve a wide variety of results. In its core, it represents a particular operation or interface that is running within a larger Activity. A Fragment is closely tied to the Activity it is in, and can not be used apart from one. Though Fragment defines its own lifecycle, that lifecycle is dependent on its activity: if the activity is stopped, no fragments inside of it can be started; when the activity is destroyed, all fragments will be destroyed. All subclasses of Fragment must include a public no-argument constructor. The framework will often re-instantiate a fragment class when needed, in particular during state restore, and needs to be able to find this constructor to instantiate it. If the no-argument constructor is not available, a runtime exception will occur in some cases during state restore.</para>
+      <para>For more information about using fragments, read the <see href="https://developer.android.com/guide/components/fragments.html">Fragments</see> developer guide.</para>
       <para>Though a Fragment's lifecycle is tied to its owning activity, it has its own wrinkle on the standard activity lifecycle. It includes basic activity lifecycle methods such as onResume(), but also important are methods related to interactions with the activity and UI generation. The core series of lifecycle methods that are called to bring a fragment up to resumed state (interacting with the user) are: onAttach(Activity) called once the fragment is associated with its activity. onCreate(Bundle) called to do initial creation of the fragment. onCreateView(LayoutInflater, ViewGroup, Bundle) creates and returns the view hierarchy associated with the fragment. onActivityCreated(Bundle) tells the fragment that its activity has completed its own Activity.onCreate(). onViewStateRestored(Bundle) tells the fragment that all of the saved state of its view hierarchy has been restored. onStart() makes the fragment visible to the user (based on its containing activity being started). onResume() makes the fragment begin interacting with the user (based on its containing activity being resumed). As a fragment is no longer being used, it goes through a reverse series of callbacks: onPause() fragment is no longer interacting with the user either because its activity is being paused or a fragment operation is modifying it in the activity. onStop() fragment is no longer visible to the user either because its activity is being stopped or a fragment operation is modifying it in the activity. onDestroyView() allows the fragment to clean up resources associated with its View. onDestroy() called to do final cleanup of the fragment's state. onDetach() called immediately prior to the fragment no longer being associated with its activity. Layout Fragments can be used as part of your application's layout, allowing you to better modularize your code and more easily adjust your user interface to the screen it is running on. As an example, we can look at a simple program consisting of a list of items, and display of the details of each item.</para>
       <para>An activity's layout XML can include &lt;fragment&gt; tags to embed fragment instances inside of the layout. For example, here is a simple layout that embeds one fragment:</para>
+      <code lang="text/xml">&lt;FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"&gt;
+    &lt;fragment class="com.example.android.apis.app.FragmentLayout$TitlesFragment"
+            android:id="@+id/titles"
+            android:layout_width="match_parent" android:layout_height="match_parent" /&gt;
+&lt;/FrameLayout&gt;</code>
       <para>The layout is installed in the activity in the normal way:</para>
+      <code lang="text/java">@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+
+    setContentView(R.layout.fragment_layout);
+}</code>
       <para>The titles fragment, showing a list of titles, is fairly simple, relying on ListFragment for most of its work. Note the implementation of clicking an item: depending on the current activity's layout, it can either create and display a new fragment to show the details in-place (more about this later), or start a new activity to show the details.</para>
+      <code lang="text/java">public static class TitlesFragment extends ListFragment {
+    boolean mDualPane;
+    int mCurCheckPosition = 0;
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        // Populate list with our static array of titles.
+        setListAdapter(new ArrayAdapter&lt;String&gt;(getActivity(),
+                android.R.layout.simple_list_item_activated_1, Shakespeare.TITLES));
+
+        // Check to see if we have a frame in which to embed the details
+        // fragment directly in the containing UI.
+        View detailsFrame = getActivity().findViewById(R.id.details);
+        mDualPane = detailsFrame != null &amp;&amp; detailsFrame.getVisibility() == View.VISIBLE;
+
+        if (savedInstanceState != null) {
+            // Restore last state for checked position.
+            mCurCheckPosition = savedInstanceState.getInt("curChoice", 0);
+        }
+
+        if (mDualPane) {
+            // In dual-pane mode, the list view highlights the selected item.
+            getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+            // Make sure our UI is in the correct state.
+            showDetails(mCurCheckPosition);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("curChoice", mCurCheckPosition);
+    }
+
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        showDetails(position);
+    }
+
+    /**
+     * Helper function to show the details of a selected item, either by
+     * displaying a fragment in-place in the current UI, or starting a
+     * whole new activity in which it is displayed.
+     */
+    void showDetails(int index) {
+        mCurCheckPosition = index;
+
+        if (mDualPane) {
+            // We can display everything in-place with fragments, so update
+            // the list to highlight the selected item and show the data.
+            getListView().setItemChecked(index, true);
+
+            // Check what fragment is currently shown, replace if needed.
+            DetailsFragment details = (DetailsFragment)
+                    getFragmentManager().findFragmentById(R.id.details);
+            if (details == null || details.getShownIndex() != index) {
+                // Make new fragment to show this selection.
+                details = DetailsFragment.newInstance(index);
+
+                // Execute a transaction, replacing any existing fragment
+                // with this one inside the frame.
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                if (index == 0) {
+                    ft.replace(R.id.details, details);
+                } else {
+                    ft.replace(R.id.a_item, details);
+                }
+                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                ft.commit();
+            }
+
+        } else {
+            // Otherwise we need to launch a new activity to display
+            // the dialog fragment with selected text.
+            Intent intent = new Intent();
+            intent.setClass(getActivity(), DetailsActivity.class);
+            intent.putExtra("index", index);
+            startActivity(intent);
+        }
+    }
+}</code>
       <para>The details fragment showing the contents of a selected item just displays a string of text based on an index of a string array built in to the app:</para>
+      <code lang="text/java">public static class DetailsFragment extends Fragment {
+    /**
+     * Create a new instance of DetailsFragment, initialized to
+     * show the text at 'index'.
+     */
+    public static DetailsFragment newInstance(int index) {
+        DetailsFragment f = new DetailsFragment();
+
+        // Supply index input as an argument.
+        Bundle args = new Bundle();
+        args.putInt("index", index);
+        f.setArguments(args);
+
+        return f;
+    }
+
+    public int getShownIndex() {
+        return getArguments().getInt("index", 0);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        if (container == null) {
+            // We have different layouts, and in one of them this
+            // fragment's containing frame doesn't exist.  The fragment
+            // may still be created from its saved state, but there is
+            // no reason to try to create its view hierarchy because it
+            // won't be displayed.  Note this is not needed -- we could
+            // just run the code below, where we would create and return
+            // the view hierarchy; it would just never be used.
+            return null;
+        }
+
+        ScrollView scroller = new ScrollView(getActivity());
+        TextView text = new TextView(getActivity());
+        int padding = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                4, getActivity().getResources().getDisplayMetrics());
+        text.setPadding(padding, padding, padding, padding);
+        scroller.addView(text);
+        text.setText(Shakespeare.DIALOGUE[getShownIndex()]);
+        return scroller;
+    }
+}</code>
       <para>In this case when the user clicks on a title, there is no details container in the current activity, so the titles fragment's click code will launch a new activity to display the details fragment:</para>
+      <code lang="text/java">public static class DetailsActivity extends Activity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (getResources().getConfiguration().orientation
+                == Configuration.ORIENTATION_LANDSCAPE) {
+            // If the screen is now in landscape mode, we can show the
+            // dialog in-line with the list so we don't need this activity.
+            finish();
+            return;
+        }
+
+        if (savedInstanceState == null) {
+            // During initial setup, plug in the details fragment.
+            DetailsFragment details = new DetailsFragment();
+            details.setArguments(getIntent().getExtras());
+            getFragmentManager().beginTransaction().add(android.R.id.content, details).commit();
+        }
+    }
+}</code>
       <para>However the screen may be large enough to show both the list of titles and details about the currently selected title. To use such a layout on a landscape screen, this alternative layout can be placed under layout-land:</para>
+      <code lang="text/xml">&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent" android:layout_height="match_parent"&gt;
+
+    &lt;fragment class="com.example.android.apis.app.FragmentLayout$TitlesFragment"
+            android:id="@+id/titles" android:layout_weight="1"
+            android:layout_width="0px" android:layout_height="match_parent" /&gt;
+
+    &lt;FrameLayout android:id="@+id/details" android:layout_weight="1"
+            android:layout_width="0px" android:layout_height="match_parent"
+            android:background="?android:attr/detailsElementBackground" /&gt;
+
+&lt;/LinearLayout&gt;</code>
       <para>Note how the prior code will adjust to this alternative UI flow: the titles fragment will now embed the details fragment inside of this activity, and the details activity will finish itself if it is running in a configuration where the details can be shown in-place. When a configuration change causes the activity hosting these fragments to restart, its new instance may use a different layout that doesn't include the same fragments as the previous layout. In this case all of the previous fragments will still be instantiated and running in the new instance. However, any that are no longer associated with a &lt;fragment&gt; tag in the view hierarchy will not have their content view created and will return false from isInLayout(). (The code here also shows how you can determine if a fragment placed in a container is no longer running in a layout with that container and avoid creating its view hierarchy in that case.) The attributes of the &lt;fragment&gt; tag are used to control the LayoutParams provided when attaching the fragment's view to the parent container. They can also be parsed by the fragment in onInflate(Activity, AttributeSet, Bundle) as parameters. The fragment being instantiated must have some kind of unique identifier so that it can be re-associated with a previous instance if the parent activity needs to be destroyed and recreated. This can be provided these ways: If nothing is explicitly supplied, the view ID of the container will be used. android:tag can be used in &lt;fragment&gt; to provide a specific tag name for the fragment. android:id can be used in &lt;fragment&gt; to provide a specific identifier for the fragment. Back Stack The transaction in which fragments are modified can be placed on an internal back-stack of the owning activity. When the user presses back in the activity, any transactions on the back stack are popped off before the activity itself is finished. For example, consider this simple fragment that is instantiated with an integer argument and displays that in a TextView in its UI:</para>
-      <para>A function that creates a new instance of the fragment, replacing whatever current fragment instance is being shown and pushing that change on to the back stack could be written as: After each call to this function, a new entry is on the stack, and pressing back will pop it to return the user to whatever previous state the activity UI was in. Fragments appearing or disappearing do not generate system events for accessibility, so set a title on your fragments with View.setAccessibilityPaneTitle(CharSequence) to notify accessibility users of these UI transitions.</para>
+      <code lang="text/java">public static class CountingFragment extends Fragment {
+    int mNum;
+
+    /**
+     * Create a new instance of CountingFragment, providing "num"
+     * as an argument.
+     */
+    static CountingFragment newInstance(int num) {
+        CountingFragment f = new CountingFragment();
+
+        // Supply num input as an argument.
+        Bundle args = new Bundle();
+        args.putInt("num", num);
+        f.setArguments(args);
+
+        return f;
+    }
+
+    /**
+     * When creating, retrieve this instance's number from its arguments.
+     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mNum = getArguments() != null ? getArguments().getInt("num") : 1;
+    }
+
+    /**
+     * The Fragment's UI is just a simple text view showing its
+     * instance number.
+     */
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.hello_world, container, false);
+        View tv = v.findViewById(R.id.text);
+        ((TextView)tv).setText("Fragment #" + mNum);
+        tv.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.gallery_thumb));
+        return v;
+    }
+}</code>
+      <para>A function that creates a new instance of the fragment, replacing whatever current fragment instance is being shown and pushing that change on to the back stack could be written as:</para>
+      <code lang="text/java">void addFragmentToStack() {
+    mStackLevel++;
+
+    // Instantiate a new fragment.
+    Fragment newFragment = CountingFragment.newInstance(mStackLevel);
+
+    // Add the fragment to the activity, pushing this transaction
+    // on to the back stack.
+    FragmentTransaction ft = getFragmentManager().beginTransaction();
+    ft.replace(R.id.simple_fragment, newFragment);
+    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+    ft.addToBackStack(null);
+    ft.commit();
+}</code>
+      <para>After each call to this function, a new entry is on the stack, and pressing back will pop it to return the user to whatever previous state the activity UI was in. Fragments appearing or disappearing do not generate system events for accessibility, so set a title on your fragments with View.setAccessibilityPaneTitle(CharSequence) to notify accessibility users of these UI transitions.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/Fragment" title="Reference documentation">Android reference for <code>android.app.Fragment</code>.</a>
@@ -205,6 +436,7 @@
         <remarks>
           <para>Returns whether the exit transition and enter transition overlap or not. When true, the enter transition will start as soon as possible. When false, the enter transition will wait until the exit transition completes before starting.</para>
           <para>Related XML Attributes:</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/Fragment#attr_android:fragmentAllowEnterTransitionOverlap">android:fragmentAllowEnterTransitionOverlap</a></format></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Fragment#getAllowEnterTransitionOverlap()" title="Reference documentation">Android reference for <code>android.app.Fragment.getAllowEnterTransitionOverlap</code>.</a>
@@ -250,6 +482,7 @@
         <remarks>
           <para>Returns whether the return transition and reenter transition overlap or not. When true, the reenter transition will start as soon as possible. When false, the reenter transition will wait until the return transition completes before starting.</para>
           <para>Related XML Attributes:</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/Fragment#attr_android:fragmentAllowReturnTransitionOverlap">android:fragmentAllowReturnTransitionOverlap</a></format></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Fragment#getAllowReturnTransitionOverlap()" title="Reference documentation">Android reference for <code>android.app.Fragment.getAllowReturnTransitionOverlap</code>.</a>
@@ -290,7 +523,7 @@
         <summary>Return the arguments supplied to <c>#setArguments</c>, if any. -or- Supply the construction arguments for this fragment.</summary>
         <value>The bundle stored for this fragment's construction arguments.</value>
         <remarks>
-          <para>Return the arguments supplied to setArguments(Bundle), if any.</para>
+          <para>Returns the construction arguments supplied to this fragment, if any. The arguments are retained across fragment destruction and creation. When the fragment has been added to a fragment manager, the arguments cannot be changed after its state has been saved. Before Android 8.0, they could only be set before the fragment was added to a fragment manager.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Fragment#getArguments()" title="Reference documentation">Android reference for <code>android.app.Fragment.getArguments</code>.</a>
@@ -468,8 +701,9 @@
         <summary>Returns the Transition that will be used to move Views into the initial scene. -or- Sets the Transition that will be used to move Views into the initial scene.</summary>
         <value>the Transition to use to move Views into the initial Scene.</value>
         <remarks>
-          <para>Returns the Transition that will be used to move Views into the initial scene. The entering Views will be those that are regular Views or ViewGroups that have ViewGroup.isTransitionGroup return true. Typical Transitions will extend Visibility as entering is governed by changing visibility from View.INVISIBLE to View.VISIBLE.</para>
+          <para>Returns the Transition that will be used to move Views into the initial scene. The entering Views will be those that are regular Views or ViewGroups that have ViewGroup.isTransitionGroup return true. Typical Transitions will extend Visibility as entering is governed by changing visibility from View.INVISIBLE to View.VISIBLE. If the transition is null, entering views remain unaffected.</para>
           <para>Related XML Attributes:</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/Fragment#attr_android:fragmentEnterTransition">android:fragmentEnterTransition</a></format></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Fragment#getEnterTransition()" title="Reference documentation">Android reference for <code>android.app.Fragment.getEnterTransition</code>.</a>
@@ -508,7 +742,7 @@
       <Docs>
         <param name="o">Object: This value may be null.</param>
         <summary>Subclasses can not override equals().</summary>
-        <returns>true if this object is the same as the obj argument; false otherwise.</returns>
+        <returns><see langword="true" /> if this object is the same as <paramref name="o" />; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Subclasses can not override equals().</para>
           <para>
@@ -559,6 +793,7 @@
         <remarks>
           <para>Returns the Transition that will be used to move Views out of the scene when the fragment is removed, hidden, or detached when not popping the back stack. The exiting Views will be those that are regular Views or ViewGroups that have ViewGroup.isTransitionGroup return true. Typical Transitions will extend Visibility as exiting is governed by changing visibility from View.VISIBLE to View.INVISIBLE. If transition is null, the views will remain unaffected.</para>
           <para>Related XML Attributes:</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/Fragment#attr_android:fragmentExitTransition">android:fragmentExitTransition</a></format></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Fragment#getExitTransition()" title="Reference documentation">Android reference for <code>android.app.Fragment.getExitTransition</code>.</a>
@@ -767,8 +1002,7 @@
       </Parameters>
       <Docs>
         <param name="resId">Resource id for the CharSequence text</param>
-        <summary>Return a localized, styled CharSequence from the application's package's
-            default string table.</summary>
+        <summary>Returns localized text from the application's default string table as a managed string.</summary>
         <returns>The resource text converted to a managed string.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1436,7 +1670,7 @@
         <summary>Return the LoaderManager for this fragment, creating it if needed.</summary>
         <value>The loader manager associated with this fragment, created through its host when needed.</value>
         <remarks>
-          <para>This method is deprecated. Use Fragment.getLoaderManager()</para>
+          <para>This method is deprecated. Use androidx.fragment.app.Fragment.getLoaderManager() instead.</para>
           <para>Return the LoaderManager for this fragment, creating it if needed.</para>
           <para>
             <format type="text/html">
@@ -2378,9 +2612,83 @@
         <remarks>
           <para>Called when a fragment is being created as part of a view layout inflation, typically from setting the content view of an activity. This may be called immediately after the fragment is created from a tag in a layout file. Note this is before the fragment's onAttach(Activity) has been called; all you should do here is parse the attributes and save them away. This is called every time the fragment is inflated, even if it is being inflated into a new instance with saved state. It typically makes sense to re-parse the parameters each time, to allow them to change with different configurations.</para>
           <para>Here is a typical implementation of a fragment that can take parameters both through attributes supplied here as well from getArguments():</para>
+          <code lang="text/java">public static class MyFragment extends Fragment {
+    CharSequence mLabel;
+
+    /**
+     * Create a new instance of MyFragment that will be initialized
+     * with the given arguments.
+     */
+    static MyFragment newInstance(CharSequence label) {
+        MyFragment f = new MyFragment();
+        Bundle b = new Bundle();
+        b.putCharSequence("label", label);
+        f.setArguments(b);
+        return f;
+    }
+
+    /**
+     * Parse attributes during inflation from a view hierarchy into the
+     * arguments we handle.
+     */
+    @Override public void onInflate(Activity activity, AttributeSet attrs,
+            Bundle savedInstanceState) {
+        super.onInflate(activity, attrs, savedInstanceState);
+
+        TypedArray a = activity.obtainStyledAttributes(attrs,
+                R.styleable.FragmentArguments);
+        mLabel = a.getText(R.styleable.FragmentArguments_android_label);
+        a.recycle();
+    }
+
+    /**
+     * During creation, if arguments have been supplied to the fragment
+     * then parse those out.
+     */
+    @Override public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        Bundle args = getArguments();
+        if (args != null) {
+            mLabel = args.getCharSequence("label", mLabel);
+        }
+    }
+
+    /**
+     * Create the view for this fragment, using the arguments given to it.
+     */
+    @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.hello_world, container, false);
+        View tv = v.findViewById(R.id.text);
+        ((TextView)tv).setText(mLabel != null ? mLabel : "(no label)");
+        tv.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.gallery_thumb));
+        return v;
+    }
+}</code>
           <para>Note that parsing the XML attributes uses a "styleable" resource. The declaration for the styleable used here is:</para>
+          <code lang="text/xml">&lt;declare-styleable name="FragmentArguments"&gt;
+    &lt;attr name="android:label" /&gt;
+&lt;/declare-styleable&gt;</code>
           <para>The fragment can then be declared within its activity's content layout through a tag like this:</para>
+          <code lang="text/xml">&lt;fragment class="com.example.android.apis.app.FragmentArguments$MyFragment"
+        android:id="@+id/embedded"
+        android:layout_width="0px" android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:label="@string/fragment_arguments_embedded" /&gt;</code>
           <para>This fragment can also be created dynamically from arguments given at runtime in the arguments Bundle; here is an example of doing so at creation of the containing activity:</para>
+          <code lang="text/java">@Override protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.fragment_arguments);
+
+    if (savedInstanceState == null) {
+        // First-time init; create fragment to embed in activity.
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        Fragment newFragment = MyFragment.newInstance("From Arguments");
+        ft.add(R.id.created, newFragment);
+        ft.commit();
+    }
+}</code>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Fragment#onInflate(android.content.Context,%20android.util.AttributeSet,%20android.os.Bundle)" title="Reference documentation">Android reference for <code>android.app.Fragment.onInflate</code>.</a>
@@ -3039,7 +3347,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="level">int: The context of the trim, giving a hint of the amount of trimming the application may like to perform. Value is one of the following: <see cref="F:Android.Content.TrimMemory.Complete" /> <see cref="F:Android.Content.TrimMemory.Moderate" /> <see cref="F:Android.Content.TrimMemory.Background" /> <see cref="F:Android.Content.TrimMemory.UiHidden" /> <see cref="F:Android.Content.TrimMemory.RunningCritical" /> <see cref="F:Android.Content.TrimMemory.RunningLow" /> <see cref="F:Android.Content.TrimMemory.RunningModerate" /></param>
+        <param name="level">The trim level, which indicates how much memory the application may need to release. Named levels include <see cref="F:Android.Content.TrimMemory.Complete" />, <see cref="F:Android.Content.TrimMemory.Moderate" />, <see cref="F:Android.Content.TrimMemory.Background" />, <see cref="F:Android.Content.TrimMemory.UiHidden" />, <see cref="F:Android.Content.TrimMemory.RunningCritical" />, <see cref="F:Android.Content.TrimMemory.RunningLow" />, and <see cref="F:Android.Content.TrimMemory.RunningModerate" />.</param>
         <summary>Called when the operating system has determined that it is a good time for a process to trim unneeded memory from its process.</summary>
         <remarks>
           <para>Called when the operating system has determined that it is a good time for a process to trim unneeded memory from its process. You should never compare to exact values of the level, since new intermediate values may be added -- you will typically want to compare if the value is greater or equal to a level you are interested in. To retrieve the processes current trim level at any point, you can use ActivityManager.getMyMemoryState(RunningAppProcessInfo). If you override this method you must call through to the superclass implementation.</para>
@@ -3259,6 +3567,7 @@
         <remarks>
           <para>Returns the Transition that will be used to move Views in to the scene when returning due to popping a back stack. The entering Views will be those that are regular Views or ViewGroups that have ViewGroup.isTransitionGroup return true. Typical Transitions will extend Visibility as exiting is governed by changing visibility from View.VISIBLE to View.INVISIBLE. If transition is null, the views will remain unaffected. If nothing is set, the default will be to use the same transition as setExitTransition(android.transition.Transition).</para>
           <para>Related XML Attributes:</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/Fragment#attr_android:fragmentReenterTransition">android:fragmentReenterTransition</a></format></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Fragment#getReenterTransition()" title="Reference documentation">Android reference for <code>android.app.Fragment.getReenterTransition</code>.</a>
@@ -3394,10 +3703,10 @@
         <ReturnType>Android.Content.Res.Resources</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Return <c>getActivity().getResources()</c>.</summary>
+        <summary>Gets the resources associated with the fragment's host.</summary>
         <value>The resources obtained from the fragment host's context.</value>
         <remarks>
-          <para>Return getActivity().getResources().</para>
+          <para>Returns the resources associated with the fragment's host. Throws an <c>IllegalStateException</c> if the fragment is not attached.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Fragment#getResources()" title="Reference documentation">Android reference for <code>android.app.Fragment.getResources</code>.</a>
@@ -3440,6 +3749,7 @@
             re-creation (such as from a configuration change).</summary>
         <value><see langword="true" /> when the fragment instance is marked for retention across activity recreation; otherwise, <see langword="false" />.</value>
         <remarks>
+          <para>Retention is documented for fragments that are not in the back stack. When the activity is recreated and the instance is retained, <c>OnDestroy</c> and <c>OnCreate</c> are not called, but <c>OnDetach</c>, <c>OnAttach</c>, and <c>OnActivityCreated</c> are still called.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Fragment#getRetainInstance()" title="Reference documentation">Android reference for <code>android.app.Fragment.getRetainInstance</code>.</a>
@@ -3486,8 +3796,9 @@
         <value>the Transition to use to move Views out of the Scene when the Fragment
                     is preparing to close.</value>
         <remarks>
-          <para>Returns the Transition that will be used to move Views out of the scene when the Fragment is preparing to be removed, hidden, or detached because of popping the back stack. The exiting Views will be those that are regular Views or ViewGroups that have ViewGroup.isTransitionGroup return true. Typical Transitions will extend Visibility as entering is governed by changing visibility from View.VISIBLE to View.INVISIBLE. If transition is null, entering Views will remain unaffected.</para>
+          <para>Returns the Transition that will be used to move Views out of the scene when the Fragment is preparing to be removed, hidden, or detached because of popping the back stack. The exiting Views will be those that are regular Views or ViewGroups that have ViewGroup.isTransitionGroup return true. Typical Transitions will extend Visibility as entering is governed by changing visibility from View.VISIBLE to View.INVISIBLE. If transition is null, entering Views will remain unaffected. If no return transition is set, the enter transition is used by default.</para>
           <para>Related XML Attributes:</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/R.attr#fragmentReturnTransition">android:fragmentReturnTransition</a></format></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Fragment#getReturnTransition()" title="Reference documentation">Android reference for <code>android.app.Fragment.getReturnTransition</code>.</a>
@@ -3789,6 +4100,7 @@
         <remarks>
           <para>Returns the Transition that will be used for shared elements transferred into the content Scene. Typical Transitions will affect size and location, such as ChangeBounds. A null value will cause transferred shared elements to blink to the final position.</para>
           <para>Related XML Attributes:</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/Fragment#attr_android:fragmentSharedElementEnterTransition">android:fragmentSharedElementEnterTransition</a></format></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Fragment#getSharedElementEnterTransition()" title="Reference documentation">Android reference for <code>android.app.Fragment.getSharedElementEnterTransition</code>.</a>
@@ -3836,6 +4148,7 @@
         <remarks>
           <para>Return the Transition that will be used for shared elements transferred back during a pop of the back stack. This Transition acts in the leaving Fragment. Typical Transitions will affect size and location, such as ChangeBounds. A null value will cause transferred shared elements to blink to the final position. If no value is set, the default will be to use the same value as setSharedElementEnterTransition(android.transition.Transition).</para>
           <para>Related XML Attributes:</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/Fragment#attr_android:fragmentSharedElementReturnTransition">android:fragmentSharedElementReturnTransition</a></format></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Fragment#getSharedElementReturnTransition()" title="Reference documentation">Android reference for <code>android.app.Fragment.getSharedElementReturnTransition</code>.</a>
@@ -4447,6 +4760,8 @@
             to the user.</summary>
         <value>The current value of the user-visible hint on this fragment.</value>
         <remarks>
+          <para>The hint defaults to <see langword="true" /> and is retained when the fragment's state is saved and restored. Set it to <see langword="false" /> when the fragment's UI is not directly visible. The system may use the hint to prioritize lifecycle updates or loader ordering.</para>
+          <para>This property can be set outside the fragment lifecycle, so its setter has no ordering guarantees relative to lifecycle methods. Before Android 7.0, setting the hint could start a fragment before its transaction was committed; this behavior is preserved for apps targeting API level 23 or lower.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Fragment#getUserVisibleHint()" title="Reference documentation">Android reference for <code>android.app.Fragment.getUserVisibleHint</code>.</a>

@@ -324,11 +324,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="flags">int: any combination of the NETWORK_* bit flags.</param>
+        <param name="flags">Any combination of the <see cref="T:Android.App.DownloadNetwork" /> flags.</param>
         <summary>Restrict the types of networks over which this download may proceed.</summary>
         <returns>this object</returns>
         <remarks>
-          <para>Restrict the types of networks over which this download may proceed. By default, all network types are allowed. Consider using setAllowedOverMetered(boolean) instead, since it's more flexible. As of Build.VERSION_CODES.N, setting only the NETWORK_WIFI flag here is equivalent to calling setAllowedOverMetered(boolean) with false.</para>
+          <para>Restrict the types of networks over which this download may proceed. By default, all network types are allowed. Consider using <see cref="M:Android.App.DownloadManager.Request.SetAllowedOverMetered(System.Boolean)" /> instead, since it's more flexible. As of Android 7.0, setting only the <see cref="F:Android.App.DownloadNetwork.Wifi" /> flag here is equivalent to calling <see cref="M:Android.App.DownloadManager.Request.SetAllowedOverMetered(System.Boolean)" /> with false.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/DownloadManager.Request#setAllowedNetworkTypes(int)" title="Reference documentation">Android reference for <code>android.app.DownloadManager.Request.setAllowedNetworkTypes</code>.</a>
@@ -516,7 +516,7 @@
         <summary>Set the local destination for the downloaded file to a path within the application's external files directory (as returned by Context.getExternalFilesDir(String).</summary>
         <returns>this object</returns>
         <remarks>
-          <para>Set the local destination for the downloaded file to a path within the application's external files directory (as returned by Context.getExternalFilesDir(String). The downloaded file is not scanned by MediaScanner. But it can be made scannable by calling allowScanningByMediaScanner().</para>
+          <para>Set the local destination for the downloaded file to a path within the application's external files directory (as returned by Context.getExternalFilesDir(String). From Android 3.0 through Android 9, allowScanningByMediaScanner() requests media scanning. Starting in Android 10, allowScanningByMediaScanner() is ignored and files in app-owned directories are not scanned.</para>
           <para>Throws: IllegalStateException If the external storage directory cannot be found or created.</para>
           <para>
             <format type="text/html">
@@ -557,7 +557,7 @@
         <summary>Set the local destination for the downloaded file to a path within the public external storage directory (as returned by Environment.getExternalStoragePublicDirectory(String)).</summary>
         <returns>this object</returns>
         <remarks>
-          <para>Set the local destination for the downloaded file to a path within the public external storage directory (as returned by Environment.getExternalStoragePublicDirectory(String)). The downloaded file is not scanned by MediaScanner. But it can be made scannable by calling allowScanningByMediaScanner(). For applications targeting Build.VERSION_CODES.Q or above, WRITE_EXTERNAL_STORAGE permission is not needed and the dirType must be one of the known public directories like Environment.DIRECTORY_DOWNLOADS, Environment.DIRECTORY_PICTURES, Environment.DIRECTORY_MOVIES, etc.</para>
+          <para>Set the local destination for the downloaded file to a path within the public external storage directory (as returned by Environment.getExternalStoragePublicDirectory(String)). From Android 3.0 through Android 9, allowScanningByMediaScanner() requests media scanning. Starting in Android 10, allowScanningByMediaScanner() is ignored; files in app-owned directories are not scanned, and other files are eligible for scanning. For applications targeting Build.VERSION_CODES.Q or above, WRITE_EXTERNAL_STORAGE permission is not needed and the dirType must be one of the known public directories like Environment.DIRECTORY_DOWNLOADS, Environment.DIRECTORY_PICTURES, Environment.DIRECTORY_MOVIES, etc.</para>
           <para>Throws: IllegalStateException If the external storage directory cannot be found or created.</para>
           <para>
             <format type="text/html">
@@ -596,7 +596,7 @@
         <summary>Set the local destination for the downloaded file.</summary>
         <returns>this object</returns>
         <remarks>
-          <para>Set the local destination for the downloaded file. Must be a file URI to a path on external storage, and the calling application must have the WRITE_EXTERNAL_STORAGE permission. The downloaded file is not scanned by MediaScanner. But it can be made scannable by calling allowScanningByMediaScanner(). By default, downloads are saved to a generated filename in the shared download cache and may be deleted by the system at any time to reclaim space. For applications targeting Build.VERSION_CODES.Q or above, WRITE EXTERNAL_STORAGE permission is not needed and the uri must refer to a path within the directories owned by the application (e.g. Context.getExternalFilesDir(String)) or a path within the top-level Downloads directory (as returned by Environment.getExternalStoragePublicDirectory(String) with Environment.DIRECTORY_DOWNLOADS). All non-visible downloads that are not modified in the last 7 days will be deleted during idle runs.</para>
+          <para>Set the local destination for the downloaded file. The destination must be a file URI for a path on external storage. The calling application may need the WRITE_EXTERNAL_STORAGE permission, depending on its target version and destination. From Android 3.0 through Android 9, allowScanningByMediaScanner() requests media scanning. Starting in Android 10, allowScanningByMediaScanner() is ignored; files in app-owned directories are not scanned, and other files are eligible for scanning. By default, downloads are saved to a generated filename in the shared download cache and may be deleted by the system at any time to reclaim space. For applications targeting Build.VERSION_CODES.Q or above, WRITE_EXTERNAL_STORAGE permission is not needed and the URI must refer to a path within the directories owned by the application (e.g. Context.getExternalFilesDir(String)) or a path within the top-level Downloads directory (as returned by Environment.getExternalStoragePublicDirectory(String) with Environment.DIRECTORY_DOWNLOADS). All non-visible downloads that are not modified in the last 7 days will be deleted during idle runs.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/DownloadManager.Request#setDestinationUri(android.net.Uri)" title="Reference documentation">Android reference for <code>android.app.DownloadManager.Request.setDestinationUri</code>.</a>
@@ -675,11 +675,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="visibility">int: the visibility setting value</param>
+        <param name="visibility">The notification visibility setting.</param>
         <summary>Control whether a system notification is posted by the download manager while this download is running or when it is completed.</summary>
         <returns>this object</returns>
         <remarks>
-          <para>Control whether a system notification is posted by the download manager while this download is running or when it is completed. If enabled, the download manager posts notifications about downloads through the system NotificationManager. By default, a notification is shown only when the download is in progress. It can take the following values: VISIBILITY_HIDDEN, VISIBILITY_VISIBLE, VISIBILITY_VISIBLE_NOTIFY_COMPLETED. If set to VISIBILITY_HIDDEN, this requires the permission android.permission.DOWNLOAD_WITHOUT_NOTIFICATION.</para>
+          <para>Control whether a system notification is posted by the download manager while this download is running or when it is completed. If enabled, the download manager posts notifications about downloads through the system NotificationManager. By default, a notification is shown only when the download is in progress. This setting can be <see cref="F:Android.App.DownloadVisibility.Hidden" />, <see cref="F:Android.App.DownloadVisibility.Visible" />, or <see cref="F:Android.App.DownloadVisibility.VisibleNotifyCompleted" />. If set to <see cref="F:Android.App.DownloadVisibility.Hidden" />, this requires the permission android.permission.DOWNLOAD_WITHOUT_NOTIFICATION.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/DownloadManager.Request#setNotificationVisibility(int)" title="Reference documentation">Android reference for <code>android.app.DownloadManager.Request.setNotificationVisibility</code>.</a>
@@ -717,11 +717,11 @@
         <Parameter Name="requiresCharging" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="requiresCharging">boolean: Whether or not the device is plugged in.</param>
-        <summary>Specify that to run this download, the device needs to be plugged in.</summary>
+        <param name="requiresCharging">Whether the device must be plugged in for the download to run.</param>
+        <summary>Sets whether the device must be plugged in for the download to run.</summary>
         <returns>This Android.App.DownloadManager.Request instance, allowing calls to be chained.</returns>
         <remarks>
-          <para>Specify that to run this download, the device needs to be plugged in. This defaults to false.</para>
+          <para>Sets whether the device must be plugged in for the download to run. This defaults to false.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/DownloadManager.Request#setRequiresCharging(boolean)" title="Reference documentation">Android reference for <code>android.app.DownloadManager.Request.setRequiresCharging</code>.</a>
@@ -759,10 +759,10 @@
       </Parameters>
       <Docs>
         <param name="requiresDeviceIdle">boolean: Whether or not the device need be within an idle maintenance window.</param>
-        <summary>Specify that to run, the download needs the device to be in idle mode.</summary>
+        <summary>Sets whether the device must be idle for the download to run.</summary>
         <returns>This Android.App.DownloadManager.Request instance, allowing calls to be chained.</returns>
         <remarks>
-          <para>Specify that to run, the download needs the device to be in idle mode. This defaults to false. Idle mode is a loose definition provided by the system, which means that the device is not in use, and has not been in use for some time.</para>
+          <para>Sets whether the device must be idle for the download to run. This defaults to false. Idle mode is a loose definition provided by the system, which means that the device is not in use, and has not been in use for some time.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/DownloadManager.Request#setRequiresDeviceIdle(boolean)" title="Reference documentation">Android reference for <code>android.app.DownloadManager.Request.setRequiresDeviceIdle</code>.</a>
@@ -912,11 +912,11 @@
       </Parameters>
       <Docs>
         <param name="isVisible">boolean: whether to display this download in the Downloads UI</param>
-        <summary>This method was deprecated in API level 29.</summary>
+        <summary>Sets whether this download should be displayed in the system's Downloads UI.</summary>
         <returns>this object</returns>
         <remarks>
-          <para>This method was deprecated in API level 29. Starting in Q, this value is ignored. Only files downloaded to public Downloads directory (as returned by Environment.getExternalStoragePublicDirectory(String) with Environment.DIRECTORY_DOWNLOADS) will be visible in system's Downloads UI and the rest will not be visible. All non-visible downloads that are not modified in the last 7 days will be deleted during idle runs. (e.g. Context.getExternalFilesDir(String)) will not be visible.</para>
-          <para>Set whether this download should be displayed in the system's Downloads UI. True by default.</para>
+          <para>This method was deprecated in API level 29. Starting in Q, this value is ignored. Only files downloaded to public Downloads directory (as returned by Environment.getExternalStoragePublicDirectory(String) with Environment.DIRECTORY_DOWNLOADS) will be visible in system's Downloads UI and the rest will not be visible. All non-visible downloads that are not modified in the last 7 days will be deleted during idle runs.</para>
+          <para>Before Android 10, this value determines whether the download is displayed in the system's Downloads UI. It is true by default.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/DownloadManager.Request#setVisibleInDownloadsUi(boolean)" title="Reference documentation">Android reference for <code>android.app.DownloadManager.Request.setVisibleInDownloadsUi</code>.</a>
