@@ -98,6 +98,7 @@
         <param name="request">The existing request whose network capabilities initialize this builder.</param>
         <summary>Creates a new Builder of NetworkRequest from an existing instance.</summary>
         <remarks>
+          <para>The builder shares its network capabilities with <paramref name="request" />. Changes to the builder can also change the supplied request.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/NetworkRequest.Builder#Builder(android.net.NetworkRequest)" title="Reference documentation">Java documentation for <code>android.net.NetworkRequest.Builder.Builder(android.net.NetworkRequest)</code>.</a>
@@ -295,7 +296,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Removes all required and forbidden capabilities from this request.</summary>
+        <summary>Clears the builder's network capabilities, including required and forbidden capabilities, transport types, and the network specifier.</summary>
         <returns>This builder.</returns>
         <remarks>
           <para>
@@ -505,7 +506,7 @@
         <summary>Sets the optional bearer-specific network specifier.</summary>
         <returns>This builder.</returns>
         <remarks>
-          <para>A network specifier requires exactly one transport. Setting a specifier without one transport, or changing transports after setting it, is invalid.</para>
+          <para>A non-null network specifier requires at least one transport. Valid transport combinations depend on the Android version. Changing transports after setting the specifier can make the configuration invalid.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
           <para>
             <format type="text/html">
@@ -547,11 +548,11 @@
         <Parameter Name="networkSpecifier" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="networkSpecifier">The specifier, or <see langword="null" /> to clear it.</param>
+        <param name="networkSpecifier">The specifier, or <see langword="null" /> or an empty string to clear it.</param>
         <summary>Sets the obsolete string network specifier.</summary>
         <returns>This builder.</returns>
         <remarks>
-          <para>This overload is obsolete. It requires exactly one transport; use the <see cref="M:Android.Net.NetworkRequest.Builder.SetNetworkSpecifier(Android.Net.NetworkSpecifier)" /> overload instead.</para>
+          <para>This overload is obsolete. A nonempty specifier requires at least one transport, and valid transport combinations depend on the Android version. Use the <see cref="M:Android.Net.NetworkRequest.Builder.SetNetworkSpecifier(Android.Net.NetworkSpecifier)" /> overload instead.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
           <para>
             <format type="text/html">

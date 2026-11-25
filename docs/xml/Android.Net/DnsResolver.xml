@@ -355,7 +355,7 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>Requests no retries. Some Android versions may retry encrypted DNS queries or try multiple encrypted DNS servers.</summary>
+        <summary>Requests no retries. Encrypted DNS queries may be retried or sent to multiple encrypted DNS servers.</summary>
         <remarks>
           <para>
             <format type="text/html">
@@ -595,8 +595,8 @@
       <Docs>
         <param name="network">Network specifying which network to query on. null for query on default network.</param>
         <param name="domain">domain name to query. This value cannot be null.</param>
-        <param name="flags">flags as a combination of the FLAGS_* constants. Value is one of the following: <see cref="F:Android.Net.DnsResolverFlag.Empty" />; <see cref="F:Android.Net.DnsResolverFlag.NoRetry" />; <see cref="F:Android.Net.DnsResolverFlag.NoCacheStore" />; <see cref="F:Android.Net.DnsResolverFlag.NoCacheLookup" /></param>
-        <param name="executor">The Executor that the callback should be executed on. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="flags">Flags as a combination of DnsResolverFlag values. Value is one of the following: <see cref="F:Android.Net.DnsResolverFlag.Empty" />; <see cref="F:Android.Net.DnsResolverFlag.NoRetry" />; <see cref="F:Android.Net.DnsResolverFlag.NoCacheStore" />; <see cref="F:Android.Net.DnsResolverFlag.NoCacheLookup" /></param>
+        <param name="executor">The Executor that the callback should be executed on. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use <see cref="P:Android.Content.Context.MainExecutor" />. Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
         <param name="cancellationSignal">used by the caller to signal if the query should be cancelled. May be null.</param>
         <param name="callback">a Callback which will be called to notify the caller of the result of dns query. This value cannot be null.</param>
         <summary>Asynchronously queries for IP addresses on the specified network and returns a list sorted according to RFC 6724.</summary>
@@ -663,11 +663,11 @@
       <Docs>
         <param name="network">Network specifying which network to query on. null for query on default network.</param>
         <param name="domain">domain name to query. This value cannot be null.</param>
-        <param name="flags">flags as a combination of the FLAGS_* constants. Value is one of the following: <see cref="F:Android.Net.DnsResolverFlag.Empty" />; <see cref="F:Android.Net.DnsResolverFlag.NoRetry" />; <see cref="F:Android.Net.DnsResolverFlag.NoCacheStore" />; <see cref="F:Android.Net.DnsResolverFlag.NoCacheLookup" /></param>
-        <param name="executor">The Executor that the callback should be executed on. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
-        <param name="httpsTimeoutMillis">the timeout in milliseconds to wait for the HTTPS query to complete after the A/AAAA queries have already completed. May be set to HTTPS_QUERY_WAIT_NONE to disable any additional wait, HTTPS_QUERY_WAIT_AUTO to use the default wait time, HTTPS_QUERY_WAIT_UNTIL_TIMEOUT to wait for the HTTPS query to complete, or a specific value in milliseconds.</param>
+        <param name="flags">Flags as a combination of DnsResolverFlag values. Value is one of the following: <see cref="F:Android.Net.DnsResolverFlag.Empty" />; <see cref="F:Android.Net.DnsResolverFlag.NoRetry" />; <see cref="F:Android.Net.DnsResolverFlag.NoCacheStore" />; <see cref="F:Android.Net.DnsResolverFlag.NoCacheLookup" /></param>
+        <param name="executor">The Executor that the callback should be executed on. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use <see cref="P:Android.Content.Context.MainExecutor" />. Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="httpsTimeoutMillis">the timeout in milliseconds to wait for the HTTPS query to complete after the A/AAAA queries have already completed. May be set to <see cref="F:Android.Net.DnsResolver.HttpsQueryWaitNone" /> to disable any additional wait, <see cref="F:Android.Net.DnsResolver.HttpsQueryWaitAuto" /> to use the default wait time, <see cref="F:Android.Net.DnsResolver.HttpsQueryWaitUntilTimeout" /> to wait for the HTTPS query to complete, or a specific value in milliseconds.</param>
         <param name="cancellationSignal">used by the caller to signal if all the queries should be cancelled. May be null.</param>
-        <param name="callback">a Callback which will be called to notify the caller of the results of the A/AAAA/HTTPS DNS queries. Will return a ERROR_PARSE if any of the DNS records cannot be parsed, and should be treated as a resolution failure. This value cannot be null.</param>
+        <param name="callback">a Callback which will be called to notify the caller of the results of the A/AAAA/HTTPS DNS queries. Will report <see cref="F:Android.Net.DnsResolver.ErrorParse" /> if any of the DNS records cannot be parsed, and should be treated as a resolution failure. This value cannot be null.</param>
         <summary>Send concurrent A/AAAA/HTTPS DNS queries with the specified name on a network.</summary>
         <remarks>
           <para>Send concurrent A/AAAA/HTTPS DNS queries with the specified name on a network. The answer to all queries will be provided asynchronously through the provided callback Callback, which provides a HttpsEndpoint.</para>
@@ -739,9 +739,9 @@
       <Docs>
         <param name="network">Network specifying which network to query on. null for query on default network.</param>
         <param name="domain">domain name to query. This value cannot be null.</param>
-        <param name="nsType">dns resource record (RR) type as one of the TYPE_* constants. Value is one of the following: <see cref="F:Android.Net.DnsResolverType.A" />; <see cref="F:Android.Net.DnsResolverType.Aaaa" />; <see cref="F:Android.Net.DnsResolverType.Https" /></param>
-        <param name="flags">flags as a combination of the FLAGS_* constants. Value is one of the following: <see cref="F:Android.Net.DnsResolverFlag.Empty" />; <see cref="F:Android.Net.DnsResolverFlag.NoRetry" />; <see cref="F:Android.Net.DnsResolverFlag.NoCacheStore" />; <see cref="F:Android.Net.DnsResolverFlag.NoCacheLookup" /></param>
-        <param name="executor">The Executor that the callback should be executed on. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="nsType">DNS resource record (RR) type as a DnsResolverType value. Value is one of the following: <see cref="F:Android.Net.DnsResolverType.A" />; <see cref="F:Android.Net.DnsResolverType.Aaaa" />; <see cref="F:Android.Net.DnsResolverType.Https" /></param>
+        <param name="flags">Flags as a combination of DnsResolverFlag values. Value is one of the following: <see cref="F:Android.Net.DnsResolverFlag.Empty" />; <see cref="F:Android.Net.DnsResolverFlag.NoRetry" />; <see cref="F:Android.Net.DnsResolverFlag.NoCacheStore" />; <see cref="F:Android.Net.DnsResolverFlag.NoCacheLookup" /></param>
+        <param name="executor">The Executor that the callback should be executed on. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use <see cref="P:Android.Content.Context.MainExecutor" />. Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
         <param name="cancellationSignal">used by the caller to signal if the query should be cancelled. May be null.</param>
         <param name="callback">a Callback which will be called to notify the caller of the result of dns query. This value cannot be null.</param>
         <summary>Send a DNS query with the specified name and query type, get back a set of InetAddresses with rfc6724 sorting asynchronously.</summary>
@@ -806,8 +806,8 @@
       <Docs>
         <param name="network">Network specifying which network to query on. null for query on default network.</param>
         <param name="query">blob message to query. This value cannot be null.</param>
-        <param name="flags">flags as a combination of the FLAGS_* constants. Value is one of the following: <see cref="F:Android.Net.DnsResolverFlag.Empty" />; <see cref="F:Android.Net.DnsResolverFlag.NoRetry" />; <see cref="F:Android.Net.DnsResolverFlag.NoCacheStore" />; <see cref="F:Android.Net.DnsResolverFlag.NoCacheLookup" /></param>
-        <param name="executor">The Executor that the callback should be executed on. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="flags">Flags as a combination of DnsResolverFlag values. Value is one of the following: <see cref="F:Android.Net.DnsResolverFlag.Empty" />; <see cref="F:Android.Net.DnsResolverFlag.NoRetry" />; <see cref="F:Android.Net.DnsResolverFlag.NoCacheStore" />; <see cref="F:Android.Net.DnsResolverFlag.NoCacheLookup" /></param>
+        <param name="executor">The Executor that the callback should be executed on. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use <see cref="P:Android.Content.Context.MainExecutor" />. Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
         <param name="cancellationSignal">used by the caller to signal if the query should be cancelled. May be null.</param>
         <param name="callback">a Callback which will be called to notify the caller of the result of dns query. This value cannot be null.</param>
         <summary>Send a raw DNS query.</summary>
@@ -889,9 +889,9 @@
         <param name="network">Network specifying which network to query on. null for query on default network.</param>
         <param name="domain">domain name to query. This value cannot be null.</param>
         <param name="nsClass">dns class as one of the CLASS_* constants. Value is one of the following: CLASS_IN</param>
-        <param name="nsType">dns resource record (RR) type as one of the TYPE_* constants. Value is one of the following: <see cref="F:Android.Net.DnsResolverType.A" />; <see cref="F:Android.Net.DnsResolverType.Aaaa" />; <see cref="F:Android.Net.DnsResolverType.Https" /></param>
-        <param name="flags">flags as a combination of the FLAGS_* constants. Value is one of the following: <see cref="F:Android.Net.DnsResolverFlag.Empty" />; <see cref="F:Android.Net.DnsResolverFlag.NoRetry" />; <see cref="F:Android.Net.DnsResolverFlag.NoCacheStore" />; <see cref="F:Android.Net.DnsResolverFlag.NoCacheLookup" /></param>
-        <param name="executor">The Executor that the callback should be executed on. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="nsType">DNS resource record (RR) type as a DnsResolverType value. Value is one of the following: <see cref="F:Android.Net.DnsResolverType.A" />; <see cref="F:Android.Net.DnsResolverType.Aaaa" />; <see cref="F:Android.Net.DnsResolverType.Https" /></param>
+        <param name="flags">Flags as a combination of DnsResolverFlag values. Value is one of the following: <see cref="F:Android.Net.DnsResolverFlag.Empty" />; <see cref="F:Android.Net.DnsResolverFlag.NoRetry" />; <see cref="F:Android.Net.DnsResolverFlag.NoCacheStore" />; <see cref="F:Android.Net.DnsResolverFlag.NoCacheLookup" /></param>
+        <param name="executor">The Executor that the callback should be executed on. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use <see cref="P:Android.Content.Context.MainExecutor" />. Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
         <param name="cancellationSignal">used by the caller to signal if the query should be cancelled. May be null.</param>
         <param name="callback">a Callback which will be called to notify the caller of the result of dns query. This value cannot be null.</param>
         <summary>Send a DNS query with the specified name, class and query type.</summary>
