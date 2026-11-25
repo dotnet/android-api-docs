@@ -70,9 +70,9 @@
         <Parameter Name="parent" Type="Java.Lang.ClassLoader" />
       </Parameters>
       <Docs>
-        <param name="dexPath">The list of JAR or APK files containing classes and resources, delimited by <see cref="P:Java.IO.File.PathSeparator" />.</param>
-        <param name="parent">The parent class loader; may be <see langword="null" /> for the boot class loader.</param>
-        <summary>Creates a <c>DelegateLastClassLoader</c> with no library search path and parent resource delegation enabled.</summary>
+        <param name="dexPath">Paths to DEX files, JAR, ZIP, or APK archives, or resource directories, separated by <see cref="P:Java.IO.File.PathSeparator" />. DEX files provide classes; archives can provide classes or resources.</param>
+        <param name="parent">The parent class loader; may be <see langword="null" />. If it is <see langword="null" /> and neither the boot class loader nor this loader finds a requested class, class loading can throw <see cref="T:Java.Lang.NullPointerException" />.</param>
+        <summary>Creates a <c>DelegateLastClassLoader</c> with no additional native-library search path and parent resource delegation enabled.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -108,9 +108,9 @@
         <Parameter Name="parent" Type="Java.Lang.ClassLoader" />
       </Parameters>
       <Docs>
-        <param name="dexPath">The list of JAR or APK files containing classes and resources, delimited by <see cref="P:Java.IO.File.PathSeparator" />.</param>
-        <param name="librarySearchPath">The list of directories containing native libraries, delimited by <see cref="P:Java.IO.File.PathSeparator" />; may be <see langword="null" />.</param>
-        <param name="parent">The parent class loader; may be <see langword="null" /> for the boot class loader.</param>
+        <param name="dexPath">Paths to DEX files, JAR, ZIP, or APK archives, or resource directories, separated by <see cref="P:Java.IO.File.PathSeparator" />. DEX files provide classes; archives can provide classes or resources.</param>
+        <param name="librarySearchPath">The list of directories containing native libraries, delimited by <see cref="P:Java.IO.File.PathSeparator" />; may be <see langword="null" />. Entries can also identify directories inside ZIP archives, such as <c>app.apk!/lib/arm64-v8a</c>. Libraries in the archive must be uncompressed.</param>
+        <param name="parent">The parent class loader; may be <see langword="null" />. If it is <see langword="null" /> and neither the boot class loader nor this loader finds a requested class, class loading can throw <see cref="T:Java.Lang.NullPointerException" />.</param>
         <summary>Creates a <c>DelegateLastClassLoader</c> with parent resource delegation enabled.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -155,13 +155,13 @@
         <Parameter Name="delegateResourceLoading" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="dexPath">The list of JAR or APK files containing classes and resources, delimited by <see cref="P:Java.IO.File.PathSeparator" />.</param>
-        <param name="librarySearchPath">The list of directories containing native libraries, delimited by <see cref="P:Java.IO.File.PathSeparator" />; may be <see langword="null" />.</param>
-        <param name="parent">The parent class loader; may be <see langword="null" /> for the boot class loader.</param>
+        <param name="dexPath">Paths to DEX files, JAR, ZIP, or APK archives, or resource directories, separated by <see cref="P:Java.IO.File.PathSeparator" />. DEX files provide classes; archives can provide classes or resources.</param>
+        <param name="librarySearchPath">The list of directories containing native libraries, delimited by <see cref="P:Java.IO.File.PathSeparator" />; may be <see langword="null" />. Entries can also identify directories inside ZIP archives, such as <c>app.apk!/lib/arm64-v8a</c>. Libraries in the archive must be uncompressed.</param>
+        <param name="parent">The parent class loader; may be <see langword="null" />. If it is <see langword="null" /> and neither the boot class loader nor this loader finds a requested class, class loading can throw <see cref="T:Java.Lang.NullPointerException" />.</param>
         <param name="delegateResourceLoading"><see langword="true" /> to delegate resource loading to the parent when the resource is not found; this does not affect class-loading delegation.</param>
         <summary>Creates a <c>DelegateLastClassLoader</c> for the specified DEX path and native-library search path.</summary>
         <remarks>
-          <para>The loader searches the boot class path first, then its DEX path, and finally its parent. This differs from standard parent-first class loaders.</para>
+          <para>The loader searches for classes on the boot class path first, then on its DEX path, and finally in its parent. This differs from standard parent-first class loaders. When <paramref name="delegateResourceLoading" /> is <see langword="false" />, resource loading does not delegate to the parent.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/dalvik/system/DelegateLastClassLoader#DelegateLastClassLoader(java.lang.String,%20java.lang.String,%20java.lang.ClassLoader,%20boolean)" title="Reference documentation">Android platform documentation</a>
