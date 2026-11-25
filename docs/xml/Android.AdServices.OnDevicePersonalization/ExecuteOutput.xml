@@ -82,12 +82,13 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>An integer value that an <c>IsolatedService</c> may optionally return to a calling app, by
-            setting this field to the value between 0 and <c>ExecuteInIsolatedServiceRequest.OutputSpec#getMaxIntValue()</c>.</summary>
+        <summary>An integer index into the best values supplied in the request's app params that an
+            <c>IsolatedService</c> may optionally return to a calling app.</summary>
         <value>Value is ExecuteInIsolatedServiceResponse.DEFAULT_BEST_VALUE or greater</value>
         <remarks>
-          <para>An integer value that an <c>IsolatedService</c> may optionally return to a calling app, by
-            setting this field to the value between 0 and <c>ExecuteInIsolatedServiceRequest.OutputSpec#getMaxIntValue()</c>. The platform may add noise to the
+          <para>An integer index into the best values supplied in the request's app params that an
+            <c>IsolatedService</c> may optionally return to a calling app. The valid range is 0
+            through <c>ExecuteInIsolatedServiceRequest.OutputSpec.GetMaxIntValue</c>. The platform may add noise to the
             value of this field before returning it to the caller of <c>OnDevicePersonalizationManager#executeInIsolatedService</c>. In order to get this field, the
             (calling app package, isolated service package) pair must be present in an allowlist that
             permits data to be returned and <c>ExecuteInIsolatedServiceRequest.OutputSpec#buildBestValueSpec</c> is set.</para>
@@ -187,15 +188,17 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>A byte array that an <c>IsolatedService</c> may optionally return to a calling app, by
-            setting this field to a non-null value.</summary>
-        <returns>The data to return to the calling app, or <see langword="null" /> if there is none. The platform returns it only if policy and the allowlist allow it.</returns>
+        <summary>An optional byte array that an <c>IsolatedService</c> can set as output data.</summary>
+        <returns>The output data, or <see langword="null" /> if none is set.</returns>
         <remarks>
-          <para>A byte array that an <c>IsolatedService</c> may optionally return to a calling app, by
-            setting this field to a non-null value. The contents of this array will be returned to the
-            caller of <c>OnDevicePersonalizationManager#execute</c> if returning data from isolated
-            processes is allowed by policy and the (calling app package, isolated service package) pair
-            is present in an allowlist that permits data to be returned.</para>
+          <para>An <c>IsolatedService</c> can set a byte array as output data. In Android 15,
+            <c>OnDevicePersonalizationManager.Execute</c> can return this data through
+            <c>ExecuteResult.GetOutputData</c> only if policy allows it and the calling-app and
+            service pair is allowlisted. In Android 16, <c>Execute</c> delivers an
+            <c>ExecuteResult</c> whose <c>GetOutputData</c> always returns
+            <see langword="null" />. In Android 17, <c>Execute</c> reports an
+            <c>IllegalStateException</c> to its receiver instead of delivering an
+            <c>ExecuteResult</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/adservices/ondevicepersonalization/ExecuteOutput#getOutputData()" title="Reference documentation">Java documentation for <code>android.adservices.ondevicepersonalization.ExecuteOutput.getOutputData()</code>.</a>
