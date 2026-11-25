@@ -94,7 +94,7 @@
         <summary>Return the value of the "class" attribute or null if there is not one.</summary>
         <value>The class attribute's value or null.</value>
         <remarks>
-          <para>Return the value of the "class" attribute or null if there is not one. Equivalent to getAttributeValue(null, "class").</para>
+          <para>Return the value of the "class" attribute or null if there is not one. Equivalent to <c>GetAttributeValue(null, "class")</c>.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/util/AttributeSet#getClassAttribute()" title="Reference documentation">Android reference for <code>android.util.AttributeSet.getClassAttribute</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -118,9 +118,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Close this parser.</summary>
+        <summary>Closes the XML reader supplied to the constructor.</summary>
         <remarks>
-          <para>Close this parser. Calls on the interface are no longer valid after this call.</para>
+          <para>If <c>SetInput</c> replaced the reader, this method still closes the original reader, not the replacement.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/res/XmlResourceParser#close()" title="Reference documentation">Android reference for <code>android.content.res.XmlResourceParser.close</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -354,7 +354,7 @@
       </Parameters>
       <Docs>
         <param name="index">Index of the desired attribute, 0...count-1.</param>
-        <param name="options">List of strings whose values we are checking against.</param>
+        <param name="options">Not used. This operation is not supported.</param>
         <param name="defaultValue">Fallback value specified by the interface; this implementation does not support the operation.</param>
         <summary>This operation is not supported by <see cref="T:Android.Runtime.XmlReaderResourceParser" />.</summary>
         <returns>Does not return.</returns>
@@ -398,7 +398,7 @@
       <Docs>
         <param name="namespaceURI">Not used. This operation is not supported.</param>
         <param name="attribute">Name of attribute to retrieve.</param>
-        <param name="options">List of strings whose values we are checking against.</param>
+        <param name="options">Not used. This operation is not supported.</param>
         <param name="defaultValue">Fallback value specified by the interface; this implementation does not support the operation.</param>
         <summary>This operation is not supported by <see cref="T:Android.Runtime.XmlReaderResourceParser" />.</summary>
         <returns>Does not return.</returns>
@@ -532,9 +532,10 @@
       <Docs>
         <param name="index">Index of the desired attribute, 0...count-1.</param>
         <param name="defaultValue">What to return if the attribute isn't found.</param>
-        <summary>Return the value of attribute at 'index' as an unsigned decimal integer.</summary>
-        <returns>The converted value, or defaultValue if the attribute does not exist.</returns>
-        <exception cref="T:System.FormatException">The attribute value is not a valid unsigned decimal integer.</exception>
+        <summary>Parses the attribute at <paramref name="index" /> as an unsigned 32-bit decimal integer and converts the result to a signed 32-bit integer.</summary>
+        <returns>The converted value, or <paramref name="defaultValue" /> if the attribute does not exist.</returns>
+        <exception cref="T:System.FormatException">The attribute value is not in the format of an unsigned decimal integer.</exception>
+        <exception cref="T:System.OverflowException">The attribute value is greater than the maximum unsigned 32-bit integer.</exception>
         <remarks>
           <para>This XML reader adapter supports unsigned decimal values only. Hexadecimal prefixes such as 0x and # are not supported.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/util/AttributeSet#getAttributeUnsignedIntValue(int,%20int)" title="Reference documentation">Android reference for <code>android.util.AttributeSet.getAttributeUnsignedIntValue</code>.</a></format></para>
@@ -567,9 +568,10 @@
         <param name="namespaceURI">The namespace URI used to look up the attribute.</param>
         <param name="attribute">The attribute to retrieve.</param>
         <param name="defaultValue">What to return if the attribute isn't found.</param>
-        <summary>Return the value of 'attribute' as an unsigned decimal integer.</summary>
-        <returns>The converted value, or defaultValue if the attribute does not exist.</returns>
-        <exception cref="T:System.FormatException">The attribute value is not a valid unsigned decimal integer.</exception>
+        <summary>Parses <paramref name="attribute" /> as an unsigned 32-bit decimal integer and converts the result to a signed 32-bit integer.</summary>
+        <returns>The converted value, or <paramref name="defaultValue" /> if the attribute does not exist.</returns>
+        <exception cref="T:System.FormatException">The attribute value is not in the format of an unsigned decimal integer.</exception>
+        <exception cref="T:System.OverflowException">The attribute value is greater than the maximum unsigned 32-bit integer.</exception>
         <remarks>
           <para>This XML reader adapter supports unsigned decimal values only. Hexadecimal prefixes such as 0x and # are not supported.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/util/AttributeSet#getAttributeUnsignedIntValue(java.lang.String,%20java.lang.String,%20int)" title="Reference documentation">Android reference for <code>android.util.AttributeSet.getAttributeUnsignedIntValue</code>.</a></format></para>
@@ -628,7 +630,7 @@
         <summary>Return the value of the "id" attribute or null if there is not one.</summary>
         <value>The id attribute's value or null.</value>
         <remarks>
-          <para>Return the value of the "id" attribute or null if there is not one. Equivalent to getAttributeValue(null, "id").</para>
+          <para>Return the value of the "id" attribute or null if there is not one. Equivalent to <c>GetAttributeValue(null, "id")</c>.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/util/AttributeSet#getIdAttribute()" title="Reference documentation">Android reference for <code>android.util.AttributeSet.getIdAttribute</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
