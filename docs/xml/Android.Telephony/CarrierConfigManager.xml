@@ -7738,7 +7738,7 @@
         <remarks>
           <para>Override the platform's notion of a network operator being considered non roaming.
             If true all networks are considered as home network a.k.a. non-roaming. When false,
-            the 2 pairs of CMDA and GSM roaming/non-roaming arrays are consulted.</para>
+            the 2 pairs of CDMA and GSM roaming/non-roaming arrays are consulted.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#KEY_FORCE_HOME_NETWORK_BOOL" title="Reference documentation">Java documentation for <code>android.telephony.CarrierConfigManager.KEY_FORCE_HOME_NETWORK_BOOL</code>.</a>
@@ -10814,7 +10814,7 @@
             <c>CarrierConfigManager#KEY_OPPORTUNISTIC_NETWORK_DATA_SWITCH_HYSTERESIS_TIME_LONG</c> to
             determine hysteresis time if there is ping pong situation
             (determined by system app or 1st party app) between primary and opportunistic
-            subscription. Ping ping situation is defined in
+            subscription. Ping pong situation is defined in
             #KEY_OPPORTUNISTIC_NETWORK_PING_PONG_TIME_LONG.
             If ping pong situation continuous #KEY_OPPORTUNISTIC_NETWORK_BACKOFF_TIME_LONG
             will be added to previously determined hysteresis time.</para>
@@ -11951,7 +11951,7 @@
         <summary>A list of failure cause codes that will trigger a modem restart when telephony receiving
             one of those during data setup.</summary>
         <remarks>
-          <para>A list of failure cause codes that will trigger a modem restart when telephony receiving
+          <para>A list of failure cause codes that will trigger a modem restart when telephony receives
             one of those during data setup. The cause codes are defined in 3GPP TS 24.008 Annex I and
             TS 24.301 Annex B.</para>
           <para>
@@ -12217,13 +12217,13 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Indicating whether plmns associated with carrier satellite can be exposed to user when
-            manually scanning available cellular network.</summary>
+        <summary>Controls whether PLMNs associated with the carrier's satellite service are hidden from
+            the user during a manual scan for available cellular networks.</summary>
         <remarks>
-          <para>Indicating whether plmns associated with carrier satellite can be exposed to user when
-            manually scanning available cellular network.
-            If key is <c>true</c>, satellite plmn should not be exposed to user and should be
-            automatically set, <c>false</c> otherwise. Default value is <c>true</c>.</para>
+          <para>Controls whether PLMNs associated with the carrier's satellite service are hidden from
+            the user during a manual scan for available cellular networks. When <c>true</c>, those
+            PLMNs are hidden from the user and selected automatically. When <c>false</c>, they are
+            not hidden by this setting. The default is <c>true</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#KEY_REMOVE_SATELLITE_PLMN_IN_MANUAL_NETWORK_SCAN_BOOL" title="Reference documentation">Java documentation for <code>android.telephony.CarrierConfigManager.KEY_REMOVE_SATELLITE_PLMN_IN_MANUAL_NETWORK_SCAN_BOOL</code>.</a>
@@ -12716,6 +12716,11 @@
         &lt;/int-array&gt;
     &lt;/pbundle_as_map&gt;
 &lt;/pbundle_as_map&gt;</code>
+          <para>When set, a PLMN-specific config takes precedence over the global config. For example,
+            if the global handover type is <c>EMERGENCY_CALL_TO_SATELLITE_HANDOVER_TYPE_SOS</c> and
+            the current PLMN's handover type is
+            <c>EMERGENCY_CALL_TO_SATELLITE_HANDOVER_TYPE_T911</c>, the device uses the T911 handover
+            type to handle the emergency call.</para>
           <para>This config is empty by default.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#KEY_SATELLITE_CONFIGS_PER_PLMN_BUNDLE" title="Reference documentation">Android reference for <code>android.telephony.CarrierConfigManager.KEY_SATELLITE_CONFIGS_PER_PLMN_BUNDLE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -12843,16 +12848,15 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Indicates what kind of traffic an <c>NetworkCapabilities#NET_CAPABILITY_NOT_RESTRICTED</c>
-            satellite network can possibly support.</summary>
+        <summary>Indicates what kinds of traffic a satellite network with
+            <c>NetworkCapabilities#NET_CAPABILITY_NOT_RESTRICTED</c> can support.</summary>
         <remarks>
-          <para>Indicates what kind of traffic an <c>NetworkCapabilities#NET_CAPABILITY_NOT_RESTRICTED</c>
-            satellite network can possibly support. The network may subject to further
-            restrictions such as entitlement etc.
-            If no data is allowed on satellite network, exclude
-            <c>ApnSetting#INFRASTRUCTURE_SATELLITE</c> from APN infrastructure_bitmask, and this
-            configuration is ignored.
-            By default it only supports restricted data.</para>
+          <para>Indicates what kinds of traffic a satellite network with
+            <c>NetworkCapabilities#NET_CAPABILITY_NOT_RESTRICTED</c> can support. The network may be
+            subject to further restrictions or upgrades, such as its bandwidth level, based on
+            entitlement. If no data is allowed on the satellite network, exclude
+            <c>ApnSetting#INFRASTRUCTURE_SATELLITE</c> from the APN infrastructure_bitmask; this
+            configuration is ignored. By default, only restricted data is supported.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#KEY_SATELLITE_DATA_SUPPORT_MODE_INT" title="Reference documentation">Java documentation for <code>android.telephony.CarrierConfigManager.KEY_SATELLITE_DATA_SUPPORT_MODE_INT</code>.</a>
@@ -12980,7 +12984,7 @@
         <remarks>
           <para>An integer key holds the time interval for refreshing or re-querying the satellite
             entitlement status from the entitlement server to ensure it is the latest.</para>
-          <para>The default value is 7 days.</para>
+          <para>The default value is 1 day.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#KEY_SATELLITE_ENTITLEMENT_STATUS_REFRESH_DAYS_INT" title="Reference documentation">Java documentation for <code>android.telephony.CarrierConfigManager.KEY_SATELLITE_ENTITLEMENT_STATUS_REFRESH_DAYS_INT</code>.</a>
