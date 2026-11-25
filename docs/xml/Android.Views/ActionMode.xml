@@ -125,7 +125,7 @@
       <Docs>
         <summary>Clear the text selection.</summary>
         <remarks>
-          <para>Clear the text selection. The method is called when the previous text selection needs to be cleared. Calling it will also clear the actions that resulted from previous text selection set by setTextSelection.</para>
+          <para>Clear the text selection. An implementation can also clear the actions that resulted from the previous text selection set by setTextSelection. The base implementation does nothing.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/ActionMode#clearTextSelection()" title="Reference documentation">Android reference for <code>android.view.ActionMode.clearTextSelection</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -647,18 +647,13 @@
         <Parameter Name="locales" Type="Android.OS.LocaleList" />
       </Parameters>
       <Docs>
-        <param name="text">The text of the text view. If the text is empty or null, it clears the previous
-                text selection and its action classification results, equivalent to calling
-                clearTextSelection().</param>
-        <param name="start">The start of the selection. If this parameter is &lt; 0 or &gt; end, it throws an
-                IllegalArgumentException.</param>
-        <param name="end">The end of the selection. If this parameter is &lt; 0 or &lt; start, it throws an
-                IllegalArgumentException.</param>
-        <param name="locales">The locales of the texts/view/selection. If it is empty, a default/unknown
-                locale will be used.</param>
+        <param name="text">The text of the text view. An implementation can clear the previous text selection and its action classification results when the text is empty or null, equivalent to calling clearTextSelection().</param>
+        <param name="start">The start of the selection. An implementation can throw an IllegalArgumentException if this value is less than 0 or greater than <paramref name="end" />.</param>
+        <param name="end">The end of the selection. An implementation can throw an IllegalArgumentException if this value is less than 0 or less than <paramref name="start" />.</param>
+        <param name="locales">The locales of the text, view, or selection. An implementation can use a default or unknown locale if the list is empty.</param>
         <summary>Forward text selection data for ActionMode to process.</summary>
         <remarks>
-          <para>Forward text selection data for ActionMode to process. The method is called when text selection changes. An implementation of this API processes the text selection data such as running the text classification task and handles the resulting actions, rendering them in the action bar.</para>
+          <para>Forward text selection data for ActionMode to process. The method is called when text selection changes. An implementation of this API processes the text selection data such as running the text classification task and handles the resulting actions, rendering them in the action bar. The base implementation does nothing.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/ActionMode#setTextSelection(java.lang.CharSequence,%20int,%20int,%20android.os.LocaleList)" title="Reference documentation">Android reference for <code>android.view.ActionMode.setTextSelection</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -701,17 +696,12 @@
         <Parameter Name="locales" Type="Android.OS.LocaleList" />
       </Parameters>
       <Docs>
-        <param name="text">The text of the text view. If the text is empty or null, it clears the previous
-                text selection and its action classification results, equivalent to calling
-                clearTextSelection().</param>
-        <param name="start">The start of the selection. If this parameter is &lt; 0 or &gt; end, it throws an
-                IllegalArgumentException.</param>
-        <param name="end">The end of the selection. If this parameter is &lt; 0 or &lt; start, it throws an
-                IllegalArgumentException.</param>
-        <param name="locales">The locales of the texts/view/selection. If it is empty, a default/unknown
-                locale will be used.</param>
+        <param name="text">The text of the text view. An implementation can clear the previous text selection and its action classification results when the text is empty or null, equivalent to calling clearTextSelection().</param>
+        <param name="start">The start of the selection. An implementation can throw an IllegalArgumentException if this value is less than 0 or greater than <paramref name="end" />.</param>
+        <param name="end">The end of the selection. An implementation can throw an IllegalArgumentException if this value is less than 0 or less than <paramref name="start" />.</param>
+        <param name="locales">The locales of the text, view, or selection. An implementation can use a default or unknown locale if the list is empty.</param>
         <summary>Forward text selection data for ActionMode to process.</summary>
-        <remarks>This string overload creates a Java character sequence for non-null text, forwards the selection bounds and locales to the character-sequence overload, and releases the temporary string wrapper after the call.</remarks>
+        <remarks>This string overload creates a Java character sequence for non-null text, forwards the selection bounds and locales to the character-sequence overload, and releases the temporary string wrapper after the call returns normally. The base character-sequence implementation does nothing.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetTitle">
