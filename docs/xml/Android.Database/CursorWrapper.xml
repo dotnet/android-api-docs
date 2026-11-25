@@ -326,7 +326,7 @@
         <value>cursor-defined values, or Bundle.EMPTY if there are no values. Never null.</value>
         <remarks>
           <para>Returns a bundle of extra values. This is an optional way for cursors to provide out-of-band metadata to their users. One use of this is for reporting on the progress of network requests that are required to fetch data for the cursor.</para>
-          <para>These values may only change when requery is called.</para>
+          <para>The <c>Extras</c> setter can also replace these values on Android API level 23 and later.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/database/CursorWrapper#getExtras()" title="Reference documentation">Android reference for <code>android.database.CursorWrapper.getExtras</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1479,11 +1479,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Performs the query that created the cursor again, refreshing its 
- contents.</summary>
+        <summary>Requests a requery of the wrapped cursor.</summary>
         <returns>true if the requery succeeded, false if not, in which case the cursor becomes invalid.</returns>
         <remarks>
-          <para>Performs the query that created the cursor again, refreshing its contents. This may be done at any time, including after a call to deactivate(). Since this method could execute a query on the database and potentially take a while, it could cause ANR if it is called on Main (UI) thread. A warning is printed if this method is being executed on Main thread.</para>
+          <para>This method delegates to the wrapped cursor and may be called after deactivation. The wrapped cursor's implementation can execute a query and take a long time. Calling it on the main thread can cause an application not responding (ANR) error.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/database/CursorWrapper#requery()" title="Reference documentation">Android reference for <code>android.database.CursorWrapper.requery</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
