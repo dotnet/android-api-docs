@@ -57,16 +57,20 @@
         <param name="source">The Java <see cref="T:Java.Lang.IIterable" /> to enumerate.</param>
         <summary>
             Returns an <see cref="T:System.Collections.IEnumerable" /> that iterates over a Java
-            <see cref="T:Java.Lang.IIterable" />, allowing <c>foreach</c> and LINQ to be used with Java
+            <see cref="T:Java.Lang.IIterable" />, allowing <c>foreach</c> to be used with Java
             collection types. Each element is marshaled from its Java instance to the corresponding
             managed type.
             </summary>
         <returns>An <see cref="T:System.Collections.IEnumerable" /> over the elements of <paramref name="source" />.</returns>
         <remarks>
+          <para>To use LINQ operators that require a generic sequence, first use
+            <c>Cast&lt;TResult&gt;</c> or <c>OfType&lt;TResult&gt;</c> on the returned sequence, or use
+            <see cref="M:System.Linq.Extensions.ToEnumerable``1(Java.Lang.IIterable)" />.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <exception cref="T:System.ArgumentNullException">
-          <paramref name="source" /> is <see langword="null" />.</exception>
+          <paramref name="source" /> is <see langword="null" />. The exception is thrown when an enumerator
+          for the returned sequence is first advanced.</exception>
       </Docs>
     </Member>
     <Member MemberName="ToEnumerable&lt;T&gt;">
@@ -121,10 +125,13 @@
             </summary>
         <returns>An <see cref="T:System.Collections.Generic.IEnumerable`1" /> over the elements of <paramref name="source" />.</returns>
         <remarks>
+          <para>A Java <see langword="null" /> element is returned as <c>default(T)</c>.
+            For a non-nullable value type, this is the default value of that type.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <exception cref="T:System.ArgumentNullException">
-          <paramref name="source" /> is <see langword="null" />.</exception>
+          <paramref name="source" /> is <see langword="null" />. The exception is thrown when an enumerator
+          for the returned sequence is first advanced.</exception>
       </Docs>
     </Member>
   </Members>
