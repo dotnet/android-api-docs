@@ -66,7 +66,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies how the incoming JNI reference is handled during peer construction.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>The runtime calls this constructor to create a managed representation of an existing Java object.</para>
@@ -111,8 +111,8 @@
       </Parameters>
       <Docs>
         <param name="fetchAndJoinCustomAudienceRequest">The non-null request containing the audience download URI and any caller-supplied audience fields.</param>
-        <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
-        <param name="receiver">The non-null callback for the operation. In the Android 16 implementation, it can receive a result with no audience data or an exception. In the Android 17 implementation, both service callbacks report an exception.</param>
+        <param name="executor">This value cannot be null. Service callbacks are dispatched through this executor. Some errors when accessing the service can be delivered directly to the receiver. To dispatch service callbacks through the main thread, use <see cref="P:Android.Content.Context.MainExecutor" />. Otherwise, provide an executor that dispatches to an appropriate thread.</param>
+        <param name="receiver">The non-null callback for the operation. In the Android 16 AOSP source, it can receive a result with no audience data or an exception. In the Android 17 AOSP source, both service callbacks report an exception.</param>
         <summary>Adds the user to the <c>CustomAudience</c> fetched from a <c>fetchUri</c>.</summary>
         <remarks>
           <para>Adds the user to the <c>CustomAudience</c> fetched from a <c>fetchUri</c>.</para>
@@ -267,8 +267,8 @@
       </Parameters>
       <Docs>
         <param name="joinCustomAudienceRequest">The non-null request containing the custom audience to register for the calling application.</param>
-        <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
-        <param name="receiver">The non-null callback for the operation. In the Android 16 implementation, it can receive a result with no audience data or an exception. In the Android 17 implementation, both service callbacks report an exception.</param>
+        <param name="executor">This value cannot be null. Service callbacks are dispatched through this executor. Some errors when accessing the service can be delivered directly to the receiver. To dispatch service callbacks through the main thread, use <see cref="P:Android.Content.Context.MainExecutor" />. Otherwise, provide an executor that dispatches to an appropriate thread.</param>
+        <param name="receiver">The non-null callback for the operation. In the Android 16 AOSP source, it can receive a result with no audience data or an exception. In the Android 17 AOSP source, both service callbacks report an exception.</param>
         <summary>Adds the user to the given <c>CustomAudience</c>.</summary>
         <remarks>
           <para>Adds the user to the given <c>CustomAudience</c>.</para>
@@ -343,8 +343,8 @@
       </Parameters>
       <Docs>
         <param name="leaveCustomAudienceRequest">The non-null request containing the buyer and audience name to remove for the calling application.</param>
-        <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
-        <param name="receiver">The non-null callback for the operation. In the Android 16 implementation, it can receive a result or an exception; a result does not indicate whether the audience previously existed. In the Android 17 implementation, both service callbacks report an exception.</param>
+        <param name="executor">This value cannot be null. Service callbacks are dispatched through this executor. Some errors when accessing the service can be delivered directly to the receiver. To dispatch service callbacks through the main thread, use <see cref="P:Android.Content.Context.MainExecutor" />. Otherwise, provide an executor that dispatches to an appropriate thread.</param>
+        <param name="receiver">The non-null callback for the operation. In the Android 16 AOSP source, it can receive a result or an exception; a result does not indicate whether the audience previously existed. In the Android 17 AOSP source, both service callbacks report an exception.</param>
         <summary>Attempts to remove a user from a custom audience by deleting any existing <c>CustomAudience</c> data, identified by <c>ownerPackageName</c>, <c>buyer</c>, and <c>name</c>.</summary>
         <remarks>
           <para>Attempts to remove a user from a custom audience by deleting any existing <c>CustomAudience</c> data, identified by <c>ownerPackageName</c>, <c>buyer</c>, and <c>name</c>.</para>
@@ -410,8 +410,8 @@
       </Parameters>
       <Docs>
         <param name="request">The non-null request containing the update URI, minimum delay, partial audience fields, and pending-update replacement setting.</param>
-        <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
-        <param name="receiver">The non-null callback for the operation. In the Android 16 implementation, it can receive a result or an exception; scheduling success does not mean that the deferred update has already run. In the Android 17 implementation, both service callbacks report an exception.</param>
+        <param name="executor">This value cannot be null. Service callbacks are dispatched through this executor. Some errors when accessing the service can be delivered directly to the receiver. To dispatch service callbacks through the main thread, use <see cref="P:Android.Content.Context.MainExecutor" />. Otherwise, provide an executor that dispatches to an appropriate thread.</param>
+        <param name="receiver">The non-null callback for the operation. In the Android 16 AOSP source, it can receive a result or an exception; scheduling success does not mean that the deferred update has already run. In the Android 17 AOSP source, both service callbacks report an exception.</param>
         <summary>Allows the API caller to schedule a deferred Custom Audience update.</summary>
         <remarks>
           <para>Allows the API caller to schedule a deferred Custom Audience update. For each update the user
