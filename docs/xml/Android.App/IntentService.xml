@@ -33,7 +33,7 @@
     <summary>This class was deprecated in API level 30.</summary>
     <remarks>
       <para>This class was deprecated in API level 30. IntentService is subject to all the background execution limits imposed with Android 8.0 (API level 26). Consider using WorkManager instead.</para>
-      <para>IntentService is an extension of the Service component class that handles asynchronous requests (expressed as Intents) on demand. Clients send requests through android.content.Context.startService(Intent) calls; the service is started as needed, handles each Intent in turn using a worker thread, and stops itself when it runs out of work. This "work queue processor" pattern is commonly used to offload tasks from an application's main thread. The IntentService class exists to simplify this pattern and take care of the mechanics. To use it, extend IntentService and implement onHandleIntent(Intent). IntentService will receive the Intents, launch a worker thread, and stop the service as appropriate. All requests are handled on a single worker thread -- they may take as long as necessary (and will not block the application's main loop), but only one request will be processed at a time. Developer Guides For a detailed discussion about how to create services, read the Services developer guide.</para>
+      <para>IntentService is an extension of the Service component class that handles asynchronous requests (expressed as Intents) on demand. Clients send requests through <see cref="M:Android.Content.Context.StartService(Android.Content.Intent)" />; the service is started as needed, handles each Intent in turn using a worker thread, and stops itself when it runs out of work. This "work queue processor" pattern is commonly used to offload tasks from an application's main thread. The IntentService class exists to simplify this pattern and take care of the mechanics. To use it, extend IntentService and implement <see cref="M:Android.App.IntentService.OnHandleIntent(Android.Content.Intent)" />. IntentService will receive the Intents, launch a worker thread, and stop the service as appropriate. All requests are handled on a single worker thread -- they may take as long as necessary (and will not block the application's main loop), but only one request will be processed at a time. For a detailed discussion about how to create services, read the <see href="https://developer.android.com/guide/components/services">Services developer guide</see>.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/IntentService" title="Reference documentation">Android reference for <code>android.app.IntentService</code>.</a>
@@ -65,7 +65,7 @@
           <para>Creates an IntentService. Invoked by your subclass's constructor.</para>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/IntentService#IntentService(java.lang.String)" title="Reference documentation">Android reference for <code>android.app.IntentService.IntentService</code>.</a>
+              <a href="https://developer.android.com/reference/android/app/IntentService" title="Reference documentation">Android reference for <code>android.app.IntentService</code>.</a>
             </format>
           </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -202,7 +202,7 @@
       <Docs>
         <param name="intent">Intent: The Intent that was used to bind to this service, as given to Context.bindService. Note that any extras that were included with the Intent at that point will not be seen here.</param>
         <summary>Unless you provide binding for your service, you don't need to implement this method, because the default implementation returns null.</summary>
-        <returns>Return an IBinder through which clients can call on to the service.</returns>
+        <returns><see langword="null" /> in the default implementation. An override may return an IBinder through which clients can call the service.</returns>
         <remarks>
           <para>Unless you provide binding for your service, you don't need to implement this method, because the default implementation returns null.</para>
           <para>
@@ -245,10 +245,10 @@
         <Parameter Name="intent" Type="Android.Content.Intent" />
       </Parameters>
       <Docs>
-        <param name="intent">Intent: The value passed to android.content.Context.startService(Intent). This may be null if the service is being restarted after its process has gone away; see Service.onStartCommand(Intent, int, int) for details.</param>
+        <param name="intent">The value passed to <see cref="M:Android.Content.Context.StartService(Android.Content.Intent)" />. This may be null if the service is being restarted after its process has gone away; see <see cref="M:Android.App.Service.OnStartCommand(Android.Content.Intent,Android.App.StartCommandFlags,System.Int32)" /> for details.</param>
         <summary>This method is invoked on the worker thread with a request to process.</summary>
         <remarks>
-          <para>This method is invoked on the worker thread with a request to process. Only one Intent is processed at a time, but the processing happens on a worker thread that runs independently from other application logic. So, if this code takes a long time, it will hold up other requests to the same IntentService, but it will not hold up anything else. When all requests have been handled, the IntentService stops itself, so you should not call Service.stopSelf(). This method may take several seconds to complete, so it should only be called from a worker thread.</para>
+          <para>This method is invoked on the worker thread with a request to process. Only one Intent is processed at a time, but the processing happens on a worker thread that runs independently from other application logic. So, if this code takes a long time, it will hold up other requests to the same IntentService, but it will not hold up anything else. When all requests have been handled, the IntentService stops itself, so you should not call <see cref="M:Android.App.Service.StopSelf" />. This method may take several seconds to complete, so it should only be called from a worker thread.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/IntentService#onHandleIntent(android.content.Intent)" title="Reference documentation">Android reference for <code>android.app.IntentService.onHandleIntent</code>.</a>
@@ -288,7 +288,7 @@
         <param name="enabled">boolean</param>
         <summary>Sets intent redelivery preferences.</summary>
         <remarks>
-          <para>Sets intent redelivery preferences. Usually called from the constructor with your preferred semantics. If enabled is true, onStartCommand(Intent,int,int) will return Service.START_REDELIVER_INTENT, so if this process dies before onHandleIntent(Intent) returns, the process will be restarted and the intent redelivered. If multiple Intents have been sent, only the most recent one is guaranteed to be redelivered. If enabled is false (the default), onStartCommand(Intent,int,int) will return Service.START_NOT_STICKY, and if the process dies, the Intent dies along with it.</para>
+          <para>Sets intent redelivery preferences. Usually called from the constructor with your preferred semantics. If enabled is true, <see cref="M:Android.App.Service.OnStartCommand(Android.Content.Intent,Android.App.StartCommandFlags,System.Int32)" /> returns <see cref="F:Android.App.StartCommandResult.RedeliverIntent" />, so if this process dies before <see cref="M:Android.App.IntentService.OnHandleIntent(Android.Content.Intent)" /> returns, the process will be restarted and the intent redelivered. If multiple Intents have been sent, only the most recent one is guaranteed to be redelivered. If enabled is false (the default), the start command returns <see cref="F:Android.App.StartCommandResult.NotSticky" />, and if the process dies, the Intent dies along with it.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/IntentService#setIntentRedelivery(boolean)" title="Reference documentation">Android reference for <code>android.app.IntentService.setIntentRedelivery</code>.</a>

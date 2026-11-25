@@ -35,8 +35,8 @@
     <remarks>
       <para>This class was deprecated in API level 28. Use the Support Library ListFragment for consistent behavior across all devices and access to Lifecycle.</para>
       <para>A fragment that displays a list of items by binding to a data source such as an array or Cursor, and exposes event handlers when the user selects an item. ListFragment hosts a ListView object that can be bound to different data sources, typically either an array or a Cursor holding query results. Binding, screen layout, and row layout are discussed in the following sections. Screen Layout</para>
-      <para>ListFragment has a default layout that consists of a single list view. However, if you desire, you can customize the fragment layout by returning your own view hierarchy from onCreateView(LayoutInflater, ViewGroup, Bundle). To do this, your view hierarchy must contain a ListView object with the id "@android:id/list" (or R.id.list if it's in code) Optionally, your view hierarchy can contain another view object of any type to display when the list view is empty. This "empty list" notifier must have an id "android:empty". Note that when an empty view is present, the list view will be hidden when there is no data to display. The following code demonstrates an (ugly) custom list layout. It has a list with a green background, and an alternate red "no data" message.</para>
-      <code lang="text/java">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+      <para>ListFragment has a default layout that consists of a single list view. However, if you desire, you can customize the fragment layout by returning your own view hierarchy from onCreateView(LayoutInflater, ViewGroup, Bundle). To do this, your view hierarchy must contain a ListView object with the id "@android:id/list" (or R.id.list if it's in code) Optionally, your view hierarchy can contain another view object of any type to display when the list view is empty. This "empty list" notifier must have an id "@android:id/empty". Note that when an empty view is present, the list view will be hidden when there is no data to display. The following code demonstrates an (ugly) custom list layout. It has a list with a green background, and an alternate red "no data" message.</para>
+      <code lang="text/xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -44,14 +44,14 @@
         android:paddingLeft="8dp"
         android:paddingRight="8dp"&gt;
 
-    &lt;ListView android:id="@id/android:list"
+    &lt;ListView android:id="@android:id/list"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:background="#00FF00"
               android:layout_weight="1"
               android:drawSelectorOnTop="false"/&gt;
 
-    &lt;TextView android:id="@id/android:empty"
+    &lt;TextView android:id="@android:id/empty"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:background="#FF0000"
@@ -60,19 +60,19 @@
       <para>Row Layout</para>
       <para>You can specify the layout of individual rows in the list. You do this by specifying a layout resource in the ListAdapter object hosted by the fragment (the ListAdapter binds the ListView to the data; more on this later). A ListAdapter constructor takes a parameter that specifies a layout resource for each row. It also has two additional parameters that let you specify which data field to associate with which object in the row layout resource. These two parameters are typically parallel arrays.</para>
       <para>Android provides some standard row layout resources. These are in the R.layout class, and have names such as simple_list_item_1, simple_list_item_2, and two_line_list_item. The following layout XML is the source for the resource two_line_list_item, which displays two data fields,one above the other, for each list row.</para>
-      <code lang="text/java">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+      <code lang="text/xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"&gt;
 
-    &lt;TextView android:id="@+id/text1"
+    &lt;TextView android:id="@android:id/text1"
         android:textSize="16sp"
         android:textStyle="bold"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/&gt;
 
-    &lt;TextView android:id="@+id/text2"
+    &lt;TextView android:id="@android:id/text2"
         android:textSize="16sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/&gt;
@@ -304,7 +304,7 @@
         <param name="id">The row id of the item that was clicked</param>
         <summary>This method will be called when an item in the list is selected.</summary>
         <remarks>
-          <para>This method will be called when an item in the list is selected. Subclasses should override. Subclasses can call getListView().getItemAtPosition(position) if they need to access the data associated with the selected item.</para>
+          <para>This method will be called when an item in the list is selected. Subclasses should override. Subclasses can call <see cref="M:Android.Widget.AdapterView.GetItemAtPosition(System.Int32)" /> on <see cref="P:Android.App.ListFragment.ListView" /> if they need to access the data associated with the selected item.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/ListFragment#onListItemClick(android.widget.ListView,%20android.view.View,%20int,%20long)" title="Reference documentation">Android reference for <code>android.app.ListFragment.onListItemClick</code>.</a>
@@ -543,7 +543,7 @@
         <summary>Like <c>#setListShown(boolean)</c>, but no animation is used when
             transitioning from the previous state.</summary>
         <remarks>
-          <para>Like setListShown(boolean), but no animation is used when transitioning from the previous state.</para>
+          <para>Like <see cref="M:Android.App.ListFragment.SetListShown(System.Boolean)" />, but no animation is used when transitioning from the previous state.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/ListFragment#setListShownNoAnimation(boolean)" title="Reference documentation">Android reference for <code>android.app.ListFragment.setListShownNoAnimation</code>.</a>
