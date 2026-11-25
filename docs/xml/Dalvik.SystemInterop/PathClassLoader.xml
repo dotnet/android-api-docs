@@ -88,7 +88,7 @@
         <Parameter Name="parent" Type="Java.Lang.ClassLoader" />
       </Parameters>
       <Docs>
-        <param name="dexPath">The list of JAR or APK files containing classes and resources, delimited by <see cref="P:Java.IO.File.PathSeparator" />.</param>
+        <param name="dexPath">Paths to DEX files or JAR, ZIP, or APK archives, separated by <see cref="P:Java.IO.File.PathSeparator" />. DEX files provide classes; archives can provide classes or resources. Resource directories are supported on Android 1.6 through 2.3 and Android 4.3 (API level 18) and later.</param>
         <param name="parent">The parent class loader.</param>
         <summary>Creates a <c>PathClassLoader</c> that operates on a given list of files
  and directories.</summary>
@@ -124,8 +124,8 @@
         <Parameter Name="parent" Type="Java.Lang.ClassLoader" />
       </Parameters>
       <Docs>
-        <param name="dexPath">The list of JAR or APK files containing classes and resources, delimited by <see cref="P:Java.IO.File.PathSeparator" />.</param>
-        <param name="librarySearchPath">The list of directories containing native libraries, delimited by <see cref="P:Java.IO.File.PathSeparator" />; may be <see langword="null" />.</param>
+        <param name="dexPath">Paths to DEX files or JAR, ZIP, or APK archives, separated by <see cref="P:Java.IO.File.PathSeparator" />. DEX files provide classes; archives can provide classes or resources. Resource directories are supported on Android 1.6 through 2.3 and Android 4.3 (API level 18) and later.</param>
+        <param name="librarySearchPath">The list of directories containing native libraries, delimited by <see cref="P:Java.IO.File.PathSeparator" />; may be <see langword="null" />. On Android 6.0 (API level 23) and later, entries can also identify directories inside ZIP archives, such as <c>app.apk!/lib/arm64-v8a</c>. Libraries in the archive must be uncompressed.</param>
         <param name="parent">The parent class loader.</param>
         <summary>Creates a <c>PathClassLoader</c> that operates on two given
  lists of files and directories.</summary>
@@ -163,8 +163,8 @@
       </Parameters>
       <Docs>
         <param name="libname">The library name without the platform-specific prefix or extension.</param>
-        <summary>Finds a native library in this class loader's library search path.</summary>
-        <returns>The path of the library, or <see langword="null" /> if the library is not found.</returns>
+        <summary>Finds a native library in the application and system library search paths.</summary>
+        <returns>The path of the library, or <see langword="null" /> if the library is not found. The path can be relative. On Android 6.0 (API level 23) and later, it can identify an uncompressed entry in an archive.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

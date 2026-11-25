@@ -89,9 +89,9 @@
         <Parameter Name="parent" Type="Java.Lang.ClassLoader" />
       </Parameters>
       <Docs>
-        <param name="dexPath">The list of JAR or APK files containing classes and resources, delimited by <see cref="P:Java.IO.File.PathSeparator" />.</param>
-        <param name="optimizedDirectory">Deprecated; has no effect since API level 26.</param>
-        <param name="librarySearchPath">The list of directories containing native libraries, delimited by <see cref="P:Java.IO.File.PathSeparator" />; may be <see langword="null" />.</param>
+        <param name="dexPath">Paths to DEX files or JAR, ZIP, or APK archives, separated by <see cref="P:Java.IO.File.PathSeparator" />. DEX files provide classes; archives can provide classes or resources. On Android 4.3 (API level 18) and later, the list can also include resource directories.</param>
+        <param name="optimizedDirectory">Before API level 26, an existing, readable and writable directory for optimized DEX files, or <see langword="null" /> to use the default system directory. Deprecated; has no effect since API level 26.</param>
+        <param name="librarySearchPath">The list of directories containing native libraries, delimited by <see cref="P:Java.IO.File.PathSeparator" />; may be <see langword="null" />. On Android 6.0 (API level 23) and later, entries can also identify directories inside ZIP archives, such as <c>app.apk!/lib/arm64-v8a</c>. Libraries in the archive must be uncompressed.</param>
         <param name="parent">The parent class loader.</param>
         <summary>Constructs an instance.</summary>
         <remarks>
@@ -128,9 +128,9 @@
       </Parameters>
       <Docs>
         <param name="name">the name of the library to find.</param>
-        <summary>Returns the absolute path of the native library with the specified name,
+        <summary>Returns the path of the native library with the specified name,
  or <c>null</c>.</summary>
-        <returns>The absolute path of the native library, or <see langword="null" />.</returns>
+        <returns>The path of the native library, or <see langword="null" /> if the library is not found. The path can be relative. On Android 6.0 (API level 23) and later, it can identify an uncompressed entry in an archive.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
