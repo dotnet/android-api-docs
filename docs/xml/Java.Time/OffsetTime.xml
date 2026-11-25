@@ -190,7 +190,7 @@
         <summary>Compares this OffsetTime to another time.</summary>
         <returns>A negative value, zero, or a positive value according to the ordering described in the remarks.</returns>
         <remarks>
-          <para>Compares this OffsetTime to another time. The comparison is based first on the UTC equivalent instant, then on the local time. It is "consistent with equals", as defined by Comparable. For example, the following is the comparator order:</para>
+          <para>Compares this OffsetTime to another time. The comparison first orders the instants obtained by applying both times to the same date, then compares local time if those instants are equal. It is consistent with equals, as defined by Comparable. For example, the following is the comparator order:</para>
           <list type="number">
             <item><term>10:30+01:00</term></item>
             <item><term>11:00+01:00</term></item>
@@ -199,7 +199,7 @@
             <item><term>12:00+01:00</term></item>
             <item><term>12:30+01:00</term></item>
           </list>
-          <para>Values #2 and #3 represent the same instant on the time-line. When two values represent the same instant, the local time is compared to distinguish them. This step is needed to make the ordering consistent with equals(). To compare the underlying local time of two TemporalAccessor instances, use ChronoField.NANO_OF_DAY as a comparator.</para>
+          <para>Values #2 and #3 represent the same instant when applied to the same date. The local time is compared to distinguish them. This step is needed to make the ordering consistent with equals(). To compare the underlying local time of two TemporalAccessor instances, use ChronoField.NANO_OF_DAY as a comparator.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetTime.html#compareTo(java.time.OffsetTime)" title="Reference documentation">Java reference for <code>java.time.OffsetTime.compareTo</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -841,7 +841,7 @@
         <param name="unit">the unit of the amount to subtract, not null</param>
         <summary>Returns a copy of this time with the specified amount subtracted.</summary>
         <returns>an OffsetTime based on this time with the specified amount subtracted, not null</returns>
-        <remarks><para>Returns a copy of this time with the specified amount subtracted. This returns an OffsetTime, based on this one, with the amount in terms of the unit subtracted. If it is not possible to subtract the amount, because the unit is not supported or for some other reason, an exception is thrown. This method is equivalent to plus(long, TemporalUnit) with the amount negated. See that method for a full description of how addition, and thus subtraction, works. This instance is immutable and unaffected by this method call.</para>
+        <remarks><para>Returns a copy of this time with the specified amount subtracted. This returns an OffsetTime, based on this one, with the amount in terms of the unit subtracted. If it is not possible to subtract the amount, because the unit is not supported or for some other reason, an exception is thrown. Unless the amount is <see cref="F:System.Int64.MinValue" />, this method calls plus(long, TemporalUnit) with the amount negated. For <see cref="F:System.Int64.MinValue" />, it calls plus with <see cref="F:System.Int64.MaxValue" />, then calls plus with one on the result. See the addition method for how the unit is handled. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetTime.html#minus(long,java.time.temporal.TemporalUnit)" title="Reference documentation">Java reference for <code>java.time.OffsetTime.minus</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -2015,7 +2015,7 @@
         <summary>Calculates the amount of time until another time in terms of the specified unit.</summary>
         <returns>the amount of time between this time and the end time</returns>
         <remarks>
-          <para>Calculates the amount of time until another time in terms of the specified unit. This calculates the amount of time between two OffsetTime objects in terms of a single TemporalUnit. The start and end points are this and the specified time. The result can be negative if the end is before the start. For example, the amount in hours between two times can be calculated using startTime.until(endTime, HOURS). The Temporal passed to this method is converted to an OffsetTime using from(TemporalAccessor). For ChronoUnit units, the calculation compares the times after applying their offsets to a common date. The result can span more than one day. The calculation returns a whole number, representing the number of complete units between the two times. For example, the amount in hours between 11:30Z and 13:29Z will only be one hour as it is one minute short of two hours. There are two equivalent ways of using this method. The first is to invoke this method. The second is to use TemporalUnit.between(Temporal, Temporal):</para>
+          <para>Calculates the amount of time until another time in terms of the specified unit. The Temporal passed to this method is converted to an OffsetTime using from(TemporalAccessor). For a supported ChronoUnit, the calculation compares the times after applying their offsets to a common date and returns the number of complete units. The result can span more than one day. For example, the amount in hours between 11:30Z and 13:29Z is one hour. For a supported ChronoUnit, these calls are equivalent:</para>
 <code lang="text/java">   // these two lines are equivalent
    amount = start.until(end, MINUTES);
    amount = MINUTES.between(start, end);</code>
@@ -2058,7 +2058,7 @@
           <para>Returns an adjusted copy of this time. This returns an OffsetTime, based on this one, with the time adjusted. The adjustment takes place using the specified adjuster strategy object. Read the documentation of the adjuster to understand what adjustment will be made. A simple adjuster might set one of the fields, such as the hour field. A more complex adjuster might set the time to the last hour of the day. The classes LocalTime and ZoneOffset implement TemporalAdjuster, thus this method can be used to change the time or offset:</para>
 <code lang="text/java">  result = offsetTime.with(time);
   result = offsetTime.with(offset);</code>
-<para>The result of this method is obtained by invoking the TemporalAdjuster.adjustInto(Temporal) method on the specified adjuster passing this as the argument. This instance is immutable and unaffected by this method call.</para>
+<para>For a LocalTime, ZoneOffset or OffsetTime adjuster, the method uses that value directly. For other adjusters, it calls TemporalAdjuster.adjustInto(Temporal) with this offset time. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetTime.html#with(java.time.temporal.TemporalAdjuster)" title="Reference documentation">Java reference for <code>java.time.OffsetTime.with</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -2099,7 +2099,7 @@
         <summary>Returns a copy of this time with the specified field set to a new value.</summary>
         <returns>an OffsetTime based on this with the specified field set, not null</returns>
         <remarks>
-          <para>Returns a copy of this time with the specified field set to a new value. This returns an OffsetTime, based on this one, with the value for the specified field changed. This can be used to change any supported field, such as the hour, minute or second. If it is not possible to set the value, because the field is not supported or for some other reason, an exception is thrown. If the field is a ChronoField then the adjustment is implemented here. The OFFSET_SECONDS field will return a time with the specified offset. The local time is unaltered. If the new offset value is outside the valid range then a DateTimeException will be thrown. The other supported fields will behave as per the matching LocalTime.with(TemporalField, long) method. In this case, the offset is not part of the calculation and will be unchanged. All other ChronoField instances will throw an UnsupportedTemporalTypeException. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.adjustInto(Temporal, long) passing this as the argument. In this case, the field determines whether and how to adjust the time. This instance is immutable and unaffected by this method call.</para>
+          <para>Returns a copy of this time with the specified field set to a new value. This returns an OffsetTime, based on this one, with the value for the specified field changed. This can be used to change any supported field, such as the hour, minute or second. If it is not possible to set the value, because the field is not supported or for some other reason, an exception is thrown. If the field is a ChronoField then the adjustment is implemented here. The OFFSET_SECONDS field will return a time with the specified offset. The local time is unaltered. If the new offset value is outside the valid range then a DateTimeException will be thrown. The other supported fields behave as per LocalTime.with(TemporalField, long), with the offset unchanged. The value is validated before an unsupported ChronoField throws an UnsupportedTemporalTypeException. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.adjustInto(Temporal, long) passing this as the argument. In this case, the field determines whether and how to adjust the time. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetTime.html#with(java.time.temporal.TemporalField,long)" title="Reference documentation">Java reference for <code>java.time.OffsetTime.with</code>.</a></format></para>
         </remarks>
       </Docs>
