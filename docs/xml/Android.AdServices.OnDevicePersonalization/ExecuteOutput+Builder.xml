@@ -220,11 +220,11 @@
         <Parameter Name="value" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="value">Value is 0 or greater</param>
-        <summary>An integer value that an IsolatedService may optionally return to a calling app, by setting this field to the value between 0 and ExecuteInIsolatedServiceRequest.OutputSpec.getMaxIntValue().</summary>
+        <param name="value">The non-negative integer index of the best value in the request's app params.</param>
+        <summary>Sets an index into the best values supplied in the request's app params.</summary>
         <returns>This builder, with the best value assigned.</returns>
         <remarks>
-          <para>An integer value that an IsolatedService may optionally return to a calling app, by setting this field to the value between 0 and ExecuteInIsolatedServiceRequest.OutputSpec.getMaxIntValue(). The platform may add noise to this value before returning it to the caller of OnDevicePersonalizationManager.executeInIsolatedService. In order to get this field, the (calling app package, isolated service package) pair must be present in an allowlist that permits data to be returned and ExecuteInIsolatedServiceRequest.OutputSpec.buildBestValueSpec is set.</para>
+          <para>Sets the integer index of a best value that an <c>IsolatedService</c> may return to a calling app. The value must be between 0 and <c>ExecuteInIsolatedServiceRequest.OutputSpec.MaxIntValue</c>. The platform may add noise to this value before returning it to the caller of <c>OnDevicePersonalizationManager.ExecuteInIsolatedService</c>. To receive this value, the calling-app and service pair must be allowlisted and <c>ExecuteInIsolatedServiceRequest.OutputSpec.BuildBestValueSpec</c> must be set.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/adservices/ondevicepersonalization/ExecuteOutput.Builder#setBestValue(int)" title="Reference documentation">Android reference for <code>android.adservices.ondevicepersonalization.ExecuteOutput.Builder.setBestValue</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -313,11 +313,18 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="value">The data to return to the calling app, or <see langword="null" /> to return no data.</param>
-        <summary>A byte array that an IsolatedService may optionally return to a calling app, by setting this field to a non-null value.</summary>
+        <param name="value">The byte array to set as output data, or <see langword="null" /> if there is none.</param>
+        <summary>Sets optional byte array output data for an IsolatedService.</summary>
         <returns>This builder, with the output data assigned.</returns>
         <remarks>
-          <para>A byte array that an IsolatedService may optionally return to a calling app, by setting this field to a non-null value. The contents of this array will be returned to the caller of OnDevicePersonalizationManager.execute(ComponentName,PersistableBundle,java.util.concurrent.Executor,OutcomeReceiver) if returning data from isolated processes is allowed by policy and the (calling app package, isolated service package) pair is present in an allowlist that permits data to be returned.</para>
+          <para>An <c>IsolatedService</c> can set a byte array as output data. In Android 15,
+            <c>OnDevicePersonalizationManager.Execute</c> can return this data through
+            <c>ExecuteResult.GetOutputData</c> only if policy allows it and the calling-app and
+            service pair is allowlisted. In Android 16, <c>Execute</c> delivers an
+            <c>ExecuteResult</c> whose <c>GetOutputData</c> always returns
+            <see langword="null" />. In Android 17, <c>Execute</c> reports an
+            <c>IllegalStateException</c> to its receiver instead of delivering an
+            <c>ExecuteResult</c>.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/adservices/ondevicepersonalization/ExecuteOutput.Builder#setOutputData(byte[])" title="Reference documentation">Android reference for <code>android.adservices.ondevicepersonalization.ExecuteOutput.Builder.setOutputData</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
