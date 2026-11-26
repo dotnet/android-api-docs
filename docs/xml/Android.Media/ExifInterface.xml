@@ -324,7 +324,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns parsed <c>#TAG_DATETIME</c> value, or -1 if unavailable or invalid.</summary>
-        <value>The parsed timestamp, measured as the number of milliseconds since 1970-01-01T00:00:00Z, or -1 if the tag is unavailable or invalid.</value>
+        <value>The parsed timestamp, measured as the number of milliseconds since 1970-01-01T00:00:00Z, or -1 if the tag is unavailable or invalid. If the corresponding offset tag is absent, the date and time are interpreted as UTC.</value>
         <remarks>
           <para>Returns parsed <c>#TAG_DATETIME</c> value, or -1 if unavailable or invalid.</para>
           <para>
@@ -365,7 +365,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns parsed <c>#TAG_DATETIME_DIGITIZED</c> value, or -1 if unavailable or invalid.</summary>
-        <value>The parsed timestamp, measured as the number of milliseconds since 1970-01-01T00:00:00Z, or -1 if the tag is unavailable or invalid.</value>
+        <value>The parsed timestamp, measured as the number of milliseconds since 1970-01-01T00:00:00Z, or -1 if the tag is unavailable or invalid. If the corresponding offset tag is absent, the date and time are interpreted as UTC.</value>
         <remarks>
           <para>Returns parsed <c>#TAG_DATETIME_DIGITIZED</c> value, or -1 if unavailable or invalid.</para>
           <para>
@@ -406,7 +406,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns parsed <c>#TAG_DATETIME_ORIGINAL</c> value, or -1 if unavailable or invalid.</summary>
-        <value>The parsed timestamp, measured as the number of milliseconds since 1970-01-01T00:00:00Z, or -1 if the tag is unavailable or invalid.</value>
+        <value>The parsed timestamp, measured as the number of milliseconds since 1970-01-01T00:00:00Z, or -1 if the tag is unavailable or invalid. If the corresponding offset tag is absent, the date and time are interpreted as UTC.</value>
         <remarks>
           <para>Returns parsed <c>#TAG_DATETIME_ORIGINAL</c> value, or -1 if unavailable or invalid.</para>
           <para>
@@ -447,7 +447,7 @@
       <Docs>
         <param name="defaultValue">the value to return if the tag is not available.</param>
         <summary>Return the altitude in meters.</summary>
-        <returns>The altitude in meters with the GPS altitude-reference sign applied, or <paramref name="defaultValue" /> if the altitude or reference is unavailable.</returns>
+        <returns>The altitude in meters with the GPS altitude-reference sign applied, or <paramref name="defaultValue" /> if the altitude or reference is missing, cannot be parsed, or is negative.</returns>
         <remarks>
           <para>Return the altitude in meters. If the exif tag does not exist, return
             <i>defaultValue</i>.</para>
@@ -743,7 +743,7 @@
         <Parameter Name="output" Type="System.Single[]" />
       </Parameters>
       <Docs>
-        <param name="output">An array with room for latitude at index zero and longitude at index one, in degrees. On Android API 37.2, a conversion failure can occur after latitude has been written.</param>
+        <param name="output">An array with room for latitude at index zero and longitude at index one, in degrees. Latitude can be written before longitude conversion fails.</param>
         <summary>Stores the latitude and longitude value in a float array.</summary>
         <returns><see langword="true" /> after both coordinates have been converted and written; <see langword="false" /> if required GPS tags are missing or coordinate conversion fails.</returns>
         <remarks>
@@ -7169,7 +7169,7 @@
       <Docs>
         <summary>Creates and returns a Bitmap object of the thumbnail image based on the byte array and the
             thumbnail compression value, or <c>null</c> if the compression type is unsupported.</summary>
-        <value>A bitmap decoded from a JPEG thumbnail or constructed from supported uncompressed RGB data; <see langword="null" /> if no thumbnail is present or its compression is unsupported.</value>
+        <value>A bitmap decoded from a JPEG thumbnail or constructed from supported uncompressed RGB data. The value can be <see langword="null" /> if no thumbnail is present, its compression is unsupported, JPEG decoding fails, or an uncompressed thumbnail lacks dimensions. If the bytes cannot be read, JPEG or uncompressed decoding can throw instead of returning <see langword="null" />.</value>
         <remarks>
           <para>Creates and returns a Bitmap object of the thumbnail image based on the byte array and the
             thumbnail compression value, or <c>null</c> if the compression type is unsupported.</para>
