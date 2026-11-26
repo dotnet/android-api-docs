@@ -30,14 +30,12 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>Implementations of <c>Gatherer</c> that provide useful intermediate
-            operations, such as windowing functions, folding functions,
-            transforming elements concurrently, etc.</summary>
+    <summary>Implementations of <c>Gatherer</c> that provide intermediate
+            operations, such as windowing, folding, and prefix scanning.</summary>
     <remarks>
-      <para>Implementations of <c>Gatherer</c> that provide useful intermediate
-            operations, such as windowing functions, folding functions,
-            transforming elements concurrently, etc.</para>
-      <para>Added in 24.</para>
+      <para>Implementations of <c>Gatherer</c> that provide intermediate
+            operations, such as windowing, folding, and prefix scanning.</para>
+      <para>Added in Java 24.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/java/util/stream/Gatherers" title="Reference documentation">Java documentation for <code>java.util.stream.Gatherers</code>.</a>
@@ -87,10 +85,8 @@
         <Parameter Name="folder" Type="Java.Util.Functions.IBiFunction" />
       </Parameters>
       <Docs>
-        <param name="initial">the identity value for the fold operation</param>
+        <param name="initial">the supplier of the identity value for the fold operation</param>
         <param name="folder">the folding function</param>
-        <param name="&lt;T&gt;&lt;T&gt;">the type of elements the returned gatherer consumes</param>
-        <param name="&lt;R&gt;&lt;R&gt;">the type of elements the returned gatherer produces</param>
         <summary>Returns a Gatherer that performs an ordered, <i>reduction-like</i>,
             transformation for scenarios where no combiner-function can be
             implemented, or for reductions which are intrinsically
@@ -103,7 +99,7 @@
             order-dependent.</para>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/util/stream/Gatherers#fold(java.util.function.Supplier%3CR%3E,%20java.util.function.BiFunction%3C?%20super%20R,%20?%20super%20T,%20?%20extends%20R%3E)" title="Reference documentation">Java documentation for <code>java.util.stream.Gatherers.fold(java.util.function.Supplier&lt;R&gt;, java.util.function.BiFunction&lt;? super R, ? super T, ? extends R&gt;)</code>.</a>
+              <a href="https://developer.android.com/reference/java/util/stream/Gatherers#fold(java.util.function.Supplier%3CR%3E,%20java.util.function.BiFunction%3C?%20super%20R,?%20super%20T,?%20extends%20R%3E)" title="Reference documentation">Java documentation for <code>java.util.stream.Gatherers.fold(java.util.function.Supplier&lt;R&gt;, java.util.function.BiFunction&lt;? super R, ? super T, ? extends R&gt;)</code>.</a>
             </format>
           </para>
           <para>
@@ -183,8 +179,6 @@
       <Docs>
         <param name="initial">the supplier of the initial value for the scanner</param>
         <param name="scanner">the function to apply for each element</param>
-        <param name="&lt;T&gt;&lt;T&gt;">the type of element which this gatherer consumes</param>
-        <param name="&lt;R&gt;&lt;R&gt;">the type of element which this gatherer produces</param>
         <summary>Returns a Gatherer that performs a Prefix Scan -- an incremental
             accumulation -- using the provided functions.</summary>
         <returns>a new Gatherer which performs a prefix scan</returns>
@@ -205,7 +199,7 @@ List&lt;String&gt; numberStrings =
           .toList();</code>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/util/stream/Gatherers#scan(java.util.function.Supplier%3CR%3E,%20java.util.function.BiFunction%3C?%20super%20R,%20?%20super%20T,%20?%20extends%20R%3E)" title="Reference documentation">Java documentation for <code>java.util.stream.Gatherers.scan(java.util.function.Supplier&lt;R&gt;, java.util.function.BiFunction&lt;? super R, ? super T, ? extends R&gt;)</code>.</a>
+              <a href="https://developer.android.com/reference/java/util/stream/Gatherers#scan(java.util.function.Supplier%3CR%3E,%20java.util.function.BiFunction%3C?%20super%20R,?%20super%20T,?%20extends%20R%3E)" title="Reference documentation">Java documentation for <code>java.util.stream.Gatherers.scan(java.util.function.Supplier&lt;R&gt;, java.util.function.BiFunction&lt;? super R, ? super T, ? extends R&gt;)</code>.</a>
             </format>
           </para>
           <para>
@@ -314,8 +308,6 @@ List&lt;String&gt; numberStrings =
       </Parameters>
       <Docs>
         <param name="windowSize">the size of the windows</param>
-        <param name="&lt;TR&gt;&lt;TR&gt;">the type of elements the returned gatherer consumes
-                        and the contents of the windows it produces</param>
         <summary>Returns a Gatherer that gathers elements into windows
             -- encounter-ordered groups of elements -- of a fixed size.</summary>
         <returns>a new gatherer which groups elements into fixed-size windows</returns>
@@ -377,8 +369,6 @@ List&lt;List&lt;Integer&gt;&gt; windows =
       </Parameters>
       <Docs>
         <param name="windowSize">the size of the windows</param>
-        <param name="&lt;TR&gt;&lt;TR&gt;">the type of elements the returned gatherer consumes
-                        and the contents of the windows it produces</param>
         <summary>Returns a Gatherer that gathers elements into windows --
             encounter-ordered groups of elements -- of a given size, where each
             subsequent window includes all elements of the previous window except

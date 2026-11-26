@@ -61,7 +61,7 @@
             will bind to them.</para>
       <para>Once registered and enabled by the user in the phone app settings or granted permission, telecom
             will bind to a <c>ConnectionService</c> implementation when it wants that
-            <c>ConnectionService</c> to place a call or the service has indicated that is has an incoming
+            <c>ConnectionService</c> to place a call or the service has indicated that it has an incoming
             call through <c>TelecomManager#addNewIncomingCall(PhoneAccountHandle, Bundle)</c>. The
             <c>ConnectionService</c> can then expect a call to
             <c>#onCreateIncomingConnection(PhoneAccountHandle, ConnectionRequest)</c> or
@@ -148,7 +148,7 @@
             set on the new <c>Connection</c> instance returned by your <c>ConnectionService</c>:
             &lt;ul&gt;
                 &lt;li&gt;<c>Connection#setAddress(Uri, int)</c> - the identifier for the other party.  For
-                apps that user phone numbers the <c>Uri</c> can be a <c>PhoneAccount#SCHEME_TEL</c> URI
+                apps that use phone numbers, the <c>Uri</c> can be a <c>PhoneAccount#SCHEME_TEL</c> URI
                 representing the phone number.&lt;/li&gt;
                 &lt;li&gt;<c>Connection#setCallerDisplayName(String, int)</c> - the display name of the other
                 party.  This is what will be shown on Bluetooth devices and other calling surfaces such
@@ -159,7 +159,7 @@
                 handled by your app.&lt;/li&gt;
                 &lt;li&gt;<c>Connection#setConnectionCapabilities(int)</c> - if your app supports making calls
                 inactive (i.e. holding calls) you should get <c>Connection#CAPABILITY_SUPPORT_HOLD</c> and
-                <c>Connection#CAPABILITY_HOLD</c> to indicate to the platform that you calls can potentially
+                <c>Connection#CAPABILITY_HOLD</c> to indicate to the platform that your calls can potentially
                 be held for concurrent calling scenarios.&lt;/li&gt;
                 &lt;li&gt;<c>Connection#setAudioModeIsVoip(boolean)</c> - set to <c>true</c> to ensure that the
                 platform knows your call is a VoIP call.&lt;/li&gt;
@@ -216,13 +216,13 @@
             notification.</para>
       <para>Your incoming call notification (or full screen UI) will typically have an "answer" and "decline"
             action which the user chooses.  When your app receives the "answer" or "decline"
-            <c>android.app.PendingIntent</c>, you should must call either <c>Connection#setActive()</c> to
+            <c>android.app.PendingIntent</c>, you must call either <c>Connection#setActive()</c> to
             inform Telecom that the call was answered, or
             <c>Connection#setDisconnected(DisconnectCause)</c> to inform Telecom that the call was rejected.
             If the call was rejected, supply an instance of <c>DisconnectCause</c> with
             <c>DisconnectCause#REJECTED</c>, and then call <c>Connection#destroy()</c>.</para>
       <para>In addition to handling requests to answer or decline the call via notification actions, your
-            app should also be implement the <c>Connection#onAnswer(int)</c> and
+            app should also implement the <c>Connection#onAnswer(int)</c> and
             <c>Connection#onAnswer()</c> methods on the <c>Connection</c>.  These will be raised if the
             user answers your call via a Bluetooth device or another device like a wearable or automotive
             calling UX.  In response, your app should call <c>Connection#setActive()</c> to inform Telecom
@@ -973,10 +973,10 @@
       </Parameters>
       <Docs>
         <param name="intent">The Intent that was used to bind to this service, as given to Context.bindService. Note that any extras that were included with the Intent at that point will not be seen here.</param>
-        <summary>Return the communication channel to the service.</summary>
-        <returns>Return an IBinder through which clients can call on to the service.</returns>
+        <summary>Returns the communication channel through which clients can call the service.</summary>
+        <returns>The <c>IBinder</c> through which clients communicate with the service.</returns>
         <remarks>
-          <para>Return the communication channel to the service. May return null if clients can not bind to the service. The returned IBinder is usually for a complex interface that has been described using aidl.</para>
+          <para>Returns the communication channel through which clients can call the service. The returned <c>IBinder</c> is usually for a complex interface described using AIDL.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/telecom/ConnectionService#onBind(android.content.Intent)" title="Reference documentation">Java documentation for <code>android.telecom.ConnectionService.onBind(android.content.Intent)</code>.</a>
@@ -1997,7 +1997,7 @@
             represents the handover.  If your app does not wish to accept a handover to it at this time,
             you can return <c>null</c>.  The code below shows an example of how this is done.</para>
           <code lang="text/java">{@code
-            public Connection onCreateIncomingHandoverConnection(PhoneAccountHandle
+            public Connection onCreateOutgoingHandoverConnection(PhoneAccountHandle
                 fromPhoneAccountHandle, ConnectionRequest request) {
               if (!isHandoverAvailable()) {
                   return null;

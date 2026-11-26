@@ -247,6 +247,7 @@
         <param name="unit">The unit to use when formatting the relative date, e.g. RelativeDateTimeUnit.WEEK, RelativeDateTimeUnit.FRIDAY.</param>
         <summary>Format a combination of RelativeDateTimeUnit and numeric offset using a text style if possible, e.g. "last week", "this week", "next week", "yesterday", "tomorrow".</summary>
         <returns>The formatted string (may be empty in case of error)</returns>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">On Android 9 through 15, <paramref name="unit" /> specifies a weekday and no text term is available for the offset in the locale.</exception>
         <remarks>
           <para>Format a combination of RelativeDateTimeUnit and numeric offset using a text style if possible, e.g. "last week", "this week", "next week", "yesterday", "tomorrow". Falls back to numeric style if no appropriate text term is available for the specified offset in the object’s locale. This method returns a String. To get more information about the formatting result, use formatToValue().</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/RelativeDateTimeFormatter#format(double,%20android.icu.text.RelativeDateTimeFormatter.RelativeDateTimeUnit)" title="Reference documentation">Android reference for <code>android.icu.text.RelativeDateTimeFormatter.format</code>.</a></format></para>
@@ -327,6 +328,7 @@
         <param name="unit">The unit to use when formatting the relative date, e.g. RelativeDateTimeUnit.WEEK, RelativeDateTimeUnit.FRIDAY.</param>
         <summary>Format a combination of RelativeDateTimeUnit and numeric offset using a numeric style, e.g. "1 week ago", "in 1 week", "5 weeks ago", "in 5 weeks".</summary>
         <returns>The formatted string (may be empty in case of error)</returns>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">On Android 9 through 15, <paramref name="unit" /> specifies a weekday.</exception>
         <remarks>
           <para>Format a combination of RelativeDateTimeUnit and numeric offset using a numeric style, e.g. "1 week ago", "in 1 week", "5 weeks ago", "in 5 weeks". This method returns a String. To get more information about the formatting result, use formatNumericToValue().</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/RelativeDateTimeFormatter#formatNumeric(double,%20android.icu.text.RelativeDateTimeFormatter.RelativeDateTimeUnit)" title="Reference documentation">Android reference for <code>android.icu.text.RelativeDateTimeFormatter.formatNumeric</code>.</a></format></para>
@@ -365,7 +367,8 @@
         <param name="offset">The signed offset for the specified unit. This will be formatted according to this object's NumberFormat object.</param>
         <param name="unit">The unit to use when formatting the relative date, e.g. RelativeDateTimeUnit.WEEK, RelativeDateTimeUnit.FRIDAY.</param>
         <summary>Format a combination of RelativeDateTimeUnit and numeric offset using a numeric style, e.g. "1 week ago", "in 1 week", "5 weeks ago", "in 5 weeks".</summary>
-        <returns>The formatted string (may be empty in case of error)</returns>
+        <returns>The formatted result, whose text may be empty in case of error.</returns>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">The formatter uses beginning-of-sentence capitalization, or, on Android 12 through 15, <paramref name="unit" /> specifies a weekday.</exception>
         <remarks>
           <para>Format a combination of RelativeDateTimeUnit and numeric offset using a numeric style, e.g. "1 week ago", "in 1 week", "5 weeks ago", "in 5 weeks". This method returns a FormattedRelativeDateTime, which exposes more information than the String returned by formatNumeric().</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/RelativeDateTimeFormatter#formatNumericToValue(double,%20android.icu.text.RelativeDateTimeFormatter.RelativeDateTimeUnit)" title="Reference documentation">Android reference for <code>android.icu.text.RelativeDateTimeFormatter.formatNumericToValue</code>.</a></format></para>
@@ -437,7 +440,8 @@
         <param name="direction">NEXT, LAST, THIS, etc.</param>
         <param name="unit">e.g SATURDAY, DAY, MONTH</param>
         <summary>Formats a relative date without a quantity.</summary>
-        <returns>the formatted string. If direction has a value that is documented as not being fully supported in every locale (for example NEXT_2 or LAST_2) then this function may return null to signal that no formatted string is available.</returns>
+        <returns>The formatted result. If direction has a value that is documented as not being fully supported in every locale (for example NEXT_2 or LAST_2) then this function may return null to signal that no formatted result is available.</returns>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">The formatter uses beginning-of-sentence capitalization.</exception>
         <remarks>
           <para>Formats a relative date without a quantity. This method returns a FormattedRelativeDateTime, which exposes more information than the String returned by format().</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/RelativeDateTimeFormatter#formatToValue(android.icu.text.RelativeDateTimeFormatter.Direction,%20android.icu.text.RelativeDateTimeFormatter.AbsoluteUnit)" title="Reference documentation">Android reference for <code>android.icu.text.RelativeDateTimeFormatter.formatToValue</code>.</a></format></para>
@@ -476,7 +480,8 @@
         <param name="offset">The signed offset for the specified field.</param>
         <param name="unit">The unit to use when formatting the relative date, e.g. RelativeDateTimeUnit.WEEK, RelativeDateTimeUnit.FRIDAY.</param>
         <summary>Format a combination of RelativeDateTimeUnit and numeric offset using a text style if possible, e.g. "last week", "this week", "next week", "yesterday", "tomorrow".</summary>
-        <returns>The formatted string (may be empty in case of error)</returns>
+        <returns>The formatted result, whose text may be empty in case of error.</returns>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">The formatter uses beginning-of-sentence capitalization, or, on Android 12 through 15, <paramref name="unit" /> specifies a weekday and no text term is available for the offset in the locale.</exception>
         <remarks>
           <para>Format a combination of RelativeDateTimeUnit and numeric offset using a text style if possible, e.g. "last week", "this week", "next week", "yesterday", "tomorrow". Falls back to numeric style if no appropriate text term is available for the specified offset in the object’s locale. This method returns a FormattedRelativeDateTime, which exposes more information than the String returned by format().</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/RelativeDateTimeFormatter#formatToValue(double,%20android.icu.text.RelativeDateTimeFormatter.RelativeDateTimeUnit)" title="Reference documentation">Android reference for <code>android.icu.text.RelativeDateTimeFormatter.formatToValue</code>.</a></format></para>
@@ -518,6 +523,7 @@
         <param name="unit">the unit e.g day? month? year?</param>
         <summary>Formats a relative date with a quantity such as "in 5 days" or "3 months ago".</summary>
         <returns>the formatted relative datetime</returns>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">The formatter uses beginning-of-sentence capitalization.</exception>
         <remarks>
           <para>Formats a relative date with a quantity such as "in 5 days" or "3 months ago". This method returns a FormattedRelativeDateTime, which exposes more information than the String returned by format().</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/RelativeDateTimeFormatter#formatToValue(double,%20android.icu.text.RelativeDateTimeFormatter.Direction,%20android.icu.text.RelativeDateTimeFormatter.RelativeUnit)" title="Reference documentation">Android reference for <code>android.icu.text.RelativeDateTimeFormatter.formatToValue</code>.</a></format></para>

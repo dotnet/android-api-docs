@@ -68,7 +68,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies how the runtime handles the JNI reference, including its release and peer registration.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>The runtime calls this constructor to create a managed representation of an existing Java object.</para>
@@ -2423,16 +2423,16 @@
       </ReturnValue>
       <MemberValue>10</MemberValue>
       <Docs>
-        <summary>SubjectCode[5.2.6.1] and ReasonCode[5.2.6.2] error from GSMA (SGP.22 v2.2) When <c>#OPERATION_SMDX_SUBJECT_REASON_CODE</c> is used as the <c>#EXTRA_EMBEDDED_SUBSCRIPTION_DETAILED_CODE</c>, the remaining three bytes of the integer result from <c>#EXTRA_EMBEDDED_SUBSCRIPTION_DETAILED_CODE</c> will be used to stored the SubjectCode and ReasonCode from the GSMA spec and NOT ErrorCode.</summary>
+        <summary>Identifies a GSMA SGP.22 subject and reason code in an eUICC detailed result. The operation code occupies the first byte; the remaining three bytes contain the subject and reason codes instead of an error code.</summary>
         <remarks>
           <para>SubjectCode[5.2.6.1] and ReasonCode[5.2.6.2] error from GSMA (SGP.22 v2.2)
-            When <c>#OPERATION_SMDX_SUBJECT_REASON_CODE</c> is used as the
+            When <c>#OPERATION_SMDX_SUBJECT_REASON_CODE</c> is the operation code in
             <c>#EXTRA_EMBEDDED_SUBSCRIPTION_DETAILED_CODE</c>, the remaining three bytes of the integer
             result from <c>#EXTRA_EMBEDDED_SUBSCRIPTION_DETAILED_CODE</c> will be used to stored the
             SubjectCode and ReasonCode from the GSMA spec and NOT ErrorCode.
             
             The encoding will follow the format of:
-            1. The first byte of the result will be 255(0xFF).
+            1. The first byte of the result will be 10(0x0A).
             2. Remaining three bytes(24 bits) will be split into six sections, 4 bits in each section.
             3. A SubjectCode/ReasonCode will take 12 bits each.
             4. The maximum number can be represented per section is 15, as that is the maximum number

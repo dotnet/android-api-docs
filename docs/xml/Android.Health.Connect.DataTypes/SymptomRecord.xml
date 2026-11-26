@@ -33,9 +33,9 @@
     <summary>Captures a description of a user's symptom.</summary>
     <remarks>
       <para>Captures a description of a user's symptom. Each record represents a particular symptom experienced one or more times over a time period.</para>
-      <para>Permission Handling: Each symptom type is guarded by its own specific read and write permissions (e.g., android.permission.health.READ_SYMPTOM_COUGH).</para>
-      <para>An app has read access to a symptom type if: The app is the owner of the data (i.e., it wrote the data), and it holds either the specific READ or WRITE permission for that symptom type; The app is not the owner of the data, but it has been granted the specific READ permission for that symptom type</para>
-      <para>Enforcement:; When reading symptoms by a time range, records for which the calling app does not have read access to the symptom type will be silently skipped; When reading a single symptom record by its ID, if the calling app does not have read access to that record's symptom type, a SecurityException will be thrown; When performing a batch read of multiple symptom records by their IDs, a SecurityException will be thrown if the calling app does not have read access to any of the symptom types included in the batch request.</para>
+      <para>Permission handling: Each symptom type has its own read and write permissions, such as android.permission.health.READ_SYMPTOM_COUGH.</para>
+      <para>An app has read access to a symptom type if it owns the data and holds either that type's specific read or write permission, or if it does not own the data and has been granted that type's specific read permission.</para>
+      <para>For a time-range read, records whose symptom type the app cannot read are silently skipped. A read of a single record by ID throws a SecurityException if the app cannot read that record's symptom type. A batch read by IDs throws a SecurityException if the app does not have read access to any of the symptom types included in the batch request.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/health/connect/datatypes/SymptomRecord" title="Reference documentation">Android reference for <code>android.health.connect.datatypes.SymptomRecord</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -326,7 +326,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the severity of the symptom for this record.</summary>
-        <value>Value is one of the following: SEVERITY_UNSPECIFIED; SEVERITY_MILD; SEVERITY_MODERATE; SEVERITY_SEVERE</value>
+        <value>The integer code for the severity. See <see cref="T:Android.Health.Connect.DataTypes.SymptomSeverity" /> for the managed values.</value>
         <remarks>
           <para>Returns the severity of the symptom for this record.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/health/connect/datatypes/SymptomRecord#getSeverity()" title="Reference documentation">Android reference for <code>android.health.connect.datatypes.SymptomRecord.getSeverity</code>.</a></format></para>
@@ -2761,7 +2761,7 @@
       <Docs>
         <summary>Returns the temporal type of this record, indicating whether it represents an instant, an
             interval, or a local date.</summary>
-        <value>The temporal type, as one of <c>#RECORD_TEMPORAL_TYPE_INSTANT</c>, <c>#RECORD_TEMPORAL_TYPE_INTERVAL</c>, or <c>#RECORD_TEMPORAL_TYPE_LOCAL_DATE</c>.</value>
+        <value>The integer code for the temporal type. See <see cref="T:Android.Health.Connect.DataTypes.SymptomRecordTemporalType" /> for the managed values.</value>
         <remarks>
           <para>Returns the temporal type of this record, indicating whether it represents an instant, an interval, or a local date.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/health/connect/datatypes/SymptomRecord#getTemporalType()" title="Reference documentation">Android reference for <code>android.health.connect.datatypes.SymptomRecord.getTemporalType</code>.</a></format></para>

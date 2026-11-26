@@ -60,7 +60,6 @@
         <remarks>
           <para>Size and resolution limits start at <c>-1</c>, duration limits start at <see langword="null" />, and the MIME type list starts empty. These values mean that the corresponding selection constraints are not set.</para>
           <para>Size limits use bytes. Resolution limits use total pixels. Duration setters accept <see cref="T:Java.Time.Duration" /> values. Each clear method removes only its corresponding constraint.</para>
-          <para><format type="text/html"><a href="https://android.googlesource.com/platform/packages/providers/MediaProvider/+/refs/heads/android17-release/photopicker/framework/java/android/widget/photopicker/PhotoPickerSelectionParams.java">Android source for selection builder defaults, setters, and clear methods.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -407,7 +406,7 @@
         <remarks>
           <para>Sets the maximum allowed resolution constraint for a media item to be selectable.</para>
           <para>Items exceeding the provided resolution will be disabled for selection.</para>
-          <para>The maximum resolution should not be less than the minimum resolution, or an exception will be thrown during the build() process.</para>
+          <para>The maximum resolution should not be less than the minimum resolution, or <see cref="M:Android.Widget.PhotoPicker.PhotoPickerSelectionParams.Builder.Build" /> will throw an exception.</para>
           <para>If it is not set, no maximum resolution constraint will be enforced on the media items that the user can select.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/widget/photopicker/PhotoPickerSelectionParams.Builder#setMaxMediaItemResolutionInPixels(long)" title="Reference documentation">Android reference for <code>android.widget.photopicker.PhotoPickerSelectionParams.Builder.setMaxMediaItemResolutionInPixels</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -525,7 +524,7 @@
         <remarks>
           <para>Sets the maximum allowed duration for a video media item to be selectable.</para>
           <para>Videos exceeding this duration will be disabled for selection.</para>
-          <para>The maximum duration should not be less than minimum duration, or an exception will be thrown during the build() process.</para>
+          <para>The maximum duration should not be less than the minimum duration, or <see cref="M:Android.Widget.PhotoPicker.PhotoPickerSelectionParams.Builder.Build" /> will throw an exception.</para>
           <para>If it is not set, no maximum video duration constraint will be enforced on the videos that the user can select.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/widget/photopicker/PhotoPickerSelectionParams.Builder#setMaxVideoDuration(java.time.Duration)" title="Reference documentation">Android reference for <code>android.widget.photopicker.PhotoPickerSelectionParams.Builder.setMaxVideoDuration</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -565,8 +564,8 @@
         <remarks>
           <para>Sets the list of MIME types that are allowed for selection.</para>
           <para>Media items that violate this constraint will be disabled for selection.</para>
-          <para>This parameter is different from the MIME types which can be specified in android.content.Intent.setType(String) extra or Intent.EXTRA_MIME_TYPES, when those are used to launch the photo picker, they will filter out any media items which has a MIME type not added to them. While the MIME Types defined by this API will still exist in photo picker media grid, but disabled from selection.</para>
-          <para>Filter media items using the MIME Types defined in android.content.Intent.setType(String) extra or Intent.EXTRA_MIME_TYPES will happen first, before disabling the media items based on the MIME Types passed to this API.</para>
+          <para>The <see cref="M:Android.Content.Intent.SetType(System.String)" /> and <see cref="F:Android.Content.Intent.ExtraMimeTypes" /> constraints filter media items when you launch the Photo Picker. Unlike those constraints, this method keeps nonmatching items in the grid but disables them for selection.</para>
+          <para>The intent constraints are applied before this method disables items that do not match its MIME type list.</para>
           <para>Callers must indicate the acceptable document MIME types. For example, to select photos, use image/*.</para>
           <para>If it is not set, no MIME type constraint will be enforced on the media items the user can select.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/widget/photopicker/PhotoPickerSelectionParams.Builder#setMimeTypes(java.util.List&lt;java.lang.String&gt;)" title="Reference documentation">Android reference for <code>android.widget.photopicker.PhotoPickerSelectionParams.Builder.setMimeTypes</code>.</a></format></para>
@@ -607,7 +606,7 @@
         <remarks>
           <para>Sets the minimum allowed resolution constraint for a media item to be selectable.</para>
           <para>Media items with a resolution lower than the provided threshold will be disabled for selection.</para>
-          <para>The minimum resolution should not be greater than the maximum resolution, or an exception will be thrown during the build() process.</para>
+          <para>The minimum resolution should not be greater than the maximum resolution, or <see cref="M:Android.Widget.PhotoPicker.PhotoPickerSelectionParams.Builder.Build" /> will throw an exception.</para>
           <para>If it is not set, no minimum resolution constraint will be enforced on the media items that the user can select.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/widget/photopicker/PhotoPickerSelectionParams.Builder#setMinMediaItemResolutionInPixels(long)" title="Reference documentation">Android reference for <code>android.widget.photopicker.PhotoPickerSelectionParams.Builder.setMinMediaItemResolutionInPixels</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -647,7 +646,7 @@
         <remarks>
           <para>Sets the minimum allowed duration for a video media item to be selectable.</para>
           <para>Videos shorter than this duration will be disabled for selection.</para>
-          <para>The maximum duration should not be less than minimum duration, or an exception will be thrown during the build() process.</para>
+          <para>The maximum duration should not be less than the minimum duration, or <see cref="M:Android.Widget.PhotoPicker.PhotoPickerSelectionParams.Builder.Build" /> will throw an exception.</para>
           <para>If it is not set, no minimum video duration constraint will be enforced on the videos that the user can select.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/widget/photopicker/PhotoPickerSelectionParams.Builder#setMinVideoDuration(java.time.Duration)" title="Reference documentation">Android reference for <code>android.widget.photopicker.PhotoPickerSelectionParams.Builder.setMinVideoDuration</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>

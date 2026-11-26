@@ -147,9 +147,10 @@
         <Parameter Name="ikeOption" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="ikeOption">the option to be enabled. Value is one of the following: IkeSessionParams.IKE_OPTION_ACCEPT_ANY_REMOTE_ID; IkeSessionParams.IKE_OPTION_EAP_ONLY_AUTH; IkeSessionParams.IKE_OPTION_MOBIKE; IkeSessionParams.IKE_OPTION_FORCE_PORT_4500; IkeSessionParams.IKE_OPTION_INITIAL_CONTACT</param>
+        <param name="ikeOption">The option to enable, specified as an <see cref="T:Android.Net.IpSec.Ike.IkeSessionOption" /> value converted to <see cref="T:System.Int32" />.</param>
         <summary>Sets the specified IKE Option as enabled.</summary>
         <returns>Builder this, to facilitate chaining. This value cannot be null.</returns>
+        <exception cref="T:Java.Lang.IllegalArgumentException">The option is invalid.</exception>
         <remarks>
           <para>Sets the specified IKE Option as enabled.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams.Builder#addIkeOption(int)" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.Builder.addIkeOption</code>.</a></format></para>
@@ -294,9 +295,10 @@
         <Parameter Name="ikeOption" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="ikeOption">the option to be disabled. Value is one of the following: IkeSessionParams.IKE_OPTION_ACCEPT_ANY_REMOTE_ID; IkeSessionParams.IKE_OPTION_EAP_ONLY_AUTH; IkeSessionParams.IKE_OPTION_MOBIKE; IkeSessionParams.IKE_OPTION_FORCE_PORT_4500; IkeSessionParams.IKE_OPTION_INITIAL_CONTACT</param>
+        <param name="ikeOption">The option to disable, specified as an <see cref="T:Android.Net.IpSec.Ike.IkeSessionOption" /> value converted to <see cref="T:System.Int32" />.</param>
         <summary>Resets (disables) the specified IKE Option.</summary>
         <returns>Builder this, to facilitate chaining. This value cannot be null.</returns>
+        <exception cref="T:Java.Lang.IllegalArgumentException">The option is invalid.</exception>
         <remarks>
           <para>Resets (disables) the specified IKE Option.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams.Builder#removeIkeOption(int)" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.Builder.removeIkeOption</code>.</a></format></para>
@@ -342,7 +344,7 @@
       <Docs>
         <param name="serverCaCert">the CA certificate for validating the received server certificate(s). If a certificate is provided, it MUST be the root CA used by the server, or authentication will fail. If no certificate is provided, any root CA in the system's truststore is considered acceptable. This value may be null.</param>
         <param name="clientEndCert">the end certificate for remote server to verify the locally generated signature. This value cannot be null.</param>
-        <param name="clientPrivateKey">private key to generate outbound digital signature. The PrivateKey MUST be an instance of RSAKey. This value cannot be null.</param>
+        <param name="clientPrivateKey">private key to generate outbound digital signature. The <see cref="T:Java.Security.IPrivateKey" /> MUST be an instance of <see cref="T:Java.Security.Interfaces.IRSAKey" />. This value cannot be null.</param>
         <summary>Configures the IkeSession to use public-key-signature-based authentication.</summary>
         <returns>Builder this, to facilitate chaining. This value cannot be null.</returns>
         <remarks>
@@ -395,7 +397,7 @@
         <param name="serverCaCert">the CA certificate for validating the received server certificate(s). If a null value is provided, IKE library will try all default CA certificates stored in Android system to do the validation. Otherwise, it will only use the provided CA certificate.</param>
         <param name="clientEndCert">the end certificate for remote server to verify locally generated signature. This value cannot be null.</param>
         <param name="clientIntermediateCerts">intermediate certificates for the remote server to validate the end certificate. This value cannot be null.</param>
-        <param name="clientPrivateKey">private key to generate outbound digital signature. The PrivateKey MUST be an instance of RSAKey. This value cannot be null.</param>
+        <param name="clientPrivateKey">private key to generate outbound digital signature. The <see cref="T:Java.Security.IPrivateKey" /> MUST be an instance of <see cref="T:Java.Security.Interfaces.IRSAKey" />. This value cannot be null.</param>
         <summary>Configures the IkeSession to use public-key-signature-based authentication.</summary>
         <returns>Builder this, to facilitate chaining. This value cannot be null.</returns>
         <remarks>
@@ -450,8 +452,8 @@
         <remarks>
           <para>Configures the IkeSession to use EAP authentication.</para>
           <para>Not all EAP methods provide mutual authentication. As such EAP MUST be used in conjunction with a public-key-signature-based authentication of the remote server, unless EAP-Only authentication is enabled.</para>
-          <para>Callers may enable EAP-Only authentication by setting IkeSessionParams.IKE_OPTION_EAP_ONLY_AUTH, which will make IKE library request the remote to use EAP-Only authentication. The remote may opt to reject the request, at which point the received certificates and authentication payload WILL be validated with the provided root CA or system's truststore as usual. Only safe EAP methods as listed in RFC 5998 will be accepted for EAP-Only authentication.</para>
-          <para>If IkeSessionParams.IKE_OPTION_EAP_ONLY_AUTH is set, callers MUST configure EAP as the authentication method and all EAP methods set in EAP Session configuration MUST be safe methods that are accepted for EAP-Only authentication. Otherwise callers will get an exception when building the IkeSessionParams</para>
+          <para>Callers may enable EAP-Only authentication by setting <see cref="F:Android.Net.IpSec.Ike.IkeSessionOption.EapOnlyAuth" />, which will make IKE library request the remote to use EAP-Only authentication. The remote may opt to reject the request, at which point the received certificates and authentication payload WILL be validated with the provided root CA or system's truststore as usual. Only safe EAP methods as listed in RFC 5998 will be accepted for EAP-Only authentication.</para>
+          <para>If <see cref="F:Android.Net.IpSec.Ike.IkeSessionOption.EapOnlyAuth" /> is set, callers MUST configure EAP as the authentication method and all EAP methods set in EAP Session configuration MUST be safe methods that are accepted for EAP-Only authentication. Otherwise callers will get an exception when building the IkeSessionParams</para>
           <para>Callers MUST declare only one authentication method. Calling this function will override the previously set authentication configuration.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams.Builder#setAuthEap(java.security.cert.X509Certificate,%20android.net.eap.EapSessionConfig)" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.Builder.setAuthEap</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -689,7 +691,7 @@
         <returns>Builder this, to facilitate chaining. This value cannot be null.</returns>
         <remarks>
           <para>Sets the Network for the IkeSessionParams being built.</para>
-          <para>If no Network is provided, the default Network (as per ConnectivityManager.getActiveNetwork()) will be used when constructing an IkeSession.</para>
+          <para>If no network is provided, the default network is used. It is normally selected when constructing an IKE session, but parameters created with the deprecated Android context constructor resolve it when the parameters are built.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams.Builder#setNetwork(android.net.Network)" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.Builder.setNetwork</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -765,7 +767,7 @@
         <remarks>
           <para>Sets the retransmission timeout list in milliseconds.</para>
           <para>Configures the retransmission by providing an array of relative retransmission timeouts in milliseconds. After sending out a request and before receiving the response, the IKE Session will iterate through the array and wait for the relative timeout before the next retry. If the last timeout is exceeded, the IKE Session will be terminated.</para>
-          <para>Each element in the array MUST be a value from 500 ms to 1800000 ms (30 minutes). The length of the array MUST NOT exceed 10. This retransmission timeout list defaults to {0.5s, 1s, 2s, 4s, 8s}</para>
+          <para>Each element in the array MUST be a value from 500 ms to 1800000 ms (30 minutes). The array must contain 1 through 10 elements. This retransmission timeout list defaults to {0.5s, 1s, 2s, 4s, 8s}</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams.Builder#setRetransmissionTimeoutsMillis(int[])" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.Builder.setRetransmissionTimeoutsMillis</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

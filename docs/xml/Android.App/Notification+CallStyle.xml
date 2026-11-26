@@ -28,7 +28,12 @@
   <Docs>
     <summary>Helper class for generating large-format notifications that include a caller and required actions, such as an incoming call with answer / decline.</summary>
     <remarks>
-      <para>Helper class for generating large-format notifications that include a caller and required actions, such as an incoming call with answer / decline. Here's how you'd set the CallStyle on a notification: Note that this style doesn't display the large icon set via Builder.setLargeIcon(Icon).</para>
+      <para>Helper class for generating large-format notifications that include a caller and required actions, such as an incoming call with answer / decline. Here's how you'd set the CallStyle on a notification:</para>
+      <code lang="text/java">Notification notif = new Notification.Builder(mContext, CHANNEL_ID)
+    .setSmallIcon(R.drawable.new_post)
+    .setStyle(Notification.CallStyle.forIncomingCall(caller, declineIntent, answerIntent))
+    .build();</code>
+      <para>Note that this style doesn't display the large icon set via Builder.setLargeIcon(Icon).</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/Notification.CallStyle" title="Reference documentation">Android reference for <code>android.app.Notification.CallStyle</code>.</a>
@@ -259,7 +264,7 @@
         <param name="declineIntent">PendingIntent: the intent to be sent when the user taps the decline action. This value cannot be null.</param>
         <param name="answerIntent">PendingIntent: the intent to be sent when the user taps the answer action. This value cannot be null.</param>
         <summary>Create a CallStyle for an incoming call.</summary>
-        <returns>This Android.App.Notification.CallStyle instance, allowing calls to be chained.</returns>
+        <returns>A new call style for an incoming call.</returns>
         <remarks>
           <para>Create a CallStyle for an incoming call. This notification will have a decline and an answer action, will allow a single custom action, and will have a default content text for an incoming call.</para>
           <para>
@@ -302,7 +307,7 @@
         <param name="person">Person: the person displayed as being on the other end of the call. The person also needs to have a non-empty name associated with it. This value cannot be null.</param>
         <param name="hangUpIntent">PendingIntent: the intent to be sent when the user taps the hang up action. This value cannot be null.</param>
         <summary>Create a CallStyle for an ongoing call.</summary>
-        <returns>This Android.App.Notification.CallStyle instance, allowing calls to be chained.</returns>
+        <returns>A new call style for an ongoing call.</returns>
         <remarks>
           <para>Create a CallStyle for an ongoing call. This notification will have a hang up action, will allow up to two custom actions, and will have a default content text for an ongoing call.</para>
           <para>
@@ -347,7 +352,7 @@
         <param name="hangUpIntent">PendingIntent: the intent to be sent when the user taps the hang up action. This value cannot be null.</param>
         <param name="answerIntent">PendingIntent: the intent to be sent when the user taps the answer action. This value cannot be null.</param>
         <summary>Create a CallStyle for a call that is being screened.</summary>
-        <returns>This Android.App.Notification.CallStyle instance, allowing calls to be chained.</returns>
+        <returns>A new call style for a call being screened.</returns>
         <remarks>
           <para>Create a CallStyle for a call that is being screened. This notification will have a hang up and an answer action, will allow a single custom action, and will have a default content text for a call that is being screened.</para>
           <para>

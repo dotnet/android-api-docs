@@ -331,7 +331,7 @@
         <param name="includePad">set whether to include extra space beyond font ascent and descent which is needed to avoid clipping in some scripts</param>
         <param name="ellipsize">whether to ellipsize the text if width of the text is longer than the requested outerWidth. null if ellipsis is not applied.</param>
         <param name="ellipsizedWidth">the width to which this Layout is ellipsizing. If ellipsize is null, or is TextUtils.TruncateAt.MARQUEE this value is not used, outerWidth is used instead. Value is 0 or greater</param>
-        <param name="useFallbackLineSpacing">True for adjusting the line spacing based on fallback fonts. False for keeping the first font's line height. If some glyphs requires larger vertical spaces, by passing true to this argument, the layout increase the line height to fit all glyphs.</param>
+        <param name="useFallbackLineSpacing">Whether to use fallback-font spacing. Compute <paramref name="metrics" /> with <c>BoringLayout.IsBoring</c> using the same fallback-spacing value; this flag does not change the supplied metrics.</param>
         <summary>Creates a single-line layout with ellipsis and fallback-font spacing options.</summary>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/BoringLayout#BoringLayout(java.lang.CharSequence,%20android.text.TextPaint,%20int,%20android.text.Layout.Alignment,%20float,%20float,%20android.text.BoringLayout.Metrics,%20boolean,%20android.text.TextUtils.TruncateAt,%20int,%20boolean)" title="Reference documentation">Android reference for <code>android.text.BoringLayout.BoringLayout</code>.</a></format></para>
@@ -394,7 +394,7 @@
         <param name="includePad">set whether to include extra space beyond font ascent and descent which is needed to avoid clipping in some scripts</param>
         <param name="ellipsize">whether to ellipsize the text if width of the text is longer than the requested outerWidth. null if ellipsis is not applied.</param>
         <param name="ellipsizedWidth">the width to which this Layout is ellipsizing. If ellipsize is null, or is TextUtils.TruncateAt.MARQUEE this value is not used, outerWidth is used instead. Value is 0 or greater</param>
-        <param name="useFallbackLineSpacing">True for adjusting the line spacing based on fallback fonts. False for keeping the first font's line height. If some glyphs requires larger vertical spaces, by passing true to this argument, the layout increase the line height to fit all glyphs.</param>
+        <param name="useFallbackLineSpacing">Whether to use fallback-font spacing. Compute <paramref name="metrics" /> with <c>BoringLayout.IsBoring</c> using the same fallback-spacing value; this flag does not change the supplied metrics.</param>
         <summary>Creates a single-line layout with ellipsis and fallback-font spacing options.</summary>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/BoringLayout#BoringLayout(java.lang.CharSequence,%20android.text.TextPaint,%20int,%20android.text.Layout.Alignment,%20float,%20float,%20android.text.BoringLayout.Metrics,%20boolean,%20android.text.TextUtils.TruncateAt,%20int,%20boolean)" title="Reference documentation">Android reference for <code>android.text.BoringLayout.BoringLayout</code>.</a></format></para>
@@ -754,10 +754,10 @@
       </Parameters>
       <Docs>
         <param name="line">The line index, which is not used by this single-line implementation.</param>
-        <summary ToolPath="TrimmedButTooLong" tool="FirstSentenceInLongSummaries">Returns the primary directionality of the paragraph containing the specified line, either 1 for left-to-right lines, or -1 for right-to-left lines (see DIR_LEFT_TO_RIGHT, DIR_RIGHT_TO_LEFT).</summary>
+        <summary>Returns the left-to-right direction for this single-line layout.</summary>
         <returns>The left-to-right layout direction.</returns>
         <remarks>
-          <para>Returns the primary directionality of the paragraph containing the specified line, either 1 for left-to-right lines, or -1 for right-to-left lines (see DIR_LEFT_TO_RIGHT, DIR_RIGHT_TO_LEFT).</para>
+          <para>This single-line layout always uses the left-to-right direction.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/BoringLayout#getParagraphDirection(int)" title="Reference documentation">Android reference for <code>android.text.BoringLayout.getParagraphDirection</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -865,7 +865,7 @@
       <Docs>
         <param name="text">a text</param>
         <param name="paint">a paint</param>
-        <param name="metrics">a metrics object to be recycled. If null is passed, this function creat new object.</param>
+        <param name="metrics">An optional metrics object to reuse and fill. If null, this method creates a new object.</param>
         <summary>Determine and compute metrics if given text can be handled by BoringLayout.</summary>
         <returns>layout metric for the given text. null if given text is unable to be handled by
                     BoringLayout.</returns>
@@ -971,7 +971,7 @@
         <param name="text">a text to be calculated text layout. This value cannot be null.</param>
         <param name="paint">a paint object used for styling. This value cannot be null.</param>
         <param name="textDir">a text direction. This value cannot be null.</param>
-        <param name="useFallbackLineSpacing">True for adjusting the line spacing based on fallback fonts. False for keeping the first font's line height. If some glyphs requires larger vertical spaces, by passing true to this argument, the layout increase the line height to fit all glyphs.</param>
+        <param name="useFallbackLineSpacing">When true, fallback-font metrics can increase the line height if a glyph needs more vertical space. When false, the line height uses the first font's metrics.</param>
         <param name="metrics">the out metrics. This value may be null.</param>
         <summary>Returns null if not boring; the width, ascent, and descent in the provided Metrics object (or a new one if the provided one was null) if boring.</summary>
         <returns>metrics on success. null if text cannot be rendered by BoringLayout.</returns>
@@ -1288,7 +1288,7 @@
         <param name="includePad">set whether to include extra space beyond font ascent and descent which is needed to avoid clipping in some scripts</param>
         <param name="ellipsize">whether to ellipsize the text if width of the text is longer than the requested width. null if ellipsis is not applied.</param>
         <param name="ellipsizedWidth">the width to which this Layout is ellipsizing. If ellipsize is null, or is TextUtils.TruncateAt.MARQUEE this value is not used, outerWidth is used instead. Value is 0 or greater</param>
-        <param name="useFallbackLineSpacing">True for adjusting the line spacing based on fallback fonts. False for keeping the first font's line height. If some glyphs requires larger vertical spaces, by passing true to this argument, the layout increase the line height to fit all glyphs.</param>
+        <param name="useFallbackLineSpacing">Whether to use fallback-font spacing. Compute <paramref name="metrics" /> with <c>BoringLayout.IsBoring</c> using the same fallback-spacing value; this flag does not change the supplied metrics.</param>
         <summary>Utility function to construct a BoringLayout instance.</summary>
         <returns>The newly created single-line layout.</returns>
         <remarks>
@@ -1626,7 +1626,7 @@
         <param name="includePad">set whether to include extra space beyond font ascent and descent which is needed to avoid clipping in some scripts</param>
         <param name="ellipsize">whether to ellipsize the text if width of the text is longer than the requested width. null if ellipsis not applied.</param>
         <param name="ellipsizedWidth">the width to which this Layout is ellipsizing. If ellipsize is null, or is TextUtils.TruncateAt.MARQUEE this value is not used, outerWidth is used instead. Value is 0 or greater</param>
-        <param name="useFallbackLineSpacing">True for adjusting the line spacing based on fallback fonts. False for keeping the first font's line height. If some glyphs requires larger vertical spaces, by passing true to this argument, the layout increase the line height to fit all glyphs.</param>
+        <param name="useFallbackLineSpacing">Whether to use fallback-font spacing. Compute <paramref name="metrics" /> with <c>BoringLayout.IsBoring</c> using the same fallback-spacing value; this flag does not change the supplied metrics.</param>
         <summary>Returns a BoringLayout for the specified text, potentially reusing this one if it is already suitable.</summary>
         <returns>This layout after its text and options have been replaced.</returns>
         <remarks>

@@ -49,8 +49,183 @@
     <summary>A fragment that displays a dialog window, floating on top of its
             activity's window.</summary>
     <remarks>
-      <para>This class was deprecated in API level 28. Use the Support Library DialogFragment for consistent behavior across all devices and access to Lifecycle.</para>
-      <para>A fragment that displays a dialog window, floating on top of its activity's window. This fragment contains a Dialog object, which it displays as appropriate based on the fragment's state. Control of the dialog (deciding when to show, hide, dismiss it) should be done through the API here, not with direct calls on the dialog. Implementations should override this class and implement onCreateView(LayoutInflater,ViewGroup,Bundle) to supply the content of the dialog. Alternatively, they can override onCreateDialog(Bundle) to create an entirely custom dialog, such as an AlertDialog, with its own content. Topics covered here: Lifecycle Basic Dialog Alert Dialog Selecting Between Dialog or Embedding Lifecycle DialogFragment does various things to keep the fragment's lifecycle driving it, instead of the Dialog. Note that dialogs are generally autonomous entities -- they are their own window, receiving their own input events, and often deciding on their own when to disappear (by receiving a back key event or the user clicking on a button). DialogFragment needs to ensure that what is happening with the Fragment and Dialog states remains consistent. To do this, it watches for dismiss events from the dialog and takes care of removing its own state when they happen. This means you should use show(FragmentManager,String) or show(FragmentTransaction,String) to add an instance of DialogFragment to your UI, as these keep track of how DialogFragment should remove itself when the dialog is dismissed. Basic Dialog The simplest use of DialogFragment is as a floating container for the fragment's view hierarchy. A simple implementation may look like this: An example showDialog() method on the Activity could be: This removes any currently shown dialog, creates a new DialogFragment with an argument, and shows it as a new state on the back stack. When the transaction is popped, the current DialogFragment and its Dialog will be destroyed, and the previous one (if any) re-shown. Note that in this case DialogFragment will take care of popping the transaction of the Dialog is dismissed separately from it. Alert Dialog Instead of (or in addition to) implementing Fragment.onCreateView(LayoutInflater, ViewGroup, Bundle) to generate the view hierarchy inside of a dialog, you may implement onCreateDialog(Bundle) to create your own custom Dialog object. This is most useful for creating an AlertDialog, allowing you to display standard alerts to the user that are managed by a fragment. A simple example implementation of this is: The activity creating this fragment may have the following methods to show the dialog and receive results from it: Note that in this case the fragment is not placed on the back stack, it is just added as an indefinitely running fragment. Because dialogs normally are modal, this will still operate as a back stack, since the dialog will capture user input until it is dismissed. When it is dismissed, DialogFragment will take care of removing itself from its fragment manager. Selecting Between Dialog or Embedding A DialogFragment can still optionally be used as a normal fragment, if desired. This is useful if you have a fragment that in some cases should be shown as a dialog and others embedded in a larger UI. This behavior will normally be automatically selected for you based on how you are using the fragment, but can be customized with setShowsDialog(boolean). For example, here is a simple dialog fragment: An instance of this fragment can be created and shown as a dialog: It can also be added as content in a view hierarchy:</para>
+      <para>This class was deprecated in API level 28. Use the <see href="https://developer.android.com/tools/extras/support-library.html">Support Library</see> <c>androidx.fragment.app.DialogFragment</c> for consistent behavior across all devices and access to <see href="https://developer.android.com/topic/libraries/architecture/lifecycle.html">Lifecycle</see>.</para>
+      <para>A fragment that displays a dialog window, floating on top of its activity's window. This fragment contains a Dialog object, which it displays as appropriate based on the fragment's state. Control of the dialog (deciding when to show, hide, dismiss it) should be done through the API here, not with direct calls on the dialog. Implementations should override this class and implement onCreateView(LayoutInflater,ViewGroup,Bundle) to supply the content of the dialog. Alternatively, they can override onCreateDialog(Bundle) to create an entirely custom dialog, such as an AlertDialog, with its own content. Topics covered here: Lifecycle Basic Dialog Alert Dialog Selecting Between Dialog or Embedding Lifecycle DialogFragment does various things to keep the fragment's lifecycle driving it, instead of the Dialog. Note that dialogs are generally autonomous entities -- they are their own window, receiving their own input events, and often deciding on their own when to disappear (by receiving a back key event or the user clicking on a button). DialogFragment needs to ensure that what is happening with the Fragment and Dialog states remains consistent. To do this, it watches for dismiss events from the dialog and takes care of removing its own state when they happen. This means you should use show(FragmentManager,String) or show(FragmentTransaction,String) to add an instance of DialogFragment to your UI, as these keep track of how DialogFragment should remove itself when the dialog is dismissed. Basic Dialog The simplest use of DialogFragment is as a floating container for the fragment's view hierarchy. This example is adapted from the Android sample. A simple implementation may look like this:</para>
+      <code lang="text/java">public static class MyDialogFragment extends DialogFragment {
+    int mNum;
+
+    static String getNameForNum(int num) {
+        switch ((num-1)%9) {
+            case 1: return "STYLE_NO_TITLE";
+            case 2: return "STYLE_NO_FRAME";
+            case 3: return "STYLE_NO_INPUT (this window can't receive input, so "
+                    + "you will need to press the bottom show button)";
+            case 4: return "STYLE_NORMAL with dark fullscreen theme";
+            case 5: return "STYLE_NORMAL with light theme";
+            case 6: return "STYLE_NO_TITLE with light theme";
+            case 7: return "STYLE_NO_FRAME with light theme";
+            case 8: return "STYLE_NORMAL with light fullscreen theme";
+        }
+        return "STYLE_NORMAL";
+    }
+
+    /**
+     * Create a new instance of MyDialogFragment, providing "num"
+     * as an argument.
+     */
+    static MyDialogFragment newInstance(int num) {
+        MyDialogFragment f = new MyDialogFragment();
+
+        // Supply num input as an argument.
+        Bundle args = new Bundle();
+        args.putInt("num", num);
+        f.setArguments(args);
+
+        return f;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mNum = getArguments().getInt("num");
+
+        // Pick a style based on the num.
+        int style = DialogFragment.STYLE_NORMAL, theme = 0;
+        switch ((mNum-1)%9) {
+            case 1: style = DialogFragment.STYLE_NO_TITLE; break;
+            case 2: style = DialogFragment.STYLE_NO_FRAME; break;
+            case 3: style = DialogFragment.STYLE_NO_INPUT; break;
+            case 4: style = DialogFragment.STYLE_NORMAL; break;
+            case 5: style = DialogFragment.STYLE_NORMAL; break;
+            case 6: style = DialogFragment.STYLE_NO_TITLE; break;
+            case 7: style = DialogFragment.STYLE_NO_FRAME; break;
+            case 8: style = DialogFragment.STYLE_NORMAL; break;
+        }
+        switch ((mNum-1)%9) {
+            case 4: theme = android.R.style.Theme_Holo; break;
+            case 5: theme = android.R.style.Theme_Holo_Light_Dialog; break;
+            case 6: theme = android.R.style.Theme_Holo_Light; break;
+            case 7: theme = android.R.style.Theme_Holo_Light_Panel; break;
+            case 8: theme = android.R.style.Theme_Holo_Light; break;
+        }
+        setStyle(style, theme);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.fragment_dialog, container, false);
+        View tv = v.findViewById(R.id.text);
+        ((TextView)tv).setText("Dialog #" + mNum + ": using style "
+                + getNameForNum(mNum));
+
+        // Watch for button clicks.
+        Button button = (Button)v.findViewById(R.id.show);
+        button.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                // When button is clicked, call up to owning activity.
+                ((FragmentDialog)getActivity()).showDialog();
+            }
+        });
+
+        return v;
+    }
+}</code>
+      <para>An example showDialog() method on the Activity could be:</para>
+      <code lang="text/java">void showDialog() {
+    mStackLevel++;
+
+    // DialogFragment.show() will take care of adding the fragment
+    // in a transaction.  We also want to remove any currently showing
+    // dialog, so make our own transaction and take care of that here.
+    FragmentTransaction ft = getFragmentManager().beginTransaction();
+    Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+    if (prev != null) {
+        ft.remove(prev);
+    }
+    ft.addToBackStack(null);
+
+    // Create and show the dialog.
+    DialogFragment newFragment = MyDialogFragment.newInstance(mStackLevel);
+    newFragment.show(ft, "dialog");
+}</code>
+      <para>This removes any currently shown dialog, creates a new DialogFragment with an argument, and shows it as a new state on the back stack. When the transaction is popped, the current DialogFragment and its Dialog will be destroyed, and the previous one (if any) re-shown. Note that in this case DialogFragment will take care of popping the transaction of the Dialog is dismissed separately from it. Alert Dialog Instead of (or in addition to) implementing Fragment.onCreateView(LayoutInflater, ViewGroup, Bundle) to generate the view hierarchy inside of a dialog, you may implement onCreateDialog(Bundle) to create your own custom Dialog object. This is most useful for creating an AlertDialog, allowing you to display standard alerts to the user that are managed by a fragment. A simple example implementation of this is:</para>
+      <code lang="text/java">public static class MyAlertDialogFragment extends DialogFragment {
+
+    public static MyAlertDialogFragment newInstance(int title) {
+        MyAlertDialogFragment frag = new MyAlertDialogFragment();
+        Bundle args = new Bundle();
+        args.putInt("title", title);
+        frag.setArguments(args);
+        return frag;
+    }
+
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        int title = getArguments().getInt("title");
+
+        return new AlertDialog.Builder(getActivity())
+                .setIcon(R.drawable.alert_dialog_icon)
+                .setTitle(title)
+                .setPositiveButton(R.string.alert_dialog_ok,
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            ((FragmentAlertDialog)getActivity()).doPositiveClick();
+                        }
+                    }
+                )
+                .setNegativeButton(R.string.alert_dialog_cancel,
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            ((FragmentAlertDialog)getActivity()).doNegativeClick();
+                        }
+                    }
+                )
+                .create();
+    }
+}</code>
+      <para>The activity creating this fragment may have the following methods to show the dialog and receive results from it:</para>
+      <code lang="text/java">void showDialog() {
+    DialogFragment newFragment = MyAlertDialogFragment.newInstance(
+            R.string.alert_dialog_two_buttons_title);
+    newFragment.show(getFragmentManager(), "dialog");
+}
+
+public void doPositiveClick() {
+    // Do stuff here.
+    Log.i("FragmentAlertDialog", "Positive click!");
+}
+
+public void doNegativeClick() {
+    // Do stuff here.
+    Log.i("FragmentAlertDialog", "Negative click!");
+}</code>
+      <para>Note that in this case the fragment is not placed on the back stack, it is just added as an indefinitely running fragment. Because dialogs normally are modal, this will still operate as a back stack, since the dialog will capture user input until it is dismissed. When it is dismissed, DialogFragment will take care of removing itself from its fragment manager. Selecting Between Dialog or Embedding A DialogFragment can still optionally be used as a normal fragment, if desired. This is useful if you have a fragment that in some cases should be shown as a dialog and others embedded in a larger UI. This behavior will normally be automatically selected for you based on how you are using the fragment, but can be customized with setShowsDialog(boolean). For example, here is a simple dialog fragment:</para>
+      <code lang="text/java">public static class MyDialogFragment extends DialogFragment {
+    static MyDialogFragment newInstance() {
+        return new MyDialogFragment();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.hello_world, container, false);
+        View tv = v.findViewById(R.id.text);
+        ((TextView)tv).setText("This is an instance of MyDialogFragment");
+        return v;
+    }
+}</code>
+      <para>An instance of this fragment can be created and shown as a dialog:</para>
+      <code lang="text/java">void showDialog() {
+    // Create the fragment and show it as a dialog.
+    DialogFragment newFragment = MyDialogFragment.newInstance();
+    newFragment.show(getFragmentManager(), "dialog");
+}</code>
+      <para>It can also be added as content in a view hierarchy:</para>
+      <code lang="text/java">FragmentTransaction ft = getFragmentManager().beginTransaction();
+DialogFragment newFragment = MyDialogFragment.newInstance();
+ft.add(R.id.embedded, newFragment);
+ft.commit();</code>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/DialogFragment" title="Reference documentation">Android reference for <code>android.app.DialogFragment</code>.</a>
@@ -151,7 +326,7 @@
         <summary>Return the current value of <c>#setCancelable(boolean)</c>. -or- Control whether the shown Dialog is cancelable.</summary>
         <value>The fragment's cancelability flag, also applied to its dialog when one exists.</value>
         <remarks>
-          <para>Return the current value of setCancelable(boolean).</para>
+          <para>Use this property instead of calling <c>Dialog.SetCancelable</c> directly, because the fragment must also update its own behavior. The default is <see langword="true" />.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/DialogFragment#isCancelable()" title="Reference documentation">Android reference for <code>android.app.DialogFragment.isCancelable</code>.</a>
@@ -654,7 +829,7 @@
         <summary>Return the current value of <c>#setShowsDialog(boolean)</c>. -or- Controls whether this fragment should be shown in a dialog.</summary>
         <value>The flag selecting dialog presentation rather than an embedded fragment view; it does not indicate that a dialog currently exists.</value>
         <remarks>
-          <para>Return the current value of setShowsDialog(boolean).</para>
+          <para>When this property is <see langword="false" />, no dialog is created, and the fragment's view can be embedded in its activity. The dialog is normally created by <c>OnCreateDialog</c> before <c>OnCreateView</c>. During creation, the value is normally set to <see langword="false" /> when the fragment is added with a container view ID, and <see langword="true" /> otherwise. A saved value overrides that default.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/DialogFragment#getShowsDialog()" title="Reference documentation">Android reference for <code>android.app.DialogFragment.getShowsDialog</code>.</a>

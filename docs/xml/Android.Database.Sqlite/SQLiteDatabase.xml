@@ -444,7 +444,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Releases a reference to the database, closing it when the last reference is released.</summary>
+        <summary>On current Android versions, releases a reference to the database and closes it when the last reference is released. On checked Android 2.2 through 4.0 releases, closes the database regardless of its reference count.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1310,10 +1310,10 @@
           <para>It has no means to return any data (such as the number of affected rows).
             Instead, you're encouraged to use <c>#insert(String, String, ContentValues)</c>,
             <c>#update(String, ContentValues, String, String[])</c>, et al, when possible.</para>
-          <para>When using <c>#enableWriteAheadLogging()</c>, journal_mode is
-            automatically managed by this class. So, do not set journal_mode
-            using "PRAGMA journal_mode'&lt;value&gt;" statement if your app is using
-            <c>#enableWriteAheadLogging()</c></para>
+          <para>When using <see cref="M:Android.Database.Sqlite.SQLiteDatabase.EnableWriteAheadLogging" />, journal_mode is
+            automatically managed by this class. Do not set journal_mode
+            using a <c>PRAGMA journal_mode = &lt;value&gt;</c> statement if your app uses
+            <see cref="M:Android.Database.Sqlite.SQLiteDatabase.EnableWriteAheadLogging" />.</para>
           <para>Note that <c>PRAGMA</c> values which apply on a per-connection basis
             should <i>not</i> be configured using this method; you should instead
             use <c>#execPerConnectionSQL</c> to ensure that they are uniformly
@@ -1388,10 +1388,10 @@
               &lt;li&gt;SAVEPOINT&lt;/li&gt;
               &lt;li&gt;PRAGMA that returns no data&lt;/li&gt;
             &lt;/ul&gt;</para>
-          <para>When using <c>#enableWriteAheadLogging()</c>, journal_mode is
-            automatically managed by this class. So, do not set journal_mode
-            using "PRAGMA journal_mode'&lt;value&gt;" statement if your app is using
-            <c>#enableWriteAheadLogging()</c></para>
+          <para>When using <see cref="M:Android.Database.Sqlite.SQLiteDatabase.EnableWriteAheadLogging" />, journal_mode is
+            automatically managed by this class. Do not set journal_mode
+            using a <c>PRAGMA journal_mode = &lt;value&gt;</c> statement if your app uses
+            <see cref="M:Android.Database.Sqlite.SQLiteDatabase.EnableWriteAheadLogging" />.</para>
           <para>Note that <c>PRAGMA</c> values which apply on a per-connection basis
             should <i>not</i> be configured using this method; you should instead
             use <c>#execPerConnectionSQL</c> to ensure that they are uniformly
@@ -4650,7 +4650,7 @@
       </ReturnValue>
       <Docs>
         <summary>Deprecated.</summary>
-        <value>An empty table-name map. This deprecated property no longer provides synchronization information.</value>
+        <value>On checked Android 1.6 through 2.3 releases, a map from synchronized table names to their deleted-table names. On checked Android 3.2 and later releases, an empty map.</value>
         <remarks>
           <para>Deprecated.</para>
           <para>This member is deprecated. This method no longer serves any useful purpose and has been deprecated.</para>

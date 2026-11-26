@@ -30,8 +30,8 @@
     <remarks>
       <para>A <c>StackFrame</c> object represents a method invocation returned by
             <c>StackWalker</c>.</para>
-      <para>The <c>#getDeclaringClass()</c> method may be unsupported as determined
-            by the Option stack walking options of a StackWalker stack walker.</para>
+      <para>The <c>DeclaringClass</c> property may be unsupported, depending on
+            the options used to create the <c>StackWalker</c>.</para>
       <para>Added in 9.</para>
       <para>
         <format type="text/html">
@@ -70,9 +70,9 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the bytecode index of the current instruction in this stack frame.</summary>
-        <value>The bytecode index of the current instruction.</value>
-        <remarks>Gets the bytecode index of the current instruction in this stack frame.</remarks>
+        <summary>Gets the index of the instruction represented by this stack frame in the method's Dalvik bytecode.</summary>
+        <value>The index into the Dalvik <c>code_item</c>'s <c>insns</c> array of 16-bit code units, or a negative number if the method is native.</value>
+        <remarks>Returns the index into the Dalvik <c>code_item</c>'s <c>insns</c> array that contains the execution point represented by this stack frame. The index is measured in 16-bit code units. For a native method, returns a negative number.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ClassName">
@@ -130,7 +130,9 @@
       <Docs>
         <summary>Gets the class that declares the method represented by this stack frame.</summary>
         <value>The class that declares the method represented by this stack frame.</value>
-        <remarks>Gets the class that declares the method represented by this stack frame.</remarks>
+        <remarks>The associated <c>StackWalker</c> must be configured with the
+            <c>RetainClassReference</c> option.</remarks>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">if the associated <c>StackWalker</c> was not created with the <c>RetainClassReference</c> option.</exception>
       </Docs>
     </Member>
     <Member MemberName="Descriptor">

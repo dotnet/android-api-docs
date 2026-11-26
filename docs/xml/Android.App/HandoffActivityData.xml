@@ -46,7 +46,7 @@
     <summary>Represents information needed to recreate an activity on a remote device owned by the user.</summary>
     <remarks>
       <para>Represents information needed to recreate an activity on a remote device owned by the user.</para>
-      <para>This class is returned by Activity.onHandoffActivityDataRequested, and is passed to a remote device owned by the user. The remote device will create a launch intent for the activity specified by getComponentName(), passing along any extras specified by getExtras().</para>
+      <para>This class is returned by <see cref="M:Android.App.Activity.OnHandoffActivityDataRequested(Android.App.HandoffActivityDataRequestInfo)" /> and is passed to a remote device owned by the user. The remote device will create a launch intent for the activity specified by <see cref="P:Android.App.HandoffActivityData.ComponentName" />, passing along the data in <see cref="P:Android.App.HandoffActivityData.Extras" />.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/HandoffActivityData" title="Reference documentation">Android reference for <code>android.app.HandoffActivityData</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -86,7 +86,7 @@
       <Docs>
         <summary>Gets the activity component to launch on the receiving device.</summary>
         <value>the component name of an activity to launch on the remote device when the activity
-                represented by this object is handed off. When this is <c>null</c>, the <c>#getFallbackUri()</c> will be used.</value>
+                represented by this object is handed off. When this is <c>null</c>, the <see cref="P:Android.App.HandoffActivityData.FallbackUri" /> will be used.</value>
         <remarks>When no component is supplied, handoff uses the fallback URI instead of an explicit activity component.</remarks>
       </Docs>
     </Member>
@@ -223,9 +223,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the persistable data supplied for the handoff launch.</summary>
-        <value>extras to pass inside the launch intent via <c>Intent#putExtras</c> for the activity
-                specified by <c>#getComponentName()</c> during handoff. This defaults to an empty
-                bundle.</value>
+        <value>Extras for the launch intent of the activity specified by <see cref="P:Android.App.HandoffActivityData.ComponentName" /> during handoff. This defaults to an empty bundle. To pass these extras to <see cref="M:Android.Content.Intent.PutExtras(Android.OS.Bundle)" />, first copy them to a <see cref="T:Android.OS.Bundle" /> using <see cref="M:Android.OS.Bundle.#ctor(Android.OS.PersistableBundle)" />.</value>
         <remarks>The getter returns the stored bundle rather than making a new copy for each call.</remarks>
       </Docs>
     </Member>
@@ -263,7 +261,7 @@
       <Docs>
         <summary>Gets the browser fallback URI for remote handoff.</summary>
         <value>the URI which will be launched on the remote device's web browser if the activity
-                specified by <c>#getComponentName()</c> cannot be launched, or <c>null</c> if no
+                specified by <see cref="P:Android.App.HandoffActivityData.ComponentName" /> cannot be launched, or <c>null</c> if no
                 fallback URI was specified.</value>
         <remarks>The fallback is used when the remote activity cannot be launched. A null value means no fallback URI was supplied.</remarks>
       </Docs>
@@ -427,7 +425,7 @@
       </Parameters>
       <Docs>
         <param name="dest">The Parcel in which the object should be written.</param>
-        <param name="flags">Additional flags about how the object should be written. May be 0 or Parcelable.PARCELABLE_WRITE_RETURN_VALUE. Value is either 0 or a combination of the following: <see cref="F:Android.OS.ParcelableWriteFlags.ReturnValue" /></param>
+        <param name="flags">Additional flags about how the object should be written. The value is 0 or <see cref="F:Android.OS.ParcelableWriteFlags.ReturnValue" />.</param>
         <summary>Flatten this object in to a Parcel.</summary>
         <remarks>
           <para>Flatten this object in to a Parcel.</para>

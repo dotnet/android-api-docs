@@ -610,21 +610,16 @@
                               by the system or null if unused.</param>
         <param name="executor">The <c>Executor</c> on which the <c>OutcomeReceiver</c> callback
                               will be called on.</param>
-        <param name="callback">that will be completed on the Telecom side that details success or failure
-                              of the requested operation.
-            
-                              <c>OutcomeReceiver#onResult</c> will be called if Telecom has successfully
-                              switched the video state.
-            
-                              <c>OutcomeReceiver#onError</c> will be called if Telecom has failed to set
-                              the new video state.  A <c>CallException</c> will be passed
-                              that details why the operation failed.</param>
+        <param name="callback">The <c>OutcomeReceiver</c> that reports whether Telecom completed the
+                               request to set the contact URI. <c>OutcomeReceiver#onResult</c> is
+                               called on success. <c>OutcomeReceiver#onError</c> is called if the
+                               operation fails; the <c>CallException</c> describes the failure.</param>
         <summary>Sets the VoIP contact URI for an ongoing call.</summary>
         <remarks>
           <para>Sets the VoIP contact URI for an ongoing call.</para>
-          <para>This method should be invoked by a VoIP application. when a call transitions to or from being a group call. For instance, if a one-on-one call adds more participants and becomes a conference. This should be used in par with CallControl.setGroupCallState.</para>
-          <para>Providing this state allows the Android system to correctly represent the call in the system's user interface, such as the native call log. As part of the integrated call logs feature, which provides a unified history for both carrier and VoIP calls, accurately associating the calls with a valid lookup URI is essential for a consistent user experience.</para>
-          <para>The uri parameter is crucial for linking the call to a specific group entity within the VoIP contact directory or a CP2 contact. This helps in associating the call log entry with the correct contact information, such as the group's name and avatar.</para>
+          <para>Call this method when a VoIP call transitions to or from a group call, such as when a one-to-one call adds participants and becomes a conference. Call it alongside <c>CallControl#setGroupCallState</c>.</para>
+          <para>Providing this URI allows the Android system to correctly represent the call in the system's user interface, such as the native call log. As part of the integrated call logs feature, which provides a unified history for both carrier and VoIP calls, accurately associating the calls with a valid lookup URI is essential for a consistent user experience.</para>
+          <para>The URI identifies a contact or group in the VoIP contact directory, or a CP2 contact. The system can use it to display associated contact information, such as a name or avatar, in the integrated call log.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telecom/CallControl#setContactUri(android.net.Uri,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver&lt;java.lang.Void,android.telecom.CallException&gt;)" title="Reference documentation">Android reference for <code>android.telecom.CallControl.setContactUri</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -664,19 +659,14 @@
                                otherwise.</param>
         <param name="executor">The <c>Executor</c> on which the <c>OutcomeReceiver</c> callback
                                will be called on.</param>
-        <param name="callback">that will be completed on the Telecom side that details success or failure
-                               of the requested operation.
-            
-                               <c>OutcomeReceiver#onResult</c> will be called if Telecom has
-                               successfully switched the video state.
-            
-                               <c>OutcomeReceiver#onError</c> will be called if Telecom has failed to
-                               set the new video state.  A <c>CallException</c> will be passed  that
-                               details why the operation failed.</param>
+        <param name="callback">The <c>OutcomeReceiver</c> that reports whether Telecom completed the
+                               request to set the group-call state. <c>OutcomeReceiver#onResult</c> is
+                               called on success. <c>OutcomeReceiver#onError</c> is called if the
+                               operation fails; the <c>CallException</c> describes the failure.</param>
         <summary>Sets the group call state for an ongoing call.</summary>
         <remarks>
           <para>Sets the group call state for an ongoing call.</para>
-          <para>This method should be invoked by a VoIP application. when a call transitions to or from being a group call. For instance, if a one-on-one call adds more participants and becomes a conference, this method informs the system of that change.</para>
+          <para>Call this method when a VoIP call changes to or from a group call, for example when a one-to-one call adds participants and becomes a conference. It informs the system of that change.</para>
           <para>Providing this state allows the Android system to correctly represent the call in the system's user interface, such as the native call log. As part of the integrated call logs feature, which provides a unified history for both carrier and VoIP calls, accurately identifying group calls is essential for a consistent user experience.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telecom/CallControl#setGroupCallState(boolean,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver&lt;java.lang.Void,android.telecom.CallException&gt;)" title="Reference documentation">Android reference for <code>android.telecom.CallControl.setGroupCallState</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>

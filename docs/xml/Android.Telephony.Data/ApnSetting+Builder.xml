@@ -128,7 +128,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies how the runtime handles the JNI reference, including its release and peer registration.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>The runtime calls this constructor to create a managed representation of an existing Java object.</para>
@@ -454,7 +454,7 @@
         <summary>Sets the carrier id for this APN.</summary>
         <returns>This builder instance, with the setting updated.</returns>
         <remarks>
-          <para>Sets the carrier id for this APN. See TelephonyManager.getSimCarrierId() which provides more background for what a carrier ID is.</para>
+          <para>Sets the carrier ID for this APN. See <see cref="P:Android.Telephony.TelephonyManager.SimCarrierId" /> for more information about carrier IDs.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/data/ApnSetting.Builder#setCarrierId(int)" title="Reference documentation">Android reference for <code>android.telephony.data.ApnSetting.Builder.setCarrierId</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -587,9 +587,9 @@
         <summary>Sets the address of an MMS proxy for the APN.</summary>
         <returns>This builder instance, with the setting updated.</returns>
         <remarks>
-          <para>This method was deprecated in API level 29. use setMmsProxyAddress(String) instead.</para>
+          <para>This method was deprecated in API level 29. Use <see cref="M:Android.Telephony.Data.ApnSetting.Builder.SetMmsProxyAddress(System.String)" /> instead.</para>
           <para>Sets the address of an MMS proxy for the APN. The MMS proxy address can be an IP address or hostname. If mmsProxy contains both an IP address and hostname, this method ignores the IP address.</para>
-          <para>The InetAddress methods getByName() and getAllByName() require DNS for hostname resolution. To avoid this requirement when setting a hostname, call InetAddress.getByAddress(java.lang.String, byte[]) with both the hostname and a placeholder IP address. See the example in <see cref="T:Android.Telephony.Data.ApnSetting.Builder" />.</para>
+          <para>The <see cref="M:Java.Net.InetAddress.GetByName(System.String)" /> and <see cref="M:Java.Net.InetAddress.GetAllByName(System.String)" /> methods resolve hostnames. To avoid hostname resolution when setting a hostname, call <see cref="M:Java.Net.InetAddress.GetByAddress(System.String,System.Byte[])" /> with both the hostname and a placeholder IP address. See the example in <see cref="T:Android.Telephony.Data.ApnSetting.Builder" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/data/ApnSetting.Builder#setMmsProxyAddress(java.net.InetAddress)" title="Reference documentation">Android reference for <code>android.telephony.data.ApnSetting.Builder.setMmsProxyAddress</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -707,7 +707,7 @@
         <summary>Set the default MTU (Maximum Transmission Unit) size in bytes of the IPv4 routes brought up by this APN setting.</summary>
         <returns>This builder instance, with the setting updated.</returns>
         <remarks>
-          <para>Set the default MTU (Maximum Transmission Unit) size in bytes of the IPv4 routes brought up by this APN setting. Note this value will only be used when MTU size is not provided in DataCallResponse#getMtuV4() during network bring up.</para>
+          <para>Set the default MTU (Maximum Transmission Unit) size in bytes of the IPv4 routes brought up by this APN setting. This value is used only when the data call response does not provide an IPv4 MTU during network setup.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/data/ApnSetting.Builder#setMtuV4(int)" title="Reference documentation">Android reference for <code>android.telephony.data.ApnSetting.Builder.setMtuV4</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -744,7 +744,7 @@
         <summary>Set the default MTU (Maximum Transmission Unit) size in bytes of the IPv6 routes brought up by this APN setting.</summary>
         <returns>This builder instance, with the setting updated.</returns>
         <remarks>
-          <para>Set the default MTU (Maximum Transmission Unit) size in bytes of the IPv6 routes brought up by this APN setting. Note this value will only be used when MTU size is not provided in DataCallResponse#getMtuV6() during network bring up.</para>
+          <para>Set the default MTU (Maximum Transmission Unit) size in bytes of the IPv6 routes brought up by this APN setting. This value is used only when the data call response does not provide an IPv6 MTU during network setup.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/data/ApnSetting.Builder#setMtuV6(int)" title="Reference documentation">Android reference for <code>android.telephony.data.ApnSetting.Builder.setMtuV6</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -828,11 +828,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="networkTypeBitmask">the Radio Technology (Network Type) info</param>
-        <summary>Sets Radio Technology (Network Type) info for this APN.</summary>
+        <param name="networkTypeBitmask">A bitmask of network types for this APN.</param>
+        <summary>Sets the network type bitmask for this APN.</summary>
         <returns>This builder instance, with the setting updated.</returns>
         <remarks>
-          <para>Sets Radio Technology (Network Type) info for this APN.</para>
+          <para>Although the parameter has type <see cref="T:Android.Telephony.NetworkType" />, it requires a bitmask, not an ordinary network type value. For example, on Android 13 and later, cast <see cref="F:Android.Telephony.TelephonyManager.NetworkTypeBitmaskLte" /> to <see cref="T:Android.Telephony.NetworkType" /> to select LTE.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/data/ApnSetting.Builder#setNetworkTypeBitmask(int)" title="Reference documentation">Android reference for <code>android.telephony.data.ApnSetting.Builder.setNetworkTypeBitmask</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -876,7 +876,7 @@
         <summary>Sets the numeric operator ID for the APN.</summary>
         <returns>This builder instance, with the setting updated.</returns>
         <remarks>
-          <para>Sets the numeric operator ID for the APN. Numeric operator ID is defined as Telephony.Carriers.MCC + Telephony.Carriers.MNC.</para>
+          <para>Sets the numeric operator ID for the APN. The numeric operator ID is the mobile country code followed by the mobile network code.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/data/ApnSetting.Builder#setOperatorNumeric(java.lang.String)" title="Reference documentation">Android reference for <code>android.telephony.data.ApnSetting.Builder.setOperatorNumeric</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1084,9 +1084,9 @@
         <summary>Sets the address of an HTTP proxy for the APN.</summary>
         <returns>This builder instance, with the setting updated.</returns>
         <remarks>
-          <para>This method was deprecated in API level 29. use setProxyAddress(String) instead.</para>
+          <para>This method was deprecated in API level 29. Use <see cref="M:Android.Telephony.Data.ApnSetting.Builder.SetProxyAddress(System.String)" /> instead.</para>
           <para>Sets the address of an HTTP proxy for the APN. The proxy address can be an IP address or hostname. If proxy contains both an IP address and hostname, this method ignores the IP address.</para>
-          <para>The InetAddress methods getAllByName() require DNS for hostname resolution. To avoid this requirement when setting a hostname, call InetAddress.getByAddress(java.lang.String, byte[]) with both the hostname and a placeholder IP address. See the example in <see cref="T:Android.Telephony.Data.ApnSetting.Builder" />.</para>
+          <para>The <see cref="M:Java.Net.InetAddress.GetAllByName(System.String)" /> method resolves hostnames. To avoid hostname resolution when setting a hostname, call <see cref="M:Java.Net.InetAddress.GetByAddress(System.String,System.Byte[])" /> with both the hostname and a placeholder IP address. See the example in <see cref="T:Android.Telephony.Data.ApnSetting.Builder" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/data/ApnSetting.Builder#setProxyAddress(java.net.InetAddress)" title="Reference documentation">Android reference for <code>android.telephony.data.ApnSetting.Builder.setProxyAddress</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

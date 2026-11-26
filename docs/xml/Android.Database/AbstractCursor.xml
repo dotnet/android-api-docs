@@ -355,7 +355,7 @@
         <value>cursor-defined values, or Bundle.EMPTY if there are no values. Never null.</value>
         <remarks>
           <para>Returns a bundle of extra values. This is an optional way for cursors to provide out-of-band metadata to their users. One use of this is for reporting on the progress of network requests that are required to fetch data for the cursor.</para>
-          <para>These values may only change when requery is called.</para>
+          <para>The <c>Extras</c> setter can also replace these values on Android API level 23 and later.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/database/AbstractCursor#getExtras()" title="Reference documentation">Android reference for <code>android.database.AbstractCursor.getExtras</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -431,6 +431,7 @@
         <remarks>
           <para>Returns the value of the requested column as a byte array.</para>
           <para>The result and whether this method throws an exception when the column value is null or the column type is not a blob type is implementation-defined.</para>
+          <para>The base implementation always throws <see cref="T:Java.Lang.UnsupportedOperationException" />. Subclasses can override it.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/database/AbstractCursor#getBlob(int)" title="Reference documentation">Android reference for <code>android.database.AbstractCursor.getBlob</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -845,10 +846,11 @@
       </Parameters>
       <Docs>
         <param name="column">the zero-based index of the target column.</param>
-        <summary>Returns data type of the given column's value.</summary>
+        <summary>Gets the reported data type of the given column's value.</summary>
         <returns>column value type. Value is one of the following: <see cref="F:Android.Database.FieldType.Null" />; <see cref="F:Android.Database.FieldType.Integer" />; <see cref="F:Android.Database.FieldType.Float" />; <see cref="F:Android.Database.FieldType.String" />; <see cref="F:Android.Database.FieldType.Blob" /></returns>
         <remarks>
-          <para>Returns data type of the given column's value. The preferred type of the column is returned but the data may be converted to other types as documented in the get-type methods such as getInt(int), getFloat(int) etc.</para>
+          <para>Returns the data type of the given column's value. An override can return the preferred type, but the data may be converted to other types by methods such as <c>GetInt</c> and <c>GetFloat</c>.</para>
+          <para>On Android 4.1 and later, the base implementation returns <see cref="F:Android.Database.FieldType.String" /> for every column. Earlier base implementations can throw <see cref="T:Java.Lang.UnsupportedOperationException" />. Subclasses can override this method.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/database/AbstractCursor#getType(int)" title="Reference documentation">Android reference for <code>android.database.AbstractCursor.getType</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1989,11 +1991,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Performs the query that created the cursor again, refreshing its 
- contents.</summary>
-        <returns>true if the requery succeeded, false if not, in which case the cursor becomes invalid.</returns>
+        <summary>In the base implementation, notifies observers that the cursor data has changed.</summary>
+        <returns><see langword="true" /> when the base implementation completes. An override can return <see langword="false" /> if the requery fails.</returns>
         <remarks>
-          <para>Performs the query that created the cursor again, refreshing its contents. This may be done at any time, including after a call to deactivate(). Since this method could execute a query on the database and potentially take a while, it could cause ANR if it is called on Main (UI) thread. A warning is printed if this method is being executed on Main thread.</para>
+          <para>The base implementation can be called after deactivation. It registers its content observer again if necessary and notifies data set observers. It does not execute the query again. Subclasses can override this method to refresh their data.</para>
+          <para>A subclass implementation can execute a query and take a long time. Calling it on the main thread can cause an application not responding (ANR) error.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/database/AbstractCursor#requery()" title="Reference documentation">Android reference for <code>android.database.AbstractCursor.requery</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

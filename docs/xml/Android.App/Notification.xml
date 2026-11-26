@@ -341,9 +341,9 @@
       </ReturnValue>
       <Docs>
         <summary>Array of all Action structures attached to this notification by Builder.addAction(int,CharSequence,PendingIntent).</summary>
-        <value>The actions attached to this notification, exposed from its native action array.</value>
+        <value>A fixed-size view of the native action array, or <see langword="null" /> if no array is set.</value>
         <remarks>
-          <para>Array of all Action structures attached to this notification by Builder.addAction(int,CharSequence,PendingIntent). Mostly useful for instances of NotificationListenerService that provide an alternative interface for invoking actions.</para>
+          <para>The returned list is backed by the native action array. Its elements can be replaced, but its size cannot be changed. This property is mostly useful for instances of NotificationListenerService that provide an alternative interface for invoking actions.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Notification#actions" title="Reference documentation">Android reference for <code>android.app.Notification.actions</code>.</a>
@@ -1488,7 +1488,7 @@
         <summary>Creates and returns a copy of this object.</summary>
         <returns>a clone of this instance.</returns>
         <remarks>
-          <para>Creates and returns a copy of this object. The precise meaning of "copy" may depend on the class of the object. The general intent is that, for any object x, the expression: will be true, and that the expression: will be true, but these are not absolute requirements. While it is typically the case that: will be true, this is not an absolute requirement. By convention, the returned object should be obtained by calling super.clone. If a class and all of its superclasses (except Object) obey this convention, it will be the case that x.clone().getClass() == x.getClass(). By convention, the object returned by this method should be independent of this object (which is being cloned). To achieve this independence, it may be necessary to modify one or more fields of the object returned by super.clone before returning it. Typically, this means copying any mutable objects that comprise the internal "deep structure" of the object being cloned and replacing the references to these objects with references to the copies. If a class contains only primitive fields or references to immutable objects, then it is usually the case that no fields in the object returned by super.clone need to be modified.</para>
+          <para>Creates and returns a copy of this object. The precise meaning of "copy" may depend on the class of the object. The general intent is that, for any object x, the expression: <c>x.clone() != x</c> will be true, and that the expression: <c>x.clone().getClass() == x.getClass()</c> will be true, but these are not absolute requirements. While it is typically the case that: <c>x.clone().equals(x)</c> will be true, this is not an absolute requirement. By convention, the returned object should be obtained by calling super.clone. If a class and all of its superclasses (except Object) obey this convention, it will be the case that x.clone().getClass() == x.getClass(). By convention, the object returned by this method should be independent of this object (which is being cloned). To achieve this independence, it may be necessary to modify one or more fields of the object returned by super.clone before returning it. Typically, this means copying any mutable objects that comprise the internal "deep structure" of the object being cloned and replacing the references to these objects with references to the copies. If a class contains only primitive fields or references to immutable objects, then it is usually the case that no fields in the object returned by super.clone need to be modified.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Notification#clone()" title="Reference documentation">Android reference for <code>android.app.Notification.clone</code>.</a>
@@ -1902,9 +1902,9 @@
       <Parameters />
       <Docs>
         <summary>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation.</summary>
-        <returns>a bitmask indicating the set of special object types marshaled by this Parcelable object instance. Value is either 0 or CONTENTS_FILE_DESCRIPTOR</returns>
+        <returns>Zero for the base implementation.</returns>
         <remarks>
-          <para>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation. For example, if the object will include a file descriptor in the output of writeToParcel(Parcel,int), the return value of this method must include the CONTENTS_FILE_DESCRIPTOR bit.</para>
+          <para>The base implementation returns zero. A subclass can override this method.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Notification#describeContents()" title="Reference documentation">Android reference for <code>android.app.Notification.describeContents</code>.</a>
@@ -5346,7 +5346,7 @@ myBuilder.getExtras().putString(EXTRA_AUDIO_CONTENTS_URI, myAudioUri.toString())
       </ReturnValue>
       <Docs>
         <summary>Replacement version of this notification whose content will be shown in an insecure context such as atop a secure keyguard.</summary>
-        <value>This Android.App.Notification instance, allowing calls to be chained.</value>
+        <value>The replacement notification for an insecure context, or <see langword="null" /> if none is set.</value>
         <remarks>
           <para>Replacement version of this notification whose content will be shown in an insecure context such as atop a secure keyguard. See visibility and VISIBILITY_PUBLIC.</para>
           <para>
@@ -6184,10 +6184,10 @@ myBuilder.getExtras().putString(EXTRA_AUDIO_CONTENTS_URI, myAudioUri.toString())
       </ReturnValue>
       <Docs>
         <summary>This field was deprecated in API level 26.</summary>
-        <value>The legacy vibration pattern, expressed as alternating wait and vibration durations in milliseconds.</value>
+        <value>The legacy vibration pattern, expressed as alternating wait and vibration durations in milliseconds, or <see langword="null" /> if no pattern is set.</value>
         <remarks>
           <para>This field was deprecated in API level 26. use NotificationChannel.getVibrationPattern().</para>
-          <para>The pattern with which to vibrate. To vibrate the default pattern, see defaults.</para>
+          <para>The pattern with which to vibrate. To vibrate the default pattern, see defaults. Getting or setting this property copies the array; assign the property again to apply changes to a retrieved array.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Notification#vibrate" title="Reference documentation">Android reference for <code>android.app.Notification.vibrate</code>.</a>
@@ -6222,10 +6222,11 @@ myBuilder.getExtras().putString(EXTRA_AUDIO_CONTENTS_URI, myAudioUri.toString())
         <ReturnType>Android.App.NotificationVisibility</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Sphere of visibility of this notification, which affects how and when the SystemUI reveals the notification's presence and contents in untrusted situations (namely, on the secure lockscreen and during screen sharing).</summary>
-        <value>The declared visibility level for notification content in contexts such as the secure lock screen and screen sharing.</value>
+        <summary>Sphere of visibility of this notification, which affects how and when the SystemUI reveals the notification's presence and contents on the secure lockscreen and, starting with Android 15, during screen sharing.</summary>
+        <value>The declared visibility level for notification content on the secure lockscreen and, starting with Android 15, during screen sharing.</value>
         <remarks>
-          <para>Sphere of visibility of this notification, which affects how and when the SystemUI reveals the notification's presence and contents in untrusted situations (namely, on the secure lockscreen and during screen sharing). The default level, VISIBILITY_PRIVATE, behaves exactly as notifications have always done on Android: The notification's icon and tickerText (if available) are shown in all situations, but the contents are only available if the device is unlocked for the appropriate user and there is no active screen sharing session. A more permissive policy can be expressed by VISIBILITY_PUBLIC; such a notification can be read even in an "insecure" context (that is, above a secure lockscreen or while screen sharing with a remote viewer). To modify the public version of this notification\u2014for example, to redact some portions\u2014see Builder.setPublicVersion(Notification). Finally, a notification can be made VISIBILITY_SECRET, which will suppress its icon and ticker until the user has bypassed the lockscreen. Value is one of the following: VISIBILITY_PUBLIC VISIBILITY_PRIVATE VISIBILITY_SECRET</para>
+          <para>Sphere of visibility of this notification, which affects how and when the SystemUI reveals the notification's presence and contents in untrusted situations, such as on the secure lockscreen. The default level, VISIBILITY_PRIVATE, shows the notification's icon and tickerText (if available), but its contents are only available if the device is unlocked for the appropriate user. A more permissive policy can be expressed by VISIBILITY_PUBLIC; such a notification can be read above a secure lockscreen. To modify the public version of this notification, for example to redact some portions, see Builder.setPublicVersion(Notification). A notification can also be made VISIBILITY_SECRET, which will suppress its icon and ticker until the user has bypassed the lockscreen. Value is one of the following: VISIBILITY_PUBLIC VISIBILITY_PRIVATE VISIBILITY_SECRET.</para>
+          <para>Starting with Android 15, a VISIBILITY_PUBLIC notification may be shown in full during screen sharing, unless channel settings require redaction. For a notification subject to redaction, the system shows its public version if supplied using Builder.setPublicVersion(Notification); otherwise, it hides the content. VISIBILITY_SECRET notifications can be hidden during screen sharing.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Notification#visibility" title="Reference documentation">Android reference for <code>android.app.Notification.visibility</code>.</a>

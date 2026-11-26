@@ -448,14 +448,12 @@
             suppressed in order to deliver this exception. This method is
             thread-safe and typically called (automatically and implicitly)
             by the <c>try</c>-with-resources statement.</para>
-          <para>The suppression behavior is enabled <i>unless</i> disabled
-            #Throwable(String, Throwable, boolean, boolean) via
-            a constructor.  When suppression is disabled, this method does
-            nothing other than to validate its argument.</para>
-          <para>Note that when one exception #initCause(Throwable) causes another exception, the first
-            exception is usually caught and then the second exception is
-            thrown in response.  In other words, there is a causal
-            connection between the two exceptions.
+          <para>The suppression behavior is enabled unless the four-argument
+            <c>Throwable</c> constructor disables it. When suppression is
+            disabled, this method does nothing other than validate its argument.</para>
+          <para>When one exception causes another, the first exception is usually
+            caught and the second exception is thrown in response. In other words,
+            there is a causal connection between the two exceptions.
             
             In contrast, there are situations where two independent
             exceptions can be thrown in sibling code blocks, in particular
@@ -1200,18 +1198,17 @@
             standard error stream. This method prints a stack trace for this
             <c>Throwable</c> object on the error output stream that is
             the value of the field <c>System.err</c>. The first line of
-            output contains the result of the <c>#toString()</c> method for
-            this object.  Remaining lines represent data previously recorded by
-            the method <c>#fillInStackTrace()</c>. The format of this
+            output contains the result of the Java <c>Throwable.toString()</c> method for this object.  Remaining lines represent data previously recorded by
+            the Java method <c>Throwable.fillInStackTrace()</c>. The format of this
             information depends on the implementation, but the following
             example may be regarded as typical:
-            &lt;blockquote&gt;</para>
+            </para>
           <code lang="text/java">java.lang.NullPointerException
                     at MyClass.mash(MyClass.java:9)
                     at MyClass.crunch(MyClass.java:6)
                     at MyClass.main(MyClass.java:3)
             </code>
-          <para>&lt;/blockquote&gt;
+          <para>
             This example was produced by running the program:</para>
           <code lang="text/java">class MyClass {
                 public static void main(String[] args) {

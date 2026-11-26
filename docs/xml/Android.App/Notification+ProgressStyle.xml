@@ -28,7 +28,25 @@
   <Docs>
     <summary>A Notification Style used to define a notification whose expanded state includes a highly customizable progress bar with segments, points, a custom tracker icon, and custom icons at the start and end of the progress bar.</summary>
     <remarks>
-      <para>A Notification Style used to define a notification whose expanded state includes a highly customizable progress bar with segments, points, a custom tracker icon, and custom icons at the start and end of the progress bar. This style is suggested for use cases where the app is showing a tracker to the user of a thing they are interested in: the location of a car on its way to pick them up, food being delivered, or their own progress in a navigation journey. To use this style with your Notification, feed it to Notification.Builder.setStyle(android.app.Notification.Style) like so: NOTE: The progress bar layout will be mirrored for RTL layout.</para>
+      <para>A Notification Style used to define a notification whose expanded state includes a highly customizable progress bar with segments, points, a custom tracker icon, and custom icons at the start and end of the progress bar. This style is suggested for use cases where the app is showing a tracker to the user of a thing they are interested in: the location of a car on its way to pick them up, food being delivered, or their own progress in a navigation journey. To use this style with your Notification, feed it to Notification.Builder.setStyle(android.app.Notification.Style) like so:</para>
+      <code lang="text/java">new Notification.Builder(context, CHANNEL_ID)
+    .setSmallIcon(R.drawable.ic_notification)
+    .setColor(Color.GREEN)
+    .setColorized(true)
+    .setContentTitle("Arrive 10:08 AM")
+    .setContentText("Dominique Ansel Bakery Soho")
+    .setStyle(new Notification.ProgressStyle()
+        .setStyledByProgress(false)
+        .setProgress(456)
+        .setProgressTrackerIcon(Icon.createWithResource(context, R.drawable.ic_driving_tracker))
+        .addProgressSegment(new Notification.ProgressStyle.Segment(41).setColor(Color.BLACK))
+        .addProgressSegment(new Notification.ProgressStyle.Segment(552).setColor(Color.YELLOW))
+        .addProgressSegment(new Notification.ProgressStyle.Segment(253).setColor(Color.YELLOW))
+        .addProgressSegment(new Notification.ProgressStyle.Segment(94).setColor(Color.BLUE))
+        .addProgressPoint(new Notification.ProgressStyle.Point(60).setColor(Color.RED))
+        .addProgressPoint(new Notification.ProgressStyle.Point(560).setColor(Color.YELLOW)))
+    .build();</code>
+      <para>NOTE: The progress bar layout will be mirrored for RTL layout.</para>
       <para>NOTE: The extras set by Notification.Builder.setProgress will be overridden by the values set on this style object when the notification is built. Therefore, that method is not used with this style.</para>
       <para>
         <format type="text/html">
@@ -126,7 +144,7 @@
         <summary>Adds another point.</summary>
         <returns>This Android.App.Notification.ProgressStyle instance, allowing calls to be chained.</returns>
         <remarks>
-          <para>Adds another point. Points within a progress bar are used to visualize distinct stages or milestones. For example, you might use points to mark stops in a multi-stop navigation journey, where each point represents a destination. Points can be added in any order, as their position within the progress bar is determined by their individual Point.getPosition().</para>
+          <para>Adds another point. Points with a position of zero or less are ignored. Points within a progress bar are used to visualize distinct stages or milestones. For example, you might use points to mark stops in a multi-stop navigation journey, where each point represents a destination. Points can be added in any order, as their position within the progress bar is determined by their individual Point.getPosition().</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Notification.ProgressStyle#addProgressPoint(android.app.Notification.ProgressStyle.Point)" title="Reference documentation">Android reference for <code>android.app.Notification.ProgressStyle.addProgressPoint</code>.</a>
@@ -167,7 +185,7 @@
         <summary>Appends a segment to the end of the progress bar.</summary>
         <returns>This Android.App.Notification.ProgressStyle instance, allowing calls to be chained.</returns>
         <remarks>
-          <para>Appends a segment to the end of the progress bar. Segments allow for creating progress bars with multiple colors or sections to represent different stages or categories of progress. For example, Traffic conditions along a navigation journey.</para>
+          <para>Appends a segment to the end of the progress bar. Segments with a length of zero or less are ignored. Segments allow for creating progress bars with multiple colors or sections to represent different stages or categories of progress. For example, Traffic conditions along a navigation journey.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Notification.ProgressStyle#addProgressSegment(android.app.Notification.ProgressStyle.Segment)" title="Reference documentation">Android reference for <code>android.app.Notification.ProgressStyle.addProgressSegment</code>.</a>
@@ -308,7 +326,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the progress value of the progress bar.</summary>
-        <value>Value is 0 or greater</value>
+        <value>The stored progress value. The documented range starts at zero.</value>
         <remarks>
           <para>Gets the progress value of the progress bar.</para>
           <para>
@@ -389,10 +407,10 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the sum of the lengths of all Segments in the style, which defines the maximum progress.</summary>
+        <summary>Gets the maximum progress, based on the segment lengths.</summary>
         <value>Value is 0 or greater</value>
         <remarks>
-          <para>Gets the sum of the lengths of all Segments in the style, which defines the maximum progress. Defaults to 100 when segments are omitted.</para>
+          <para>Gets the sum of positive segment lengths. The result is 100 if there are no positive lengths or if their sum overflows.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Notification.ProgressStyle#getProgressMax()" title="Reference documentation">Android reference for <code>android.app.Notification.ProgressStyle.getProgressMax</code>.</a>
@@ -429,7 +447,7 @@
         <summary>Gets the points that are displayed on the progress bar.</summary>
         <value>This value cannot be null.</value>
         <remarks>
-          <para>Gets the points that are displayed on the progress bar. .</para>
+          <para>Gets the points that are displayed on the progress bar. The returned list is the style's live list.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Notification.ProgressStyle#getProgressPoints()" title="Reference documentation">Android reference for <code>android.app.Notification.ProgressStyle.getProgressPoints</code>.</a>
@@ -466,7 +484,7 @@
         <summary>Gets the segments that define the background layer of the progress bar.</summary>
         <value>This value cannot be null.</value>
         <remarks>
-          <para>Gets the segments that define the background layer of the progress bar. If no segments are provided, the progress bar will be rendered with a single segment with length 100 and default color.</para>
+          <para>Gets the segments that define the background layer of the progress bar. The returned list is the style's live list. If no segments are provided, the progress bar will be rendered with a single segment with length 100 and default color.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Notification.ProgressStyle#getProgressSegments()" title="Reference documentation">Android reference for <code>android.app.Notification.ProgressStyle.getProgressSegments</code>.</a>
@@ -597,7 +615,7 @@
         <summary>Specifies the progress (in the same units as Segment.getLength()) of the tracker along the length of the bar.</summary>
         <returns>This Android.App.Notification.ProgressStyle instance, allowing calls to be chained.</returns>
         <remarks>
-          <para>Specifies the progress (in the same units as Segment.getLength()) of the tracker along the length of the bar. The max progress value is the sum of all Segment lengths. The default value is 0.</para>
+          <para>Specifies the progress (in the same units as Segment.getLength()) of the tracker along the length of the bar. The maximum progress is based on the sum of positive segment lengths. The default progress value is 0.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Notification.ProgressStyle#setProgress(int)" title="Reference documentation">Android reference for <code>android.app.Notification.ProgressStyle.setProgress</code>.</a>
@@ -686,7 +704,7 @@
         <summary>Used to indicate an initialization state without a known progress amount.</summary>
         <returns>This Android.App.Notification.ProgressStyle instance, allowing calls to be chained.</returns>
         <remarks>
-          <para>Used to indicate an initialization state without a known progress amount. When specified, the following fields are ignored:</para>
+          <para>Used to indicate an initialization state without a known progress amount. When indeterminate, the progress, points, tracker icon, and styled-by-progress settings are ignored. Segment lengths are also ignored. If exactly one segment is supplied, its color is used for the indeterminate bar.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Notification.ProgressStyle#setProgressIndeterminate(boolean)" title="Reference documentation">Android reference for <code>android.app.Notification.ProgressStyle.setProgressIndeterminate</code>.</a>
@@ -727,7 +745,7 @@
         <summary>Replaces all the progress points.</summary>
         <returns>This Android.App.Notification.ProgressStyle instance, allowing calls to be chained.</returns>
         <remarks>
-          <para>Replaces all the progress points. Points within a progress bar are used to visualize distinct stages or milestones. For example, you might use points to mark stops in a multi-stop navigation journey, where each point represents a destination.</para>
+          <para>Replaces all the progress points. The existing list is cleared before the supplied list is read, so passing this style's ProgressPoints list leaves it empty. Points within a progress bar are used to visualize distinct stages or milestones. For example, you might use points to mark stops in a multi-stop navigation journey, where each point represents a destination.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Notification.ProgressStyle#setProgressPoints(java.util.List&lt;android.app.Notification.ProgressStyle.Point&gt;)" title="Reference documentation">Android reference for <code>android.app.Notification.ProgressStyle.setProgressPoints</code>.</a>
@@ -768,7 +786,7 @@
         <summary>Sets or replaces the segments of the progress bar.</summary>
         <returns>This Android.App.Notification.ProgressStyle instance, allowing calls to be chained.</returns>
         <remarks>
-          <para>Sets or replaces the segments of the progress bar. Segments allow for creating progress bars with multiple colors or sections to represent different stages or categories of progress. For example, Traffic conditions along a navigation journey.</para>
+          <para>Sets or replaces the segments of the progress bar. The existing list is cleared before the supplied list is read, so passing this style's ProgressSegments list leaves it empty. Segments allow for creating progress bars with multiple colors or sections to represent different stages or categories of progress. For example, Traffic conditions along a navigation journey.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Notification.ProgressStyle#setProgressSegments(java.util.List&lt;android.app.Notification.ProgressStyle.Segment&gt;)" title="Reference documentation">Android reference for <code>android.app.Notification.ProgressStyle.setProgressSegments</code>.</a>

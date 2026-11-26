@@ -32,7 +32,7 @@
   <Docs>
     <summary>Provides a callback for validation of ZIP entry paths.</summary>
     <remarks>
-      <para>The default callback accepts all entry paths. Use <see cref="M:Dalvik.SystemInterop.ZipPathValidator.SetCallback(Dalvik.SystemInterop.ZipPathValidator.ICallback)" /> to install custom validation, such as checks for components that can cause path traversal. This class does not reject such paths by default.</para>
+      <para>The callback restored by <see cref="M:Dalvik.SystemInterop.ZipPathValidator.ClearCallback" /> accepts all entry paths. For apps targeting Android 14 (API level 34) or later, Android normally installs a callback that rejects paths beginning with <c>/</c> or containing a <c>..</c> path component. Compatibility settings can change this behavior. Use <see cref="M:Dalvik.SystemInterop.ZipPathValidator.SetCallback(Dalvik.SystemInterop.ZipPathValidator.ICallback)" /> to install custom validation.</para>
     </remarks>
   </Docs>
   <Members>
@@ -63,7 +63,7 @@
       <Docs>
         <summary>Restores the default ZIP entry path callback.</summary>
         <remarks>
-          <para>The default callback accepts all paths without throwing an exception. This method removes the current custom validation.</para>
+          <para>The default callback accepts all paths without throwing an exception. This method removes the current callback, including any callback installed by Android at app startup.</para>
         </remarks>
       </Docs>
     </Member>
@@ -128,7 +128,7 @@
         <param name="callback">The non-null callback that validates ZIP entry paths.</param>
         <summary>Sets the callback used to validate ZIP entry paths.</summary>
         <remarks>
-          <para>The callback must only validate the path. It should not perform input/output or other blocking operations. A typical callback checks the entry name in one pass and throws <see cref="T:Java.Util.Zip.ZipException" /> if the path contains potentially hazardous components, such as <c>..</c>.</para>
+          <para>The callback should only validate the path and should not perform input/output or other blocking operations. A typical callback checks the entry name in one pass and throws <see cref="T:Java.Util.Zip.ZipException" /> if the path contains potentially hazardous components, such as <c>..</c>.</para>
         </remarks>
       </Docs>
     </Member>

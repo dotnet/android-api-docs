@@ -72,11 +72,12 @@
         <param name="endTimeMillis">Exclusive ending timestamp, as per
                                    <c>java.lang.System#currentTimeMillis()</c></param>
         <summary>Constructor that specifies the period for which to return events.</summary>
+        <exception cref="T:Java.Lang.IllegalArgumentException">if <paramref name="beginTimeMillis" /> is negative or <paramref name="endTimeMillis" /> is less than <paramref name="beginTimeMillis" />.</exception>
         <remarks>
           <para>Constructor that specifies the period for which to return events.</para>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/usage/UsageEventsQuery.Builder#UsageEventsQuery$Builder(long,%20long)" title="Reference documentation">Java documentation for <code>android.app.usage.UsageEventsQuery.Builder.UsageEventsQuery$Builder(long, long)</code>.</a>
+              <a href="https://developer.android.com/reference/android/app/usage/UsageEventsQuery.Builder#Builder(long,%20long)" title="Reference documentation">Java documentation for <code>android.app.usage.UsageEventsQuery.Builder.Builder(long, long)</code>.</a>
             </format>
           </para>
           <para>
@@ -197,6 +198,8 @@
         <param name="eventTypes">the array of the usage event types. See UsageEvents.Event. This value cannot be null. Value is one of the following: UsageEvents.Event.NONE; UsageEvents.Event.ACTIVITY_RESUMED; UsageEvents.Event.ACTIVITY_PAUSED; UsageEvents.Event.CONFIGURATION_CHANGE; UsageEvents.Event.USER_INTERACTION; UsageEvents.Event.SHORTCUT_INVOCATION; UsageEvents.Event.STANDBY_BUCKET_CHANGED; UsageEvents.Event.SCREEN_INTERACTIVE; UsageEvents.Event.SCREEN_NON_INTERACTIVE; UsageEvents.Event.KEYGUARD_SHOWN; UsageEvents.Event.KEYGUARD_HIDDEN; UsageEvents.Event.FOREGROUND_SERVICE_START; UsageEvents.Event.FOREGROUND_SERVICE_STOP; UsageEvents.Event.ACTIVITY_STOPPED; UsageEvents.Event.DEVICE_SHUTDOWN; UsageEvents.Event.DEVICE_STARTUP</param>
         <summary>Sets the list of usage event types to be included in the query.</summary>
         <returns>This builder with its event type filter updated.</returns>
+        <exception cref="T:Java.Lang.NullPointerException">if <paramref name="eventTypes" /> is null or empty.</exception>
+        <exception cref="T:Java.Lang.IllegalArgumentException">if any event type is invalid.</exception>
         <remarks>
           <para>Sets the list of usage event types to be included in the query.</para>
           <para>Note: An empty array will be returned by UsageEventsQuery.getEventTypes() without calling this method, which indicates querying for all event types. Apps are encouraged to provide a list of event types. Only the matching types supplied will be used to query.</para>
@@ -242,6 +245,7 @@
         <param name="pkgNames">the array of the package names, each package name should be a non-empty string, null or empty string("") is omitted.</param>
         <summary>Sets the list of package names to be included in the query.</summary>
         <returns>This builder with its package name filter updated.</returns>
+        <exception cref="T:Java.Lang.NullPointerException">if <paramref name="pkgNames" /> is null or empty.</exception>
         <remarks>
           <para>Sets the list of package names to be included in the query.</para>
           <para>Note: An empty Set will be returned by UsageEventsQuery.getPackageNames() without calling this method, which indicates querying usage events for all packages. Apps are encouraged to provide a list of package names. Only the matching names supplied will be used to query.</para>

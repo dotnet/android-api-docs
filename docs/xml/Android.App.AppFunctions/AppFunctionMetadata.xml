@@ -943,7 +943,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the scope of the app function.</summary>
-        <value>Value is one of the following: SCOPE_GLOBAL; SCOPE_ACTIVITY</value>
+        <value>Either 0 (<see cref="F:Android.App.AppFunctions.AppFunctionMetadataScope.Global" />) or 1 (<see cref="F:Android.App.AppFunctions.AppFunctionMetadataScope.Activity" />).</value>
         <remarks>
           <para>Returns the scope of the app function.</para>
           <para>The scope determines the function's lifecycle and uniqueness rules. Depending on the scope, there could be at most one or multiple functions registered in the system with the same AppFunctionName.</para>
@@ -989,7 +989,7 @@
         <remarks>
           <para>A constant indicating an app function is activity-scoped.</para>
           <para>Multiple app function implementations with the same AppFunctionName can exist simultaneously, each registered from a different Activity instance, which is identified by an AppFunctionActivityId.</para>
-          <para>Functions with this scope must be registered using AppFunctionManager.registerAppFunction, and must be called from an Activity context. Calling it from any other context will result in an IllegalStateException.</para>
+          <para>Functions with this scope must be registered from an Activity context using AppFunctionManager.registerAppFunction or AppFunctionManager.registerAppFunctions. Registering from a Service context can throw IllegalArgumentException; other contexts can throw IllegalStateException.</para>
           <para>To execute an activity-scoped function, the caller of AppFunctionManager.executeAppFunction must use ExecuteAppFunctionRequest.Builder.setActivityId, otherwise AppFunctionException.ERROR_FUNCTION_NOT_FOUND will be returned.</para>
           <para>To discover the specific activities where an activity-scoped function is currently registered, see AppFunctionManager.getAppFunctionStates and AppFunctionManager.getAppFunctionActivityStates.</para>
           <para>The function remains registered until it is explicitly unregistered or the activity is destroyed.</para>

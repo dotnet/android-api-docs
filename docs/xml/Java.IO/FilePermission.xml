@@ -75,9 +75,9 @@
       <Docs>
         <param name="path">the pathname of the file/directory.</param>
         <param name="actions">the action string.</param>
-        <summary>Creates a legacy permission object with the supplied path as its name on Android.</summary>
+        <summary>Creates a legacy permission object.</summary>
         <remarks>
-          <para>On Android, this constructor stores <paramref name="path" /> as the permission name and ignores <paramref name="actions" />.</para>
+          <para>On Android 4.0 (API level 14) through Android 8.0 (API level 26), this constructor passes an empty string to the base <c>Permission</c> constructor. On Android 8.1 (API level 27) and later, it passes <paramref name="path" />. From Android 4.0 onward, the implementation ignores <paramref name="actions" />.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/FilePermission.html#&lt;init&gt;(java.lang.String,java.lang.String)" title="Reference documentation">Java reference for <code>java.io.FilePermission.FilePermission</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -112,10 +112,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the action value, which is <see langword="null" /> on Android.</summary>
-        <value><see langword="null" /> on Android.</value>
+        <summary>Gets the action string for this permission.</summary>
+        <value>The action string for this permission.</value>
         <remarks>
-          <para>On Android, this legacy implementation returns <see langword="null" /> instead of an action list.</para>
+          <para>On Android 4.0 (API level 14) and later, this legacy implementation returns <see langword="null" />.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/FilePermission.html#getActions()" title="Reference documentation">Java reference for <code>java.io.FilePermission.getActions</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -154,10 +154,10 @@
       </Parameters>
       <Docs>
         <param name="obj">the object we are testing for equality with this object.</param>
-        <summary>Indicates whether the specified object is this permission object.</summary>
-        <returns><see langword="true" /> if <paramref name="obj" /> is the same Java object as this permission; otherwise, <see langword="false" />.</returns>
+        <summary>Indicates whether the specified object is equal to this permission.</summary>
+        <returns><see langword="true" /> if <paramref name="obj" /> is equal to this permission; otherwise, <see langword="false" />.</returns>
         <remarks>
-          <para>On Android, <c>FilePermission</c> does not override <c>equals</c>. This method uses the identity comparison of <c>java.lang.Object.equals</c> and does not compare path names or actions.</para>
+          <para>On Android 4.0 (API level 14) and later, <c>FilePermission</c> does not override <c>equals</c>. This method uses the identity comparison of <c>java.lang.Object.equals</c> and does not compare path names or actions.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/FilePermission.html#equals(java.lang.Object)" title="Reference documentation">Java reference for <code>java.io.FilePermission.equals</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -224,11 +224,11 @@
         <Parameter Name="p" Type="Java.Security.Permission" />
       </Parameters>
       <Docs>
-        <param name="p">An unused permission argument on Android.</param>
-        <summary>Returns <see langword="true" /> without checking the permission argument on Android.</summary>
-        <returns>Always <see langword="true" /> on Android.</returns>
+        <param name="p">The permission to test.</param>
+        <summary>Determines whether this permission implies the specified permission.</summary>
+        <returns><see langword="true" /> if this permission implies <paramref name="p" />; otherwise, <see langword="false" />.</returns>
         <remarks>
-          <para>On Android, this legacy implementation ignores <paramref name="p" /> and returns <see langword="true" />, even when the argument is <see langword="null" />. It does not evaluate file paths or requested actions.</para>
+          <para>On Android 4.0 (API level 14) and later, this legacy implementation ignores <paramref name="p" /> and returns <see langword="true" />, even when the argument is <see langword="null" />. It does not evaluate file paths or requested actions.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/FilePermission.html#implies(java.security.Permission)" title="Reference documentation">Java reference for <code>java.io.FilePermission.implies</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

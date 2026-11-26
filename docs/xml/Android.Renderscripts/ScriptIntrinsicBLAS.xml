@@ -96,12 +96,12 @@
         <param name="a_offset">The offset for all values in matrix A, e.g A[i,j] = A[i,j] - a_offset. Value should be from 0 to 255.</param>
         <param name="B">The input allocation contains matrix B, supported elements type <c>Element#U8</c>.</param>
         <param name="b_offset">The offset for all values in matrix B, e.g B[i,j] = B[i,j] - b_offset. Value should be from 0 to 255.</param>
-        <param name="C">The input allocation contains matrix C, supported elements type <c>Element#U8</c>.</param>
+        <param name="C">The output allocation for matrix C, with element type <c>Element#U8</c>.</param>
         <param name="c_offset">The offset for all values in matrix C.</param>
-        <param name="c_mult">The multiplier for all values in matrix C, e.g C[i,j] = (C[i,j] + c_offset) * c_mult.</param>
-        <summary>8-bit GEMM-like operation for neural networks: C = A * Transpose(B) Calculations are done in 1.10.21 fixed-point format for the final output, just before there's a shift down to drop the fractional parts.</summary>
+        <param name="c_mult">The fixed-point multiplier applied after the output offset.</param>
+        <summary>Performs an 8-bit matrix multiplication for neural networks, using input offsets and output scaling. The final output is calculated in 1.10.21 fixed-point format before its fractional bits are dropped.</summary>
         <remarks>
-          <para>8-bit GEMM-like operation for neural networks: C = A * Transpose(B)
+          <para>An 8-bit GEMM-like operation for neural networks uses A and the transpose of B, with input offsets and output scaling.
             Calculations are done in 1.10.21 fixed-point format for the final output,
             just before there's a shift down to drop the fractional parts. The output
             values are gated to 0 to 255 to fit in a byte, but the 10-bit format
