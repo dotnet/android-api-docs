@@ -178,7 +178,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the maximum memory limit in bytes for image decoding. -or- Set a maximum memory limit (bytes) for an image decode.</summary>
-        <value>The nonnegative per-decode allocation limit, in bytes.</value>
+        <value>The nonnegative per-decode allocation limit, in bytes. Zero means no limit.</value>
         <remarks>
           <para>Get the maximum memory limit in bytes for image decoding.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageDecoder#getAllocationLimit()" title="Reference documentation">Android reference for <code>android.graphics.ImageDecoder.getAllocationLimit</code>.</a></format></para>
@@ -655,7 +655,7 @@
                  <c>#decodeDrawable</c> or <c>#decodeBitmap</c>.</returns>
         <remarks>
           <para>Create a new Source from a byte array.</para>
-          <para>Note: If this Source is passed to decodeDrawable, and the encoded image is animated, the returned AnimatedImageDrawable will continue reading from data, so its contents must not be modified, even after the AnimatedImageDrawable is returned. data's contents should never be modified during decode.</para>
+          <para>The contents of <paramref name="data" /> are copied when the source is created. Changes to the managed array after this method returns do not change the image data used for decoding.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageDecoder#createSource(byte[])" title="Reference documentation">Android reference for <code>android.graphics.ImageDecoder.createSource</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
@@ -834,7 +834,7 @@
                  <c>#decodeDrawable</c> or <c>#decodeBitmap</c>.</returns>
         <remarks>
           <para>Create a new Source from a byte array.</para>
-          <para>Note: If this Source is passed to decodeDrawable, and the encoded image is animated, the returned AnimatedImageDrawable will continue reading from data, so its contents must not be modified, even after the AnimatedImageDrawable is returned. data's contents should never be modified during decode.</para>
+          <para>The contents of <paramref name="data" /> are copied when the source is created. Changes to the managed array after this method returns do not change the image data used for decoding.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageDecoder#createSource(byte[],%20int,%20int)" title="Reference documentation">Android reference for <code>android.graphics.ImageDecoder.createSource</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
@@ -1027,7 +1027,7 @@
         <returns>Bitmap containing the image. This value cannot be null.</returns>
         <remarks>
           <para>Create a Bitmap from a Source.</para>
-          <para>Since there is no OnHeaderDecodedListener, the default settings will be used. In order to change any settings, call decodeBitmap(Source,OnHeaderDecodedListener) instead.</para>
+          <para>This overload does not take a per-decode listener. A thread or process default listener may still change the decoder settings. To provide a listener for this decode, use <see cref="M:Android.Graphics.ImageDecoder.DecodeBitmap(Android.Graphics.ImageDecoder.Source,Android.Graphics.ImageDecoder.IOnHeaderDecodedListener)" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageDecoder#decodeBitmap(android.graphics.ImageDecoder.Source)" title="Reference documentation">Android reference for <code>android.graphics.ImageDecoder.decodeBitmap</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
@@ -1066,7 +1066,7 @@
       </Parameters>
       <Docs>
         <param name="src">representing the encoded image. This value cannot be null.</param>
-        <param name="listener">for learning the ImageInfo and changing any default settings on the ImageDecoder. This will be called on the same thread as decodeBitmap before that method returns. This is required in order to change any of the default settings. This value cannot be null.</param>
+        <param name="listener">A listener for inspecting the ImageInfo and changing the ImageDecoder settings. It is called on the same thread as decodeBitmap before that method returns. This value cannot be null.</param>
         <summary>See <c>#decodeBitmap(Source, OnHeaderDecodedListener)</c>.</summary>
         <returns>Bitmap containing the image. This value cannot be null.</returns>
         <remarks>
@@ -1112,7 +1112,7 @@
         <returns>Drawable for displaying the image. This value cannot be null.</returns>
         <remarks>
           <para>Create a Drawable from a Source.</para>
-          <para>Since there is no OnHeaderDecodedListener, the default settings will be used. In order to change any settings, call decodeDrawable(Source,OnHeaderDecodedListener) instead.</para>
+          <para>This overload does not take a per-decode listener. A thread or process default listener may still change the decoder settings. To provide a listener for this decode, use <see cref="M:Android.Graphics.ImageDecoder.DecodeDrawable(Android.Graphics.ImageDecoder.Source,Android.Graphics.ImageDecoder.IOnHeaderDecodedListener)" />.</para>
           <para>This method may take several seconds to complete, so it should only be called from a worker thread.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageDecoder#decodeDrawable(android.graphics.ImageDecoder.Source)" title="Reference documentation">Android reference for <code>android.graphics.ImageDecoder.decodeDrawable</code>.</a></format></para>
           <para>
@@ -1152,7 +1152,7 @@
       </Parameters>
       <Docs>
         <param name="src">representing the encoded image. This value cannot be null.</param>
-        <param name="listener">for learning the ImageInfo and changing any default settings on the ImageDecoder. This will be called on the same thread as decodeDrawable before that method returns. This is required in order to change any of the default settings. This value cannot be null.</param>
+        <param name="listener">A listener for inspecting the ImageInfo and changing the ImageDecoder settings. It is called on the same thread as decodeDrawable before that method returns. This value cannot be null.</param>
         <summary>See <c>#decodeDrawable(Source, OnHeaderDecodedListener)</c>.</summary>
         <returns>Drawable for displaying the image. This value cannot be null.</returns>
         <remarks>
@@ -1187,7 +1187,7 @@
       </ReturnValue>
       <Docs>
         <summary>Occurs through the process-default header-decoded listener.</summary>
-        <remarks><para>This callback runs only if the decoding thread has no thread default. A per-decode listener still runs afterward.</para></remarks>
+        <remarks><para>This callback runs only if the decoding thread has no thread default. If supplied, a per-decode listener runs afterward.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="DefaultProcessListener">
@@ -1264,7 +1264,7 @@
       </ReturnValue>
       <Docs>
         <summary>Occurs through the thread-default header-decoded listener.</summary>
-        <remarks><para>This callback takes precedence over the process default on the decoding thread. A per-decode listener still runs afterward.</para></remarks>
+        <remarks><para>This callback takes precedence over the process default on the decoding thread. If supplied, a per-decode listener runs afterward.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="DefaultThreadListener">

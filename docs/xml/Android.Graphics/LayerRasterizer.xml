@@ -30,7 +30,7 @@
     </Attribute>
   </Attributes>
   <Docs since="1">
-    <summary>Removed as this feature is not supported by hardware-accelerated or PDF backends.</summary>
+    <summary>A legacy rasterizer for layered masks. On Android 8.0 and later, the base implementation does not add layers.</summary>
     <remarks>
       <para>
         <format type="text/html">
@@ -62,7 +62,7 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>Creates a compatibility object; layer operations are no-ops in the Android 16 base class.</summary>
+        <summary>Creates a layer rasterizer. On Android 8.0 and later, the base implementation does not add layers.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -119,8 +119,8 @@
         <Parameter Name="paint" Type="Android.Graphics.Paint" />
       </Parameters>
       <Docs>
-        <param name="paint">Retained for compatibility; the Android 16 base implementation does not read this argument.</param>
-        <summary>Add a new layer (above any previous layers) to the rasterizer.</summary>
+        <param name="paint">The paint whose mask fields are used for the layer on Android 7.1 and earlier. On Android 8.0 and later, the base implementation ignores this argument.</param>
+        <summary>Adds a layer above previous layers on Android 7.1 and earlier. On Android 8.0 and later, the base implementation does nothing.</summary>
         <remarks>
           <para>
             <format type="text/html">
@@ -165,15 +165,12 @@
         <Parameter Name="dy" Type="System.Single" />
       </Parameters>
       <Docs>
-        <param name="paint">Retained for compatibility; the Android 16 base implementation does not read this argument.</param>
-        <param name="dx">Retained for compatibility; the Android 16 base implementation does not apply this offset.</param>
-        <param name="dy">Retained for compatibility; the Android 16 base implementation does not apply this offset.</param>
-        <summary>Add a new layer (above any previous layers) to the rasterizer.</summary>
+        <param name="paint">The paint whose mask fields are used for the layer on Android 7.1 and earlier. On Android 8.0 and later, the base implementation ignores this argument.</param>
+        <param name="dx">The layer's horizontal offset on Android 7.1 and earlier. On Android 8.0 and later, the base implementation ignores this argument.</param>
+        <param name="dy">The layer's vertical offset on Android 7.1 and earlier. On Android 8.0 and later, the base implementation ignores this argument.</param>
+        <summary>Adds a layer above previous layers on Android 7.1 and earlier. On Android 8.0 and later, the base implementation does nothing.</summary>
         <remarks>
-          <para>Add a new layer (above any previous layers) to the rasterizer.
-                    The layer will extract those fields that affect the mask from
-                    the specified paint, but will not retain a reference to the paint
-                    object itself, so it may be reused without danger of side-effects.</para>
+          <para>On Android 7.1 and earlier, the layer extracts the fields that affect the mask from the paint without retaining the paint object, so it can be reused. On Android 8.0 and later, the base implementation does nothing.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/graphics/LayerRasterizer#addLayer(android.graphics.Paint,%20float,%20float)" title="Reference documentation">Java documentation for <code>android.graphics.LayerRasterizer.addLayer(android.graphics.Paint, float, float)</code>.</a>

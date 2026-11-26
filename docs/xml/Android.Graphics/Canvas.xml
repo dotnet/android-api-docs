@@ -152,8 +152,8 @@
         <Parameter Name="gl" Type="Javax.Microedition.Khronos.Opengles.IGL" />
       </Parameters>
       <Docs>
-        <param name="gl">Unused by the unsupported API-11-and-later constructor.</param>
-        <summary>Rejects the removed OpenGL canvas constructor on API 11 and later.</summary>
+        <param name="gl">Unused because this constructor is not supported by this binding.</param>
+        <summary>This obsolete constructor always throws <c>NotSupportedException</c>.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1045,7 +1045,7 @@
         <param name="region">The region to operate on the current clip, based on op</param>
         <param name="op">How the clip is modified</param>
         <summary>Modify the current clip with the specified region.</summary>
-        <returns><see langword="true" /> if the resulting clip is non-empty. On API level 26 and later, the method does not change the clip and returns <see langword="false" />.</returns>
+        <returns>On API level 25 and earlier, <see langword="true" /> if the resulting clip is non-empty. On API level 26 and later, the base implementation does not change the clip and returns <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2651,10 +2651,10 @@
         <Parameter Name="paint" Type="Android.Graphics.Paint" />
       </Parameters>
       <Docs>
-        <param name="mesh">The non-null mesh object to draw to the screen.</param>
+        <param name="mesh">The non-null mesh object to draw on this canvas.</param>
         <param name="blendMode">The blend mode that uses mesh primitives as the destination and the paint color or shader as the source; defaults to <see cref="P:Android.Graphics.BlendMode.Modulate" /> when <see langword="null" />.</param>
         <param name="paint">The non-null paint that provides the color, shader, and blend mode.</param>
-        <summary>Draws a mesh object to the screen.</summary>
+        <summary>Draws a mesh object on this canvas.</summary>
         <remarks>
           <para>Antialiasing is not supported, so <see cref="F:Android.Graphics.PaintFlags.AntiAlias" /> is ignored.</para>
           <para>
@@ -4441,6 +4441,7 @@
             <c>RenderNode#getElevation()</c> and <c>RenderNode#getTranslationZ()</c>
             values. It also enables rendering of shadows for RenderNodes with an elevation or
             translationZ.</para>
+          <para>The base canvas implementation does nothing. Recording canvases override this method to enable Z support.</para>
           <para>Any draw reordering will not be moved before this call. A typical usage of this might
             look something like:</para>
           <code lang="text/java">void draw(Canvas canvas) {
@@ -4503,7 +4504,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Legacy API-10 helper for releasing cached GL textures and image/font data; the entry point is absent from the API-14 base class and unsupported on API 15 and later.</summary>
+        <summary>Legacy helper for releasing cached GL textures and image/font data. The entry point is absent from the API-13 and API-14 base classes and unsupported on API 15 and later.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4639,7 +4640,7 @@
       </ReturnValue>
       <Docs>
         <summary>Exposes the historical OpenGL interface accessor.</summary>
-        <value>In API 10, the canvas's stored GL object or <see langword="null" /> for a non-GL canvas. The API-14 base getter returns <see langword="null" />; this property is unsupported on API 15 and later.</value>
+        <value>In the legacy GL implementation, the canvas's stored GL object or <see langword="null" /> for a non-GL canvas. The API-13 and API-14 base getter returns <see langword="null" />; this property is unsupported on API 15 and later.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5734,8 +5735,10 @@
             <c>Paint#getColorFilter() ColorFilter</c> are applied when the
             offscreen bitmap is drawn back when restore() is called.
 
-            As of API Level API level <c>Build.VERSION_CODES#P</c> the only valid
-            <c>saveFlags</c> is <c>#ALL_SAVE_FLAG</c>.  All other flags are ignored.</para>
+            On API level 28 and later, for applications that target API level 28 or later,
+            the base implementation throws <see cref="T:Java.Lang.IllegalArgumentException" />
+            if <c>saveFlags</c> is not <see cref="F:Android.Graphics.SaveFlags.All" />. For applications that target an
+            earlier API level, the base implementation ignores the flags.</para>
           <para>This member is deprecated. Use <c>#saveLayer(RectF, Paint)</c> instead.</para>
           <para>
             <format type="text/html">
@@ -5993,8 +5996,10 @@
           <para>The <c>alpha</c> parameter is applied when the offscreen bitmap is
             drawn back when restore() is called.
 
-            As of API Level API level <c>Build.VERSION_CODES#P</c> the only valid
-            <c>saveFlags</c> is <c>#ALL_SAVE_FLAG</c>.  All other flags are ignored.</para>
+            On API level 28 and later, for applications that target API level 28 or later,
+            the base implementation throws <see cref="T:Java.Lang.IllegalArgumentException" />
+            if <c>saveFlags</c> is not <see cref="F:Android.Graphics.SaveFlags.All" />. For applications that target an
+            earlier API level, the base implementation ignores the flags.</para>
           <para>This member is deprecated. Use <c>#saveLayerAlpha(RectF, int)</c> instead.</para>
           <para>
             <format type="text/html">
@@ -6297,9 +6302,9 @@
         <Parameter Name="height" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="width">The legacy viewport width; unused by the API-14 base implementation.</param>
-        <param name="height">The legacy viewport height; unused by the API-14 base implementation.</param>
-        <summary>Configures the legacy GL viewport on API 10; the API-14 base implementation is a no-op.</summary>
+        <param name="width">The legacy viewport width; unused by the API-13 and API-14 base implementations.</param>
+        <param name="height">The legacy viewport height; unused by the API-13 and API-14 base implementations.</param>
+        <summary>In the legacy implementation, configures the viewport of a GL-backed canvas and does nothing for other canvases. The API-13 and API-14 base implementations do nothing; this method is unsupported on API 15 and later.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

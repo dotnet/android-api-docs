@@ -197,7 +197,7 @@
         <summary ToolPath="Untrimmed" tool="FirstSentenceInJavadocToMdoc">
           <para>Paint flag that enables bilinear sampling on scaled bitmaps. If cleared, scaled bitmaps will be drawn with nearest neighbor sampling, likely resulting in artifacts. This should generally be on when drawing bitmaps, unless performance-bound (rendering to software canvas) or preferring pixelation artifacts to blurriness when scaling significantly.</para>
           <para>If bitmaps are scaled for device density at creation time (as resource bitmaps often are) the filtering will already have been done.</para>
-          <para>On devices running Build.VERSION_CODES.O and below, hardware accelerated drawing always uses bilinear sampling on scaled bitmaps, regardless of this flag. On devices running Build.VERSION_CODES.Q and above, this flag defaults to being set on a new Paint. It can be cleared with setFlags(int) or setFilterBitmap(boolean).</para>
+          <para>On Android 8.0 (API level 26) and earlier, hardware-accelerated drawing always uses bilinear sampling on scaled bitmaps, regardless of this flag. On Android 10 (API level 29) and later, this flag is set by default on a new Paint. It can be cleared with <see cref="P:Android.Graphics.Paint.Flags" /> or <see cref="P:Android.Graphics.Paint.FilterBitmap" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/Paint#FILTER_BITMAP_FLAG" title="Reference documentation">Android reference for <code>android.graphics.Paint.FILTER_BITMAP_FLAG</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </summary>
@@ -228,7 +228,7 @@
       <Docs>
         <summary ToolPath="Untrimmed" tool="FirstSentenceInJavadocToMdoc">
           <para>Paint flag that enables smooth linear scaling of text. Enabling this flag does not actually scale text, but rather adjusts text draw operations to deal gracefully with smooth adjustment of scale. When this flag is enabled, font hinting is disabled to prevent shape deformation between scale factors, and glyph caching is disabled due to the large number of glyph images that will be generated.</para>
-          <para>SUBPIXEL_TEXT_FLAG should be used in conjunction with this flag to prevent glyph positions from snapping to whole pixel values as scale factor is adjusted.</para>
+          <para><see cref="F:Android.Graphics.PaintFlags.SubpixelText" /> should be used in conjunction with this flag to prevent glyph positions from snapping to whole pixel values as scale factor is adjusted.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/Paint#LINEAR_TEXT_FLAG" title="Reference documentation">Android reference for <code>android.graphics.Paint.LINEAR_TEXT_FLAG</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </summary>
@@ -289,7 +289,7 @@
       <Docs>
         <summary ToolPath="Untrimmed" tool="FirstSentenceInJavadocToMdoc">
           <para>Paint flag that enables subpixel positioning of text. Enabling this flag causes glyph advances to be computed with subpixel accuracy.</para>
-          <para>This can be used with LINEAR_TEXT_FLAG to prevent text from jittering during smooth scale transitions.</para>
+          <para>This can be used with <see cref="F:Android.Graphics.PaintFlags.LinearText" /> to prevent text from jittering during smooth scale transitions.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/Paint#SUBPIXEL_TEXT_FLAG" title="Reference documentation">Android reference for <code>android.graphics.Paint.SUBPIXEL_TEXT_FLAG</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </summary>
@@ -353,7 +353,8 @@
       <MemberValue>4096</MemberValue>
       <Docs>
         <summary>
-          <para>A flag that controls text to be written in vertical orientation This flag is used for telling the underlying text layout engine that the text is for vertical direction. By enabling this flag, text measurement, drawing and shaping APIs works for vertical text layout. For example, Canvas.drawText(String,float,float,Paint) draws text from top to bottom. Paint.measureText(String) returns vertical advances instead of horizontal advances. TextRunShaper shapes text vertically and report glyph IDs for vertical layout. Do not set this flag for making Layout. The Layout class and its subclasses are designed for horizontal text only and does not work for vertical text.</para>
+          <para>A flag that enables vertical text layout for text measurement, drawing, and shaping. For example, <see cref="M:Android.Graphics.Canvas.DrawText(System.String,System.Single,System.Single,Android.Graphics.Paint)" /> draws text from top to bottom, <see cref="M:Android.Graphics.Paint.MeasureText(System.String)" /> returns vertical advances, and <see cref="T:Android.Graphics.Text.TextRunShaper" /> shapes text for vertical layout.</para>
+          <para>Do not use this flag with <see cref="T:Android.Text.Layout" /> or its subclasses, which support horizontal text only.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/Paint#VERTICAL_TEXT_FLAG" title="Reference documentation">Android reference for <code>android.graphics.Paint.VERTICAL_TEXT_FLAG</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </summary>

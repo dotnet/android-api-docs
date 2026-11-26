@@ -263,10 +263,9 @@
       </ReturnValue>
       <Docs>
         <summary>The identity matrix.</summary>
-        <value>The shared identity transform; attempts to change it through its matrix methods throw <see cref="T:Java.Lang.IllegalStateException" />.</value>
+        <value>The shared identity transform. Calling methods such as <see cref="M:Android.Graphics.Matrix.Reset" /> on it throws <see cref="T:Java.Lang.IllegalStateException" />, but using it as the destination of <see cref="M:Android.Graphics.Matrix.Invert(Android.Graphics.Matrix)" /> can change it.</value>
         <remarks>
-          <para>The identity matrix. Multiplying by another matrix <c>M</c> returns <c>M</c>. This matrix
-            is immutable, and attempting to modify it will throw an <c>IllegalStateException</c>.</para>
+          <para>The identity matrix. Multiplying by another matrix <c>M</c> returns <c>M</c>. Calling methods such as <see cref="M:Android.Graphics.Matrix.Reset" /> on it throws <c>IllegalStateException</c>, but another matrix can change it by passing it as the destination to <see cref="M:Android.Graphics.Matrix.Invert(Android.Graphics.Matrix)" />.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/graphics/Matrix#IDENTITY_MATRIX" title="Reference documentation">Java documentation for <code>android.graphics.Matrix.IDENTITY_MATRIX</code>.</a>
@@ -303,13 +302,11 @@
         <Parameter Name="inverse" Type="Android.Graphics.Matrix" />
       </Parameters>
       <Docs>
-        <param name="inverse">An existing matrix that receives the inverse when inversion succeeds.</param>
-        <summary>If this matrix can be inverted, return true and if inverse is not null, set inverse to be the
-            inverse of this matrix.</summary>
-        <returns><see langword="true" /> if an inverse is computed into <paramref name="inverse" />; otherwise, <see langword="false" />.</returns>
+        <param name="inverse">The matrix that receives the inverse when inversion succeeds. The base Android implementation throws if this argument is null.</param>
+        <summary>If this matrix can be inverted, store its inverse in the supplied matrix and return true.</summary>
+        <returns><see langword="true" /> if an inverse is computed into <paramref name="inverse" />; <see langword="false" /> if this matrix cannot be inverted.</returns>
         <remarks>
-          <para>If this matrix can be inverted, return true and if inverse is not null, set inverse to be the
-            inverse of this matrix. If this matrix cannot be inverted, ignore inverse and return false.</para>
+          <para>If this matrix can be inverted, store its inverse in the supplied matrix and return true. If this matrix cannot be inverted, return false. The destination can be modified even when the method returns false.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/graphics/Matrix#invert(android.graphics.Matrix)" title="Reference documentation">Java documentation for <code>android.graphics.Matrix.invert(android.graphics.Matrix)</code>.</a>
@@ -1136,7 +1133,7 @@
       <Docs>
         <param name="other">The left-hand matrix factor in the new product.</param>
         <summary>Postconcats the matrix with the specified matrix.</summary>
-        <returns>The Android 16 base implementation returns <see langword="true" /> after normal completion.</returns>
+        <returns>The base implementation returns <see langword="true" /> after normal completion on Android 5.0 (API 21) and later. Earlier versions can return <see langword="false" />.</returns>
         <remarks>
           <para>Postconcats the matrix with the specified matrix. M' = other * M</para>
           <para>
@@ -1178,7 +1175,7 @@
       <Docs>
         <param name="degrees">The rotation angle, in degrees.</param>
         <summary>Postconcats the matrix with the specified rotation.</summary>
-        <returns>The Android 16 base implementation returns <see langword="true" /> after normal completion.</returns>
+        <returns>The base implementation returns <see langword="true" /> after normal completion on Android 5.0 (API 21) and later. Earlier versions can return <see langword="false" />.</returns>
         <remarks>
           <para>Postconcats the matrix with the specified rotation. M' = R(degrees) * M</para>
           <para>
@@ -1224,7 +1221,7 @@
         <param name="px">The horizontal coordinate of the rotation pivot.</param>
         <param name="py">The vertical coordinate of the rotation pivot.</param>
         <summary>Postconcats the matrix with the specified rotation.</summary>
-        <returns>The Android 16 base implementation returns <see langword="true" /> after normal completion.</returns>
+        <returns>The base implementation returns <see langword="true" /> after normal completion on Android 5.0 (API 21) and later. Earlier versions can return <see langword="false" />.</returns>
         <remarks>
           <para>Postconcats the matrix with the specified rotation. M' = R(degrees, px, py) * M</para>
           <para>
@@ -1268,7 +1265,7 @@
         <param name="sx">The horizontal scale factor.</param>
         <param name="sy">The vertical scale factor.</param>
         <summary>Postconcats the matrix with the specified scale.</summary>
-        <returns>The Android 16 base implementation returns <see langword="true" /> after normal completion.</returns>
+        <returns>The base implementation returns <see langword="true" /> after normal completion on Android 5.0 (API 21) and later. Earlier versions can return <see langword="false" />.</returns>
         <remarks>
           <para>Postconcats the matrix with the specified scale. M' = S(sx, sy) * M</para>
           <para>
@@ -1316,7 +1313,7 @@
         <param name="px">The horizontal coordinate of the scale pivot.</param>
         <param name="py">The vertical coordinate of the scale pivot.</param>
         <summary>Postconcats the matrix with the specified scale.</summary>
-        <returns>The Android 16 base implementation returns <see langword="true" /> after normal completion.</returns>
+        <returns>The base implementation returns <see langword="true" /> after normal completion on Android 5.0 (API 21) and later. Earlier versions can return <see langword="false" />.</returns>
         <remarks>
           <para>Postconcats the matrix with the specified scale. M' = S(sx, sy, px, py) * M</para>
           <para>
@@ -1360,7 +1357,7 @@
         <param name="kx">The horizontal shear factor, not an angle.</param>
         <param name="ky">The vertical shear factor, not an angle.</param>
         <summary>Postconcats the matrix with the specified skew.</summary>
-        <returns>The Android 16 base implementation returns <see langword="true" /> after normal completion.</returns>
+        <returns>The base implementation returns <see langword="true" /> after normal completion on Android 5.0 (API 21) and later. Earlier versions can return <see langword="false" />.</returns>
         <remarks>
           <para>Postconcats the matrix with the specified skew. M' = K(kx, ky) * M</para>
           <para>
@@ -1408,7 +1405,7 @@
         <param name="px">The horizontal coordinate of the skew pivot.</param>
         <param name="py">The vertical coordinate of the skew pivot.</param>
         <summary>Postconcats the matrix with the specified skew.</summary>
-        <returns>The Android 16 base implementation returns <see langword="true" /> after normal completion.</returns>
+        <returns>The base implementation returns <see langword="true" /> after normal completion on Android 5.0 (API 21) and later. Earlier versions can return <see langword="false" />.</returns>
         <remarks>
           <para>Postconcats the matrix with the specified skew. M' = K(kx, ky, px, py) * M</para>
           <para>
@@ -1452,7 +1449,7 @@
         <param name="dx">The horizontal translation distance.</param>
         <param name="dy">The vertical translation distance.</param>
         <summary>Postconcats the matrix with the specified translation.</summary>
-        <returns>The Android 16 base implementation returns <see langword="true" /> after normal completion.</returns>
+        <returns>The base implementation returns <see langword="true" /> after normal completion on Android 5.0 (API 21) and later. Earlier versions can return <see langword="false" />.</returns>
         <remarks>
           <para>Postconcats the matrix with the specified translation. M' = T(dx, dy) * M</para>
           <para>
@@ -1494,7 +1491,7 @@
       <Docs>
         <param name="other">The right-hand matrix factor in the new product.</param>
         <summary>Preconcats the matrix with the specified matrix.</summary>
-        <returns>The Android 16 base implementation returns <see langword="true" /> after normal completion.</returns>
+        <returns>The base implementation returns <see langword="true" /> after normal completion on Android 5.0 (API 21) and later. Earlier versions can return <see langword="false" />.</returns>
         <remarks>
           <para>Preconcats the matrix with the specified matrix. M' = M * other</para>
           <para>
@@ -1536,7 +1533,7 @@
       <Docs>
         <param name="degrees">The rotation angle, in degrees.</param>
         <summary>Preconcats the matrix with the specified rotation.</summary>
-        <returns>The Android 16 base implementation returns <see langword="true" /> after normal completion.</returns>
+        <returns>The base implementation returns <see langword="true" /> after normal completion on Android 5.0 (API 21) and later. Earlier versions can return <see langword="false" />.</returns>
         <remarks>
           <para>Preconcats the matrix with the specified rotation. M' = M * R(degrees)</para>
           <para>
@@ -1582,7 +1579,7 @@
         <param name="px">The horizontal coordinate of the rotation pivot.</param>
         <param name="py">The vertical coordinate of the rotation pivot.</param>
         <summary>Preconcats the matrix with the specified rotation.</summary>
-        <returns>The Android 16 base implementation returns <see langword="true" /> after normal completion.</returns>
+        <returns>The base implementation returns <see langword="true" /> after normal completion on Android 5.0 (API 21) and later. Earlier versions can return <see langword="false" />.</returns>
         <remarks>
           <para>Preconcats the matrix with the specified rotation. M' = M * R(degrees, px, py)</para>
           <para>
@@ -1626,7 +1623,7 @@
         <param name="sx">The horizontal scale factor.</param>
         <param name="sy">The vertical scale factor.</param>
         <summary>Preconcats the matrix with the specified scale.</summary>
-        <returns>The Android 16 base implementation returns <see langword="true" /> after normal completion.</returns>
+        <returns>The base implementation returns <see langword="true" /> after normal completion on Android 5.0 (API 21) and later. Earlier versions can return <see langword="false" />.</returns>
         <remarks>
           <para>Preconcats the matrix with the specified scale. M' = M * S(sx, sy)</para>
           <para>
@@ -1674,7 +1671,7 @@
         <param name="px">The horizontal coordinate of the scale pivot.</param>
         <param name="py">The vertical coordinate of the scale pivot.</param>
         <summary>Preconcats the matrix with the specified scale.</summary>
-        <returns>The Android 16 base implementation returns <see langword="true" /> after normal completion.</returns>
+        <returns>The base implementation returns <see langword="true" /> after normal completion on Android 5.0 (API 21) and later. Earlier versions can return <see langword="false" />.</returns>
         <remarks>
           <para>Preconcats the matrix with the specified scale. M' = M * S(sx, sy, px, py)</para>
           <para>
@@ -1718,7 +1715,7 @@
         <param name="kx">The horizontal shear factor, not an angle.</param>
         <param name="ky">The vertical shear factor, not an angle.</param>
         <summary>Preconcats the matrix with the specified skew.</summary>
-        <returns>The Android 16 base implementation returns <see langword="true" /> after normal completion.</returns>
+        <returns>The base implementation returns <see langword="true" /> after normal completion on Android 5.0 (API 21) and later. Earlier versions can return <see langword="false" />.</returns>
         <remarks>
           <para>Preconcats the matrix with the specified skew. M' = M * K(kx, ky)</para>
           <para>
@@ -1766,7 +1763,7 @@
         <param name="px">The horizontal coordinate of the skew pivot.</param>
         <param name="py">The vertical coordinate of the skew pivot.</param>
         <summary>Preconcats the matrix with the specified skew.</summary>
-        <returns>The Android 16 base implementation returns <see langword="true" /> after normal completion.</returns>
+        <returns>The base implementation returns <see langword="true" /> after normal completion on Android 5.0 (API 21) and later. Earlier versions can return <see langword="false" />.</returns>
         <remarks>
           <para>Preconcats the matrix with the specified skew. M' = M * K(kx, ky, px, py)</para>
           <para>
@@ -1810,7 +1807,7 @@
         <param name="dx">The horizontal translation distance.</param>
         <param name="dy">The vertical translation distance.</param>
         <summary>Preconcats the matrix with the specified translation.</summary>
-        <returns>The Android 16 base implementation returns <see langword="true" /> after normal completion.</returns>
+        <returns>The base implementation returns <see langword="true" /> after normal completion on Android 5.0 (API 21) and later. Earlier versions can return <see langword="false" />.</returns>
         <remarks>
           <para>Preconcats the matrix with the specified translation. M' = M * T(dx, dy)</para>
           <para>
@@ -1973,10 +1970,10 @@
       <Docs>
         <param name="a">The left-hand matrix factor in <c>a * b</c>.</param>
         <param name="b">The right-hand matrix factor in <c>a * b</c>.</param>
-        <summary>Set the matrix to the concatenation of the two specified matrices and return true.</summary>
-        <returns>The Android 16 base implementation returns <see langword="true" /> after normal completion.</returns>
+        <summary>Set the matrix to the concatenation of the two specified matrices.</summary>
+        <returns>On Android 3.0 (API 11) and later, the base implementation returns <see langword="true" /> after normal completion. On Android 2.3.3 (API 10) and earlier, it returns <see langword="true" /> only if the result can be represented.</returns>
         <remarks>
-          <para>Set the matrix to the concatenation of the two specified matrices and return true.</para>
+          <para>Set the matrix to the concatenation of the two specified matrices.</para>
           <para>Either of the two matrices may also be the target matrix, that is
             <c>matrixA.setConcat(matrixA, matrixB);</c> is valid.</para>
           <para>In <c>android.os.Build.VERSION_CODES#GINGERBREAD_MR1</c> and below, this function returns
