@@ -98,9 +98,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Creates a subscription plan from the builder's current settings.</summary>
-        <returns>A new subscription plan containing the configured cycle, labels, and data settings.</returns>
-        <remarks>This creates the plan object; it does not publish the plan to the subscription service.</remarks>
+        <summary>Returns a subscription plan with the builder's current settings.</summary>
+        <returns>A subscription plan containing the configured cycle, labels, and data settings.</returns>
+        <remarks>On Android 9 through Android 16, repeated calls return the same Java plan, and later changes to the builder affect that plan. Starting with Android 17, each call creates a new plan. This method does not publish the plan to the subscription service.</remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateNonrecurring">
@@ -136,7 +136,7 @@
         <remarks>
           <para>Start defining a template for a non-recurring SubscriptionPlan with a specific duration.</para>
           <para>This is useful for describing fixed-duration plans that users can enroll in, such as a travel pass or a one-time data package. The actual start and end dates are determined upon enrollment.</para>
-          <para>Plans created with this builder should be marked with <see cref="M:Android.Telephony.SubscriptionPlan.Builder.SetSubscriptionStatus(System.Int32)" /> and the integer value of <see cref="F:Android.Telephony.SubscriptionStatus.Inactive" />.</para>
+          <para>The builder initially sets the status to <see cref="F:Android.Telephony.SubscriptionStatus.Inactive" />, the recommended status for this plan. Use <see cref="M:Android.Telephony.SubscriptionPlan.Builder.SetSubscriptionStatus(System.Int32)" /> to change it.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/SubscriptionPlan.Builder#createNonrecurring(java.time.Period)" title="Reference documentation">Android reference for <code>android.telephony.SubscriptionPlan.Builder.createNonrecurring</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -332,8 +332,8 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dataLimitBytes">The usage threshold in bytes. Android 16 rejects negative values. The Android API 37.2 implementation also accepts <see cref="F:Android.Telephony.SubscriptionPlan.BytesUnknown" />.</param>
-        <param name="dataLimitBehavior">the behavior of data access when usage reaches the threshold. Value is one of the following: <see cref="F:Android.Telephony.DataLimitBehavior.Unknown" /> <see cref="F:Android.Telephony.DataLimitBehavior.Disabled" /> <see cref="F:Android.Telephony.DataLimitBehavior.Billed" /> <see cref="F:Android.Telephony.DataLimitBehavior.Throttled" /></param>
+        <param name="dataLimitBytes">The usage threshold in bytes. Android 9 through Android 16 reject negative values. Starting with Android 17, the framework also accepts <see cref="F:Android.Telephony.SubscriptionPlan.BytesUnknown" />.</param>
+        <param name="dataLimitBehavior">The behavior of data access when usage reaches the threshold. Value is one of the following: <see cref="F:Android.Telephony.DataLimitBehavior.Unknown" /> <see cref="F:Android.Telephony.DataLimitBehavior.Disabled" /> <see cref="F:Android.Telephony.DataLimitBehavior.Billed" /> <see cref="F:Android.Telephony.DataLimitBehavior.Throttled" />. Android 9 through Android 16 reject <see cref="F:Android.Telephony.DataLimitBehavior.Unknown" />.</param>
         <summary>Set the usage threshold at which data access changes.</summary>
         <returns>This builder with the data limit and limit behavior set.</returns>
         <remarks>
@@ -375,8 +375,8 @@
         <Parameter Name="dataUsageTime" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="dataUsageBytes">The currently known mobile data usage in bytes. Android 16 rejects negative values. The Android API 37.2 implementation also accepts <see cref="F:Android.Telephony.SubscriptionPlan.BytesUnknown" />.</param>
-        <param name="dataUsageTime">The time at which this snapshot was valid, in milliseconds since 1970-01-01T00:00:00Z. Android 16 rejects negative values. The Android API 37.2 implementation also accepts <see cref="F:Android.Telephony.SubscriptionPlan.TimeUnknown" />.</param>
+        <param name="dataUsageBytes">The currently known mobile data usage in bytes. Android 9 through Android 16 reject negative values. Starting with Android 17, the framework also accepts <see cref="F:Android.Telephony.SubscriptionPlan.BytesUnknown" />.</param>
+        <param name="dataUsageTime">The time at which this snapshot was valid, in milliseconds since 1970-01-01T00:00:00Z. Android 9 through Android 16 reject negative values. Starting with Android 17, the framework also accepts <see cref="F:Android.Telephony.SubscriptionPlan.TimeUnknown" />.</param>
         <summary>Set a snapshot of currently known mobile data usage.</summary>
         <returns>This builder with the usage amount and measurement time set.</returns>
         <remarks>
@@ -686,7 +686,7 @@
         <Parameter Name="summary" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="summary">The display summary, or null to leave it unspecified.</param>
+        <param name="summary">The display summary, or null to clear it.</param>
         <summary>Sets the plan's user-visible summary.</summary>
         <returns>This builder with the display summary set.</returns>
         <remarks>This string overload passes its text to the corresponding character-sequence setter.</remarks>
@@ -760,7 +760,7 @@
         <Parameter Name="title" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="title">The display title, or null to leave it unspecified.</param>
+        <param name="title">The display title, or null to clear it.</param>
         <summary>Sets the plan's user-visible title.</summary>
         <returns>This builder with the display title set.</returns>
         <remarks>This string overload passes its text to the corresponding character-sequence setter.</remarks>
