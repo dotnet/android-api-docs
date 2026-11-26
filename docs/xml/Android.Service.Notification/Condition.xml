@@ -383,10 +383,12 @@
       <Parameters />
       <Docs>
         <summary>Creates a copy of this condition through a parcel.</summary>
-        <returns>A new condition with the same stored fields.</returns>
+        <returns>A new condition reconstructed from the parcel.</returns>
         <remarks>
+          <para>The parcel constructor validates the condition fields again. On Android 14 (API level 34) and later, it also truncates the URI string and text fields to 1,000 UTF-16 code units.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalArgumentException">The condition ID or summary is <see langword="null" />, or the state is invalid. On Android 16 (API level 36) and later, or Android 15 (API level 35) when the modes API is enabled, the exception is also thrown if the source is invalid.</exception>
       </Docs>
     </Member>
     <Member MemberName="Creator">
@@ -561,7 +563,7 @@
         <ReturnType>Android.Service.Notification.ConditionFlags</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the relevance bits stored in this condition.</summary>
+        <summary>Gets or sets the relevance bits stored in this condition.</summary>
         <value>The condition's relevance flags.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -592,8 +594,8 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the icon value stored in this condition.</summary>
-        <value>The icon value supplied to the constructor.</value>
+        <summary>Gets or sets the icon value stored in this condition.</summary>
+        <value>The icon value stored in this condition.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -672,10 +674,11 @@
         <param name="id">The condition URI to check.</param>
         <param name="pkg">The package name that must match the URI authority.</param>
         <summary>Checks the condition URI scheme and package authority.</summary>
-        <returns><see langword="true" /> if <paramref name="id" /> is not <see langword="null" />, its scheme is <c>condition</c>, and its authority matches <paramref name="pkg" />; otherwise, <see langword="false" />.</returns>
+        <returns>For a non-null <paramref name="pkg" />, <see langword="true" /> if <paramref name="id" /> is not <see langword="null" />, its scheme is <c>condition</c>, and its authority matches <paramref name="pkg" />; otherwise, <see langword="false" />. If <paramref name="id" /> is <see langword="null" /> or its scheme is not <c>condition</c>, the method returns <see langword="false" /> even when <paramref name="pkg" /> is <see langword="null" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.NullPointerException"><paramref name="pkg" /> is <see langword="null" /> and <paramref name="id" /> has the <c>condition</c> scheme.</exception>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -768,7 +771,7 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the first line that describes when the rule ends.</summary>
+        <summary>Gets or sets the first line that describes when the rule ends.</summary>
         <value>The first line of the condition's end description.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -799,7 +802,7 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the continuation of the description of when the rule ends.</summary>
+        <summary>Gets or sets the continuation of the description of when the rule ends.</summary>
         <value>The second line of the condition's end description.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1181,7 +1184,7 @@
         <ReturnType>Android.Service.Notification.ConditionState</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the state reported for the rule.</summary>
+        <summary>Gets or sets the state reported for the rule.</summary>
         <value>The condition's current state code.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1316,6 +1319,7 @@
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalArgumentException"><paramref name="state" /> is not a valid condition state.</exception>
       </Docs>
     </Member>
     <Member MemberName="StateTrue">

@@ -152,8 +152,7 @@
             The root hints are service-specific arguments included in an optional bundle sent to the
             media browser service when connecting and retrieving the root id for browsing, or null if
             none. The contents of this bundle may affect the information returned when browsing.</para>
-          <para>This property may be accessed only while handling <c>OnGetRoot</c>, <c>OnLoadChildren</c>,
-            or <c>OnLoadItem</c>. The returned bundle is a defensive copy of the browser's root hints.</para>
+          <para>On Android 7.0 through 8.1 (API levels 24 through 27), this property may be accessed only while handling <c>OnLoadChildren</c> or <c>OnLoadItem</c>. On Android 9 (API level 28) and later, it may also be accessed while handling <c>OnGetRoot</c>. The returned bundle is a defensive copy of the browser's root hints.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/service/media/MediaBrowserService#getBrowserRootHints()" title="Reference documentation">Java documentation for <code>android.service.media.MediaBrowserService.getBrowserRootHints()</code>.</a>
@@ -165,7 +164,7 @@
                      and used according to terms described in the 
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
-        <exception cref="T:Java.Lang.IllegalStateException">This property is accessed outside <c>OnGetRoot</c>, <c>OnLoadChildren</c>, or <c>OnLoadItem</c>.</exception>
+        <exception cref="T:Java.Lang.IllegalStateException">This property is accessed outside the supported callbacks, including during <c>OnGetRoot</c> on Android 8.1 (API level 27) and earlier.</exception>
       </Docs>
     </Member>
     <Member MemberName="CurrentBrowserInfo">
@@ -702,7 +701,7 @@
       <Docs>
         <summary>Gets the session token, or null if it has not yet been created
             or if it has been destroyed. -or- Call to set the media session.</summary>
-        <value>The media session token, or <see langword="null" /> if no media session is associated with the service. Set this property as soon as possible during service startup. A non-null token cannot be assigned while another token is set; assigning <see langword="null" /> removes the current media session association and disconnects all existing media browsers, after which a new token can be assigned.</value>
+        <value>The media session token, or <see langword="null" /> if no media session is associated with the service. Set this property as soon as possible during service startup. On Android 5.0 (API level 21), assigning <see langword="null" /> throws <see cref="T:Java.Lang.IllegalStateException" />, but a non-null token can replace an existing token. On Android 5.1 (API level 22) and later, a non-null token cannot be assigned while another token is set. On Android 5.1 through 14 (API levels 22 through 34), assigning <see langword="null" /> throws <see cref="T:Java.Lang.IllegalArgumentException" />. On Android 15 and 16 (API levels 35 and 36), a system flag controls whether a null assignment is permitted. On Android 17 (API level 37), a null assignment is permitted. When permitted, assigning <see langword="null" /> while a token is set clears the association and schedules disconnection of existing media browsers; a new token can then be assigned. If no token is set, a permitted null assignment has no effect.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>
