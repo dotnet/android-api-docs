@@ -2630,7 +2630,7 @@
         <param name="info">Will be filled with buffer meta data.</param>
         <param name="timeoutUs">The timeout in microseconds, a negative timeout indicates "infinite".</param>
         <summary>Dequeue an output buffer, block at most "timeoutUs" microseconds.</summary>
-        <returns>A non-negative output-buffer index, or one of the following values: INFO_TRY_AGAIN_LATER, INFO_OUTPUT_FORMAT_CHANGED, INFO_OUTPUT_BUFFERS_CHANGED.</returns>
+        <returns>A non-negative output-buffer index, or a negative status: -1 (<see cref="F:Android.Media.MediaCodecInfoState.TryAgainLater" />), -2 (<see cref="F:Android.Media.MediaCodecInfoState.OutputFormatChanged" />), or -3 (<see cref="F:Android.Media.MediaCodecInfoState.OutputBuffersChanged" />).</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaCodec#dequeueOutputBuffer(android.media.MediaCodec.BufferInfo,%20long)" title="Reference documentation">Android reference for <code>android.media.MediaCodec.dequeueOutputBuffer</code>.</a></format></para>
           <para>
@@ -3637,7 +3637,7 @@
       </ReturnValue>
       <Docs>
         <summary>Retrieve the codec name.</summary>
-        <value>The name used to create the codec when available; otherwise, its canonical component name.</value>
+        <value>On Android 10 (API level 29) and later, the name used to create the codec when available; otherwise, its canonical component name. Earlier versions return the selected component name.</value>
         <remarks>
           <para>Retrieve the codec name.
             
@@ -4871,7 +4871,7 @@
         <param name="cb">The callback that will run.  Use <c>null</c> to clear a previously
                       set callback (before <c>#configure configure</c> is called and run
                       in synchronous mode).</param>
-        <param name="handler">Callbacks run on the handler's thread. On Android API 37.2, if this is null, the default handler uses the codec creation thread's looper, or the main looper if available and the creation thread has none.</param>
+        <param name="handler">Callbacks run on the handler's thread. If this is null, the default handler uses the codec creation thread's looper, or the main looper if available and the creation thread has none.</param>
         <summary>Sets an asynchronous callback for actionable MediaCodec events.</summary>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaCodec#setCallback(android.media.MediaCodec.Callback,%20android.os.Handler)" title="Reference documentation">Android reference for <code>android.media.MediaCodec.setCallback</code>.</a></format></para>
