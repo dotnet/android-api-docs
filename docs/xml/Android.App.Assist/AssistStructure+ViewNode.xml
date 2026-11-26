@@ -58,7 +58,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies whether and how the runtime releases the incoming JNI reference.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -179,12 +179,12 @@
         <ReturnType>Android.Views.Autofill.AutofillNoiseInjectedData</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the payload of noise-injected version text of this ViewNode.</summary>
+        <summary>Gets the payload of noise-injected text for this node.</summary>
         <value>the noise-injected text payload, or <c>null</c> if the structure
                      was created for assist purposes or if the ViewNode does not have text
                      eligible for providing a noise-injected version.</value>
         <remarks>
-          <para>Gets the payload of noise-injected version text of this ViewNode. The payload is only returned when the current ViewNode's text is sensitive and stripped from the AssistStructure(i.e. ViewNode.getText() returns empty string). See the doc for AutofillNoiseInjectedData about the details of the noise-injection algorithm and suggestions on how to rebuild the non-private parts of the text at server side.</para>
+          <para>Gets the payload of noise-injected text for this node. The payload is only returned when the node's text is sensitive and stripped from the structure, so <see cref="P:Android.App.Assist.AssistStructure.ViewNode.Text" /> returns an empty string. See <see cref="T:Android.Views.Autofill.AutofillNoiseInjectedData" /> for details of the noise-injection algorithm and suggestions for rebuilding the non-private parts of the text on the server.</para>
           <para>It's only relevant when the AssistStructure is used for autofill purpose, not for assist purposes.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/assist/AssistStructure.ViewNode#getAutofillNoiseInjectedData()" title="Reference documentation">Android reference for <code>android.app.assist.AssistStructure.ViewNode.getAutofillNoiseInjectedData</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -703,10 +703,10 @@
       </Parameters>
       <Docs>
         <param name="index">The zero-based child index, from zero through <see cref="P:Android.App.Assist.AssistStructure.ViewNode.ChildCount" /> minus one.</param>
-        <summary>Return a child of this node, given an index value from 0 to getChildCount()-1.</summary>
+        <summary>Returns a child of this node at an index from zero through <see cref="P:Android.App.Assist.AssistStructure.ViewNode.ChildCount" /> minus one.</summary>
         <returns>The child node at <paramref name="index" />.</returns>
         <remarks>
-          <para>Return a child of this node, given an index value from 0 to getChildCount()-1.</para>
+          <para>Returns a child of this node at an index from zero through <see cref="P:Android.App.Assist.AssistStructure.ViewNode.ChildCount" /> minus one.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/assist/AssistStructure.ViewNode#getChildAt(int)" title="Reference documentation">Android reference for <code>android.app.assist.AssistStructure.ViewNode.getChildAt</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -833,13 +833,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Return per-line offsets into the text returned by <c>#getText()</c>.</summary>
-        <returns>The zero-based UTF-16 offset at which each formatted line starts in the node's text, or <see langword="null" /> if no line information is set. These are text offsets, not pixel positions.</returns>
+        <summary>Returns the recorded start offset of each formatted text line.</summary>
+        <returns>The recorded start offset for each formatted text line, or <see langword="null" /> if no line information is set.</returns>
         <remarks>
-          <para>Return per-line offsets into the text returned by <c>#getText()</c>.  Each entry
-            in the array is a formatted line of text, and the value it contains is the offset
-            into the text string where that line starts.  May return null if there is no line
-            information.</para>
+          <para>Each array entry records the UTF-16 start offset of a formatted text line, not a pixel position. A scrolled <see cref="T:Android.Widget.TextView" /> can report offsets relative to its full text even when the node contains only part of that text.</para>
           <para>It's only relevant when the <c>AssistStructure</c> is used for assist purposes,
             not for autofill purposes.</para>
           <para>
@@ -2429,12 +2426,10 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>If <c>#getText()</c> is non-null, this is where the current selection ends.</summary>
-        <value>The recorded selection end as a zero-based UTF-16 offset, or <c>-1</c> when no text information is set. Equal, non-negative start and end offsets identify the cursor position. See <see cref="P:Android.App.Assist.AssistStructure.ViewNode.TextSelectionStart" /> for the start offset.</value>
+        <summary>Gets the end offset of the text selection.</summary>
+        <value>The recorded selection end as a zero-based UTF-16 offset. The value is <c>-1</c> if no text record exists or the text was last set without selection offsets. When a cursor position is recorded without a selection, the start and end offsets are equal. See <see cref="P:Android.App.Assist.AssistStructure.ViewNode.TextSelectionStart" /> for the start offset.</value>
         <remarks>
-          <para>If <c>#getText()</c> is non-null, this is where the current selection ends.
-            If there is no selection, returns the same value as <c>#getTextSelectionStart()</c>,
-            indicating the cursor position.</para>
+          <para>When a cursor position is recorded without a selection, the end offset equals <see cref="P:Android.App.Assist.AssistStructure.ViewNode.TextSelectionStart" />.</para>
           <para>It's only relevant when the <c>AssistStructure</c> is used for assist purposes,
             not for autofill purposes.</para>
           <para>
@@ -2475,7 +2470,7 @@
       </ReturnValue>
       <Docs>
         <summary>If <c>#getText()</c> is non-null, this is where the current selection starts.</summary>
-        <value>The recorded selection start as a zero-based UTF-16 offset, or <c>-1</c> when no text information is set. A negative value does not identify a valid text position.</value>
+        <value>The recorded selection start as a zero-based UTF-16 offset. The value is <c>-1</c> if no text record exists or the text was last set without selection offsets. A negative value does not identify a valid text position.</value>
         <remarks>
           <para>If <c>#getText()</c> is non-null, this is where the current selection starts.</para>
           <para>It's only relevant when the <c>AssistStructure</c> is used for assist purposes,
@@ -2564,18 +2559,10 @@
         <ReturnType>Android.App.Assist.AssistTextStyle</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>If <c>#getText()</c> is non-null, this is the main text style associated
-            with it, containing a bit mask of <c>#TEXT_STYLE_BOLD</c>,
-            <c>#TEXT_STYLE_ITALIC</c>, <c>#TEXT_STYLE_STRIKE_THRU</c>, and/or
-            <c>#TEXT_STYLE_UNDERLINE</c>.</summary>
+        <summary>Gets the main text style as a bit mask.</summary>
         <value>A bit mask of <see cref="T:Android.App.Assist.AssistTextStyle" /> values for the main text style, or zero if no style flags are set. Style spans can change individual parts of the text.</value>
         <remarks>
-          <para>If <c>#getText()</c> is non-null, this is the main text style associated
-            with it, containing a bit mask of <c>#TEXT_STYLE_BOLD</c>,
-            <c>#TEXT_STYLE_ITALIC</c>, <c>#TEXT_STYLE_STRIKE_THRU</c>, and/or
-            <c>#TEXT_STYLE_UNDERLINE</c>.
-            Note that the text may also contain style spans that modify the style of specific
-            parts of the text.</para>
+          <para>The mask can contain <see cref="F:Android.App.Assist.AssistTextStyle.Bold" />, <see cref="F:Android.App.Assist.AssistTextStyle.Italic" />, <see cref="F:Android.App.Assist.AssistTextStyle.StrikeThru" />, and <see cref="F:Android.App.Assist.AssistTextStyle.Underline" />. Style spans can modify the style of individual parts of the text.</para>
           <para>It's only relevant when the <c>AssistStructure</c> is used for assist purposes,
             not for autofill purposes.</para>
           <para>
