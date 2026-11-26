@@ -123,7 +123,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies whether to release the incoming JNI reference and whether to register the managed peer.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -166,7 +166,7 @@
         <returns>This generator after the insertion attempt; <paramref name="returnInfo" /> contains the resulting status and, when reported, conflict information.</returns>
         <remarks>
           <para>Adds a pattern to the generator. If the pattern has the same skeleton as an existing pattern, and the override parameter is set, then the previous value is overridden. Otherwise, the previous value is retained. When a conflict prevents insertion, information about it is returned in PatternInfo. A successful override resets the status and conflict information.</para>
-          <para>Note that single-field patterns (like "MMM") are automatically added, and don't need to be added explicitly!</para>
+          <para>Factory-created generators start with canonical single-field patterns, such as <c>M</c> for the month field.</para>
           <para>Example code:</para>
           <code lang="text/java">Date date= new GregorianCalendar(1999,9,13,23,58,59).getTime();
 ULocale locale = ULocale.FRANCE;
@@ -212,7 +212,7 @@ System.out.println("Date Time in new Pattern: "+format.format(date));
         <summary>Provides for the clone operation.</summary>
         <returns>A copy of this generator that permits changes.</returns>
         <remarks>
-          <para>Provides for the clone operation. Any clone is initially unfrozen.</para>
+          <para>Provides for the clone operation. Any clone is initially unfrozen. The base implementation also unfreezes this generator.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/util/Freezable#cloneAsThawed()" title="Reference documentation">Android reference for <code>android.icu.util.Freezable.cloneAsThawed</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -315,7 +315,7 @@ System.out.println("Date Time in new Pattern: "+format.format(date));
         <summary>Provides for the clone operation.</summary>
         <returns>A copy of this generator with independent pattern maps and an unfrozen state.</returns>
         <remarks>
-          <para>Provides for the clone operation. Any clone is initially unfrozen.</para>
+          <para>Provides for the clone operation. Any clone is initially unfrozen. The base implementation also unfreezes this generator.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/icu/text/DateTimePatternGenerator#cloneAsThawed()" title="Reference documentation">Java documentation for <code>android.icu.text.DateTimePatternGenerator.cloneAsThawed()</code>.</a>
@@ -542,7 +542,7 @@ System.out.println("Date Time in new Pattern: "+format.format(date));
       </ReturnValue>
       <MemberValue>10</MemberValue>
       <Docs>
-        <summary>Identifies the day-period field, represented canonically by <c>a</c>.</summary>
+        <summary>Identifies the day-period field, represented by <c>a</c> in a date and time pattern.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -636,7 +636,7 @@ System.out.println("Date Time in new Pattern: "+format.format(date));
       </ReturnValue>
       <Docs>
         <summary>Return the default hour cycle.</summary>
-        <value>The hour cycle corresponding to the locale's preferred hour-format character: <c>h</c>, <c>H</c>, <c>k</c>, or <c>K</c>.</value>
+        <value>The hour cycle corresponding to this generator's hour-format character: <c>h</c>, <c>H</c>, <c>k</c>, or <c>K</c>.</value>
         <remarks>
           <para>Return the default hour cycle.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/DateTimePatternGenerator#getDefaultHourCycle()" title="Reference documentation">Android reference for <code>android.icu.text.DateTimePatternGenerator.getDefaultHourCycle</code>.</a></format></para>
@@ -1087,11 +1087,11 @@ for (String skeleton:skeletons) {
 /** output of the sample code:
  *************************************************************************************************************
    Skeleton            en_US                              fr_FR                              zh_CN
-   yQQQQ               4th quarter 1999                   4e trimestre 1999                  1999\u5e74\u7b2c\u56db\u5b63\u5ea6
-   yMMMM               October 1999                       octobre 1999                       1999\u5e7410\u6708
-   MMMMd               October 13                         13 octobre                         10\u670813\u65e5
-   hhmm                11:58 PM                           11:58 PM                           \u4e0b\u534811:58
-   jjmm                11:58 PM                           23:58                              \u4e0b\u534811:58
+   yQQQQ               4th quarter 1999                   4e trimestre 1999                  1999&#x5e74;&#x7b2c;&#x56db;&#x5b63;&#x5ea6;
+   yMMMM               October 1999                       octobre 1999                       1999&#x5e74;10&#x6708;
+   MMMMd               October 13                         13 octobre                         10&#x6708;13&#x65e5;
+   hhmm                11:58 PM                           11:58 PM                           &#x4e0b;&#x5348;11:58
+   jjmm                11:58 PM                           23:58                              &#x4e0b;&#x5348;11:58
  **************************************************************************************************************/
 // Use DateTime.getPatternInstance to produce the same Date/Time format with predefined constant field value
 final String[] dtfskeleton = {
@@ -1114,9 +1114,9 @@ for (String skeleton:dtfskeleton) {
 /** output of the sample code:
  ************************************************************************************************************
  Skeleton            en_US                              fr_FR                              zh_CN
- yQQQQ               4th quarter 1999                   4e trimestre 1999                  1999\u5e74\u7b2c\u56db\u5b63\u5ea6
- yMMMM               October 1999                       octobre 1999                       1999\u5e7410\u6708
- MMMMd               October 13                         13 octobre                         10\u670813\u65e5
+ yQQQQ               4th quarter 1999                   4e trimestre 1999                  1999&#x5e74;&#x7b2c;&#x56db;&#x5b63;&#x5ea6;
+ yMMMM               October 1999                       octobre 1999                       1999&#x5e74;10&#x6708;
+ MMMMd               October 13                         13 octobre                         10&#x6708;13&#x65e5;
  ************************************************************************************************************/</code>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/DateTimePatternGenerator#getBestPattern(java.lang.String)" title="Reference documentation">Android reference for <code>android.icu.text.DateTimePatternGenerator.getBestPattern</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1255,10 +1255,10 @@ for (String skeleton:dtfskeleton) {
         <Parameter Name="width" Type="Android.Icu.Text.DateTimePatternGenerator+DisplayWidth" />
       </Parameters>
       <Docs>
-        <param name="field">The field type, such as ERA.</param>
-        <param name="width">The desired DisplayWidth, such as DisplayWidth.ABBREVIATED.</param>
+        <param name="field">The field type, such as <see cref="F:Android.Icu.Text.DateTimePatternGenerator.Era" />.</param>
+        <param name="width">The desired display width, such as <see cref="P:Android.Icu.Text.DateTimePatternGenerator.DisplayWidth.Abbreviated" />.</param>
         <summary>The general interface to get a display name for a particular date/time field, in one of several possible display widths.</summary>
-        <returns>The display name for the field</returns>
+        <returns>The display name for the field. The base implementation returns an empty string if <paramref name="field" /> is outside the valid range.</returns>
         <remarks>
           <para>The general interface to get a display name for a particular date/time field, in one of several possible display widths.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/DateTimePatternGenerator#getFieldDisplayName(int,%20android.icu.text.DateTimePatternGenerator.DisplayWidth)" title="Reference documentation">Android reference for <code>android.icu.text.DateTimePatternGenerator.getFieldDisplayName</code>.</a></format></para>
@@ -1958,11 +1958,11 @@ System.out.println(format.format(date));
  Pattern before replacement:
  EEEE d MMMM y HH:mm:ss zzzz
  Date/Time format in fr_FR:
- jeudi 14 octobre 1999 05:58:59 heure avancée d\u2019Europe centrale
+ jeudi 14 octobre 1999 05:58:59 heure avancée d&#x2019;Europe centrale
  Pattern after replacement:
  EEEE d MMMM y HH:mm:ss vvvv
  Date/Time format in fr_FR:
- jeudi 14 octobre 1999 05:58:59 heure de l\u2019Europe centrale
+ jeudi 14 octobre 1999 05:58:59 heure de l&#x2019;Europe centrale
 
 **************************************************************************************************/</code>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/DateTimePatternGenerator#replaceFieldTypes(java.lang.String,%20java.lang.String)" title="Reference documentation">Android reference for <code>android.icu.text.DateTimePatternGenerator.replaceFieldTypes</code>.</a></format></para>
