@@ -151,7 +151,7 @@
         <param name="peer">The managed peer being initialized.</param>
         <param name="reference">The source JNI reference passed by reference.</param>
         <param name="options">Reference-transfer and peer-registration options.</param>
-        <summary>Delegates peer initialization to <c>ConstructPeerCore</c>.</summary>
+        <summary>Initializes a managed peer. In .NET 11 for Android, delegates initialization to <c>ConstructPeerCore</c>.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -282,7 +282,7 @@
         <param name="reference">The source JNI reference for the new managed peer.</param>
         <param name="transfer">Reference-transfer options for the peer implementation.</param>
         <param name="targetType">The requested peer type, or the implementation's default when <see langword="null" />.</param>
-        <summary>Creates a managed peer wrapper according to the derived implementation.</summary>
+        <summary>Creates a managed peer wrapper for a JNI reference.</summary>
         <returns>The created peer, or <see langword="null" /> when the implementation cannot produce a compatible peer.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -324,7 +324,7 @@
         <param name="reference">The JNI reference supplied to the conversion implementation.</param>
         <param name="options">Reference-transfer options forwarded to the conversion implementation.</param>
         <param name="targetType">The optional requested managed target type.</param>
-        <summary>Creates a managed value through the creation hook after checking manager disposal.</summary>
+        <summary>Creates a managed value after checking manager disposal. In .NET 11 for Android, delegates creation to the creation hook.</summary>
         <returns>The value produced by the creation implementation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -387,7 +387,7 @@
         <param name="reference">The JNI reference supplied to the conversion implementation.</param>
         <param name="options">Reference-transfer options forwarded to the conversion implementation.</param>
         <param name="targetType">The optional requested managed target type.</param>
-        <summary>Creates a typed managed value through the creation hook.</summary>
+        <summary>Creates a typed managed value. In .NET 11 for Android, delegates creation to the creation hook.</summary>
         <returns>The value produced by the creation implementation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -561,7 +561,7 @@
       </Parameters>
       <Docs>
         <param name="value">The non-null managed peer to dispose.</param>
-        <summary>Runs disposal notification, removes the peer mapping, and releases its JNI reference.</summary>
+        <summary>In the base implementation, notifies a peer with a valid JNI reference and removes its mapping. If the reference is still valid after those calls, it disposes the reference.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -606,7 +606,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Throws <see cref="T:System.ObjectDisposedException" /> when the manager has been disposed.</summary>
+        <summary>Throws <see cref="T:System.ObjectDisposedException" /> when the base disposal method has marked the manager as disposed.</summary>
         <remarks>Derived operations can use this guard before accessing manager state.</remarks>
       </Docs>
     </Member>
@@ -693,8 +693,8 @@
         <param name="reference">The Java object reference to wrap or look up.</param>
         <param name="targetType">The optional managed peer type required for a reused mapping.</param>
         <summary>Reuses a compatible mapped peer or creates one with <see cref="F:Java.Interop.JniObjectReferenceOptions.Copy" /> transfer options.</summary>
-        <returns>A compatible existing or created peer, or <see langword="null" /> for a zero reference or incompatible conversion.</returns>
-        <remarks>The source reference is not consumed by this lookup.</remarks>
+        <returns>A compatible existing peer or the creation hook's result. A zero reference returns <see langword="null" />; the creation hook can also return <see langword="null" /> for an incompatible Java object.</returns>
+        <remarks>The source reference is passed by value, and the creation hook receives <see cref="F:Java.Interop.JniObjectReferenceOptions.Copy" /> rather than a source-disposal option.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetSurfacedPeers">
@@ -754,7 +754,7 @@
         <param name="reference">The JNI reference supplied to the conversion implementation.</param>
         <param name="options">Reference-transfer options forwarded to the conversion implementation.</param>
         <param name="targetType">The optional requested managed target type.</param>
-        <summary>Looks up or converts a managed value through the lookup hook.</summary>
+        <summary>Looks up or converts a managed value. In .NET 11 for Android, delegates lookup to the lookup hook.</summary>
         <returns>The existing or converted value produced by the lookup implementation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -863,7 +863,7 @@
         <param name="reference">The JNI reference supplied to the conversion implementation.</param>
         <param name="options">Reference-transfer options forwarded to the conversion implementation.</param>
         <param name="targetType">The optional requested managed target type.</param>
-        <summary>Looks up or converts a typed managed value through the lookup hook.</summary>
+        <summary>Looks up or converts a typed managed value. In .NET 11 for Android, delegates lookup to the lookup hook.</summary>
         <returns>The existing or converted value produced by the lookup implementation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -989,7 +989,7 @@
       </Parameters>
       <Docs>
         <param name="type">The managed type requiring a value marshaler.</param>
-        <summary>Gets a marshaler through the type-based lookup hook.</summary>
+        <summary>Gets a marshaler for a managed type. In .NET 11 for Android, delegates lookup to the type-based hook.</summary>
         <returns>The marshaler returned by the implementation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1022,7 +1022,7 @@
       <Parameters />
       <Docs>
         <typeparam name="T">The managed value type requiring a marshaler.</typeparam>
-        <summary>Gets a typed marshaler through the generic lookup hook.</summary>
+        <summary>Gets a typed marshaler. In .NET 11 for Android, delegates lookup to the generic hook.</summary>
         <returns>The typed marshaler returned by the implementation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1048,7 +1048,7 @@
       <Docs>
         <param name="type">The managed type requiring a marshaler.</param>
         <summary>Defines the type-based value-marshaler lookup policy.</summary>
-        <returns>The marshaler selected by the derived implementation.</returns>
+        <returns>The selected marshaler. In .NET 9 and .NET 10 for Android, the base implementation returns a proxy marshaler.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
