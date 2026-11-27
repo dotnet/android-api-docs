@@ -725,16 +725,14 @@
       </ReturnValue>
       <Docs>
         <summary>Get the configured format associated with this <c>OutputConfiguration</c>.</summary>
-        <value>
-          <c>android.graphics.ImageFormat</c> associated with this
-                    <c>OutputConfiguration</c>.</value>
+        <value>The configured image format as an integer.</value>
         <remarks>
           <para>Get the configured format associated with this <c>OutputConfiguration</c>.</para>
           <para>This function handles all ImageFormats and output targets supported by
             the camera APIs, and isn't designed for all possible OS supported formats and
             surfaces. For example, an ImageReader can be created using any combinations of
             HardwareBuffer format and dataspace. If the combination is not supported
-            by the camera APIs, this function returns ImageFormat.UNKNOWN.</para>
+            by the camera APIs, this function returns the integer value of <see cref="F:Android.Graphics.ImageFormatType.Unknown" />.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/camera2/params/OutputConfiguration#getConfiguredFormat()" title="Reference documentation">Java documentation for <code>android.hardware.camera2.params.OutputConfiguration.getConfiguredFormat()</code>.</a>
@@ -1206,7 +1204,7 @@
         <returns>This configuration, after its surfaces have been removed and it has been marked as deferred.</returns>
         <remarks>
           <para>Clear any valid output surfaces and mark the configuration as deferred.</para>
-          <para>Do note that this method is intended to be used in conjunction with CameraCaptureSession.updateOutputConfigurations(List) and not CameraCaptureSession.finalizeOutputConfigurations. The latter method is intended to be used only when clients want to finalize an already registered deferred OutputConfiguration with a valid Surface. However surface finalization doesn't accept deferred output configurations. Switching a valid registered surface to deferred state is only possible with CameraCaptureSession.updateOutputConfiguration.</para>
+          <para>Use <see cref="M:Android.Hardware.Camera2.CameraCaptureSession.UpdateOutputConfigurations(System.Collections.Generic.IList{Android.Hardware.Camera2.Params.OutputConfiguration})" /> to switch a registered output to a deferred state. <see cref="M:Android.Hardware.Camera2.CameraCaptureSession.FinalizeOutputConfigurations(System.Collections.Generic.IList{Android.Hardware.Camera2.Params.OutputConfiguration})" /> instead completes an already registered deferred output with a valid surface; it cannot finalize a configuration that has no surface.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/params/OutputConfiguration#makeDeferredAndRemoveSurfaces()" title="Reference documentation">Android reference for <code>android.hardware.camera2.params.OutputConfiguration.makeDeferredAndRemoveSurfaces</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2656,8 +2654,8 @@
                     <c>HardwareBuffer</c>.</value>
         <remarks>
           <para>Get the usage flag associated with this OutputConfiguration.</para>
-          <para>If the OutputConfiguration is created using an output surface, or using a Surface source class, this function returns the consumer usage flag of the output surface or the Surface source class.</para>
-          <para>If the OutputConfiguration is created using an Image format, this function returns the application specified usage flag. If the application doesn't specify the usage flag, the return value is 0 for ImageFormat.PRIVATE and HardwareBuffer.USAGE_CPU_READ_OFTEN for all other cases.</para>
+          <para>When created from an output surface or a surface source class, this value can reflect the consumer usage flags. Reconstructing the configuration from a parcel can reset it to 0.</para>
+          <para>When created using an image format, the usage is initially set to the application-specified flags. If no flags are specified, it starts at 0 for <see cref="F:Android.Graphics.ImageFormatType.Private" /> and <see cref="F:Android.Hardware.HardwareBuffer.UsageCpuReadOften" /> for other formats.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/params/OutputConfiguration#getUsage()" title="Reference documentation">Android reference for <code>android.hardware.camera2.params.OutputConfiguration.getUsage</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
