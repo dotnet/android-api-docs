@@ -218,7 +218,7 @@
         <returns>This builder instance, with its current offset advanced by <paramref name="length" /> UTF-16 code units.</returns>
         <remarks>
           <para>Apply styles to the given length. Keeps an internal offset which increases at every append. The initial value for this offset is zero. After the style is applied the internal offset is moved to offset + length, and next call will start from this new position.</para>
-          <para>Paint.TEXT_RUN_FLAG_RIGHT_EDGE and Paint.TEXT_RUN_FLAG_LEFT_EDGE are ignored and treated as both of them are set.</para>
+          <para><see cref="F:Android.Graphics.Paint.TextRunFlagRightEdge" /> and <see cref="F:Android.Graphics.Paint.TextRunFlagLeftEdge" /> are ignored and treated as if both were set.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/MeasuredText.Builder#appendStyleRun(android.graphics.Paint,%20int,%20boolean)" title="Reference documentation">Android reference for <code>android.graphics.text.MeasuredText.Builder.appendStyleRun</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -519,13 +519,13 @@
         <Parameter Name="computeHyphenation" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="computeHyphenation">true if you want to use automatic hyphenations.</param>
+        <param name="computeHyphenation">Whether to compute hyphenation information when building the measured text.</param>
         <summary>By passing true to this method, the build method will compute all possible hyphenation pieces as well.</summary>
         <returns>This builder instance.</returns>
         <remarks>
-          <para>This method was deprecated in API level 33. use setComputeHyphenation(int) instead.</para>
+          <para>This method was deprecated in API level 33. Use <see cref="M:Android.Graphics.Text.MeasuredText.Builder.SetComputeHyphenation(System.Int32)" /> instead.</para>
           <para>Pass <see langword="true" /> to compute hyphenation information when the paragraph is built. Pass <see langword="false" /> to skip that computation. The default is <see langword="false" />.</para>
-          <para>On Android 16, the greedy line-breaking path can compute hyphenation when needed without precomputed information. This path is used by <see cref="F:Android.Graphics.Text.BreakStrategy.Simple" /> and by paragraphs that contain tabs. Without tabs, <see cref="F:Android.Graphics.Text.BreakStrategy.HighQuality" /> and <see cref="F:Android.Graphics.Text.BreakStrategy.Balanced" /> use precomputed hyphenation information. For automatic hyphenation with these strategies, enable computation with <see langword="true" /> or use the integer overload with <see cref="F:Android.Graphics.Text.HyphenationMode.Normal" /> or <see cref="F:Android.Graphics.Text.HyphenationMode.Fast" />. The line breaker's hyphenation frequency must also permit hyphenation.</para>
+          <para>The greedy line-breaking path can compute hyphenation when needed without precomputed information. This path is used by <see cref="F:Android.Graphics.Text.BreakStrategy.Simple" /> and by paragraphs that contain tabs. Without tabs, <see cref="F:Android.Graphics.Text.BreakStrategy.HighQuality" /> and <see cref="F:Android.Graphics.Text.BreakStrategy.Balanced" /> use precomputed hyphenation information. For automatic hyphenation with these strategies, enable computation with <see langword="true" /> or use the integer overload with <see cref="F:Android.Graphics.Text.HyphenationMode.Normal" /> or <see cref="F:Android.Graphics.Text.HyphenationMode.Fast" />. The line breaker's hyphenation frequency must also permit hyphenation.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/MeasuredText.Builder#setComputeHyphenation(boolean)" title="Reference documentation">Android reference for <code>android.graphics.text.MeasuredText.Builder.setComputeHyphenation</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -558,7 +558,7 @@
         <Parameter Name="mode" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="mode">a hyphenation mode. Value is one of the following: HYPHENATION_MODE_NONE; HYPHENATION_MODE_NORMAL; HYPHENATION_MODE_FAST</param>
+        <param name="mode">The hyphenation mode, as the integer value of <see cref="F:Android.Graphics.Text.HyphenationMode.None" />, <see cref="F:Android.Graphics.Text.HyphenationMode.Normal" />, or <see cref="F:Android.Graphics.Text.HyphenationMode.Fast" />.</param>
         <summary>Sets the mode used to compute hyphenation information when the paragraph is built.</summary>
         <returns>This builder instance.</returns>
         <remarks>
@@ -600,7 +600,7 @@
         <summary>By passing true to this method, the build method will compute all full layout information.</summary>
         <returns>This builder instance.</returns>
         <remarks>
-          <para>By passing true to this method, the build method will compute all full layout information. If you don't use MeasuredText.getBounds(int,int,android.graphics.Rect), you can pass false to this method and save the memory spaces. The default value is true. Even if you pass false to this method, you can still call getBounds but it becomes slower.</para>
+          <para>Pass <see langword="true" /> to compute full layout information. If you do not use <see cref="M:Android.Graphics.Text.MeasuredText.GetBounds(System.Int32,System.Int32,Android.Graphics.Rect)" />, you can pass <see langword="false" /> to save memory. The default is <see langword="true" />. If you pass <see langword="false" />, you can still call <see cref="M:Android.Graphics.Text.MeasuredText.GetBounds(System.Int32,System.Int32,Android.Graphics.Rect)" />, but it is slower.</para>
           <para>A measured-text instance built with layout computation disabled cannot be used to construct another <see cref="T:Android.Graphics.Text.MeasuredText.Builder" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/MeasuredText.Builder#setComputeLayout(boolean)" title="Reference documentation">Android reference for <code>android.graphics.text.MeasuredText.Builder.setComputeLayout</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>

@@ -186,14 +186,14 @@
         <summary>Merges line break config with other config Update the internal configurations with passed config.</summary>
         <returns>This Builder. This value cannot be null.</returns>
         <remarks>
-          <para>Merges line break config with other config Update the internal configurations with passed config. If the config values of passed config are unspecified, the original config values are kept. For example, the following code passes config that has LineBreakConfig.LINE_BREAK_STYLE_UNSPECIFIED. This code generates LineBreakConfig that has line break config LineBreakConfig.LINE_BREAK_STYLE_STRICT.</para>
-          <code lang="text/java">    val override = LineBreakConfig.Builder()
+          <para>Merges another configuration into this builder. Unspecified values in the passed configuration leave the builder's existing values unchanged. In the following Java example, the passed configuration has an unspecified line-break style, so the result keeps <see cref="F:Android.Graphics.Text.LineBreakStyle.Strict" />.</para>
+          <code lang="text/java">    LineBreakConfig override = new LineBreakConfig.Builder()
          .setLineBreakWordStyle(LineBreakConfig.LINE_BREAK_WORD_STYLE_PHRASE)
          .build();  // UNSPECIFIED if no setLineBreakStyle is called.
-    val config = LineBreakConfig.Builder()
+    LineBreakConfig config = new LineBreakConfig.Builder()
          .setLineBreakStyle(LineBreakConfig.LINE_BREAK_STYLE_STRICT)
          .merge(override)
-         .build()
+         .build();
     // Here, config has LINE_BREAK_STYLE_STRICT of line break config and
     // LINE_BREAK_WORD_STYLE_PHRASE of line break word style.</code>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/LineBreakConfig.Builder#merge(android.graphics.text.LineBreakConfig)" title="Reference documentation">Android reference for <code>android.graphics.text.LineBreakConfig.Builder.merge</code>.</a></format></para>
@@ -228,11 +228,11 @@
         <Parameter Name="hyphenation" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="hyphenation">The hyphenation preference. Value is one of the following: LineBreakConfig.HYPHENATION_UNSPECIFIED; LineBreakConfig.HYPHENATION_ENABLED; LineBreakConfig.HYPHENATION_DISABLED</param>
-        <summary>Sets the hyphenation preference Note: Even if the LineBreakConfig.HYPHENATION_ENABLED is specified, the hyphenation will not be performed if the TextView or underlying StaticLayout, LineBreaker are configured with LineBreaker.HYPHENATION_FREQUENCY_NONE.</summary>
+        <param name="hyphenation">The hyphenation preference, as the integer value of <see cref="F:Android.Graphics.Text.LineBreakHyphenation.Unspecified" />, <see cref="F:Android.Graphics.Text.LineBreakHyphenation.Enabled" />, or <see cref="F:Android.Graphics.Text.LineBreakHyphenation.Disabled" />.</param>
+        <summary>Sets the hyphenation preference. Even if <see cref="F:Android.Graphics.Text.LineBreakHyphenation.Enabled" /> is specified, hyphenation is not performed if the text layout or line breaker is configured with <see cref="F:Android.Graphics.Text.HyphenationFrequency.None" />.</summary>
         <returns>This Builder. This value cannot be null.</returns>
         <remarks>
-          <para>Sets the hyphenation preference Note: Even if the LineBreakConfig.HYPHENATION_ENABLED is specified, the hyphenation will not be performed if the TextView or underlying StaticLayout, LineBreaker are configured with LineBreaker.HYPHENATION_FREQUENCY_NONE. Note: Even if the hyphenation is enabled with a line break strategy LineBreaker.BREAK_STRATEGY_SIMPLE, the hyphenation will not be performed unless a single word cannot meet width constraints.</para>
+          <para>Sets the hyphenation preference. Even if <see cref="F:Android.Graphics.Text.LineBreakHyphenation.Enabled" /> is specified, hyphenation is not performed if the text layout or line breaker is configured with <see cref="F:Android.Graphics.Text.HyphenationFrequency.None" />. Even if hyphenation is enabled with the <see cref="F:Android.Graphics.Text.BreakStrategy.Simple" /> line-break strategy, it is not performed unless a single word cannot meet the width constraints.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/LineBreakConfig.Builder#setHyphenation(int)" title="Reference documentation">Android reference for <code>android.graphics.text.LineBreakConfig.Builder.setHyphenation</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -265,7 +265,7 @@
         <Parameter Name="lineBreakStyle" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="lineBreakStyle">The new line-break style. Value is one of the following: LineBreakConfig.LINE_BREAK_STYLE_NONE; LineBreakConfig.LINE_BREAK_STYLE_LOOSE; LineBreakConfig.LINE_BREAK_STYLE_NORMAL; LineBreakConfig.LINE_BREAK_STYLE_STRICT; LineBreakConfig.LINE_BREAK_STYLE_UNSPECIFIED; LineBreakConfig.LINE_BREAK_STYLE_NO_BREAK; LineBreakConfig.LINE_BREAK_STYLE_AUTO</param>
+        <param name="lineBreakStyle">The new line-break style, as the integer value of <see cref="F:Android.Graphics.Text.LineBreakStyle.None" />, <see cref="F:Android.Graphics.Text.LineBreakStyle.Loose" />, <see cref="F:Android.Graphics.Text.LineBreakStyle.Normal" />, <see cref="F:Android.Graphics.Text.LineBreakStyle.Strict" />, <see cref="F:Android.Graphics.Text.LineBreakStyle.Unspecified" />, <see cref="F:Android.Graphics.Text.LineBreakStyle.NoBreak" />, or <see cref="F:Android.Graphics.Text.LineBreakStyle.Auto" />.</param>
         <summary>Sets the line-break style.</summary>
         <returns>This Builder. This value cannot be null.</returns>
         <remarks>
@@ -302,7 +302,7 @@
         <Parameter Name="lineBreakWordStyle" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="lineBreakWordStyle">The new line-break word style. Value is one of the following: LineBreakConfig.LINE_BREAK_WORD_STYLE_NONE; LineBreakConfig.LINE_BREAK_WORD_STYLE_PHRASE; LineBreakConfig.LINE_BREAK_WORD_STYLE_UNSPECIFIED; LineBreakConfig.LINE_BREAK_WORD_STYLE_AUTO</param>
+        <param name="lineBreakWordStyle">The new line-break word style, as the integer value of <see cref="F:Android.Graphics.Text.LineBreakWordStyle.None" />, <see cref="F:Android.Graphics.Text.LineBreakWordStyle.Phrase" />, <see cref="F:Android.Graphics.Text.LineBreakWordStyle.Unspecified" />, or <see cref="F:Android.Graphics.Text.LineBreakWordStyle.Auto" />.</param>
         <summary>Sets the line-break word style.</summary>
         <returns>This Builder. This value cannot be null.</returns>
         <remarks>

@@ -92,9 +92,9 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the accessibility label for the field, when one is present.</summary>
-        <value>The accessibility label from the PDF annotation dictionary, or <see langword="null" /> when no label is present.</value>
+        <value>The accessibility label, which can be <see langword="null" /> or empty.</value>
         <remarks>
-          <para>The label comes from the annotation dictionary's TU value when present; otherwise it comes from its T value.</para>
+          <para>For a widget read from a PDF, Android can use the annotation dictionary's TU value and fall back to its T value when TU is empty or absent.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/graphics/pdf/models/FormWidgetInfo#getAccessibilityLabel()" title="Reference documentation">Java documentation for <code>android.graphics.pdf.models.FormWidgetInfo.getAccessibilityLabel()</code>.</a>
@@ -552,9 +552,9 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the field's text value, when one is present.</summary>
-        <value>The text value from the PDF annotation dictionary, or <see langword="null" /> when no value is present.</value>
+        <value>The text value, which can be <see langword="null" /> or empty.</value>
         <remarks>
-          <para>The value comes from the annotation dictionary's V entry.</para>
+          <para>For a widget read from a PDF, the value can come from the annotation dictionary's V entry. A check box or radio button can return the text <c>true</c> or <c>false</c> to indicate its checked state.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/graphics/pdf/models/FormWidgetInfo#getTextValue()" title="Reference documentation">Java documentation for <code>android.graphics.pdf.models.FormWidgetInfo.getTextValue()</code>.</a>
@@ -650,10 +650,12 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns the index of the widget within the page's "Annot" array in the PDF document</summary>
-        <value>The zero-based index of the widget in the page's annotation array.</value>
+        <summary>Returns the index of the form widget on the page.</summary>
+        <value>The stored form widget index. Valid indices are zero-based.</value>
         <remarks>
-          <para>Returns the index of the widget within the page's "Annot" array in the PDF document</para>
+          <para>When Android reads a widget from a PDF, the index depends on the PDF implementation. Some implementations use the widget's position in the page's annotation array. Others calculate the index from the page's nonhidden widget annotations.</para>
+          <para>Some implementations can return an index from a type-filtered query that differs from the index used for editing if an unsupported widget was filtered out earlier on the page.</para>
+          <para>The builder stores the supplied index without checking its range.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/graphics/pdf/models/FormWidgetInfo#getWidgetIndex()" title="Reference documentation">Java documentation for <code>android.graphics.pdf.models.FormWidgetInfo.getWidgetIndex()</code>.</a>
