@@ -983,7 +983,7 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets whether this view is a heading for accessibility purposes.</summary>
+        <summary>Gets whether this view is a heading for accessibility purposes. A heading marks a section of content.</summary>
         <value>
           <c>true</c> if the view is a heading, <c>false</c> otherwise.</value>
         <remarks>
@@ -1434,7 +1434,7 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the id of a view after which this one is visited in accessibility traversal.</summary>
+        <summary>Gets the id of a view after which this one is visited in accessibility traversal. The screen reader determines the actual traversal order.</summary>
         <value>The id of a view this one succeedes in accessibility traversal if
                     specified, otherwise <c>#NO_ID</c>.</value>
         <remarks>
@@ -1504,7 +1504,7 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the id of a view before which this one is visited in accessibility traversal.</summary>
+        <summary>Gets the id of a view before which this one is visited in accessibility traversal. The screen reader determines the actual traversal order.</summary>
         <value>The id of a view this one precedes in accessibility traversal if
                     specified, otherwise <c>#NO_ID</c>.</value>
         <remarks>
@@ -2197,7 +2197,7 @@
         <ReturnType>System.Single</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>The opacity of the view.</summary>
+        <summary>The opacity of the view. The value ranges from 0 (fully transparent) to 1 (fully opaque).</summary>
         <value>The opacity of the view.</value>
         <remarks>
           <para>Property getter documentation:</para>
@@ -2539,6 +2539,11 @@
             state description will send <c>AccessibilityEvent#TYPE_WINDOW_CONTENT_CHANGED</c> events of
             type <c>AccessibilityEvent#CONTENT_CHANGE_TYPE_STATE_DESCRIPTION</c>.</para>
           <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/View#announceForAccessibility(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.view.View.announceForAccessibility(java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
                     Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
                      and used according to terms described in the
@@ -2607,7 +2612,7 @@
         <summary>Accesses a managed window-insets handler wrapper without registering a listener.</summary>
         <value>The delegate stored by the wrapper, or null if the wrapper or its handler is unavailable.</value>
         <remarks>
-          <para>The wrapper is held by a weak reference and may be collected. To register a listener with the view, use <see cref="M:Android.Views.View.SetOnApplyWindowInsetsListener(Android.Views.View.IOnApplyWindowInsetsListener)" />.</para>
+          <para>If no wrapper exists, setting this property creates one but does not store the delegate. The wrapper is held by a weak reference and may be collected. To register a listener with the view, use <see cref="M:Android.Views.View.SetOnApplyWindowInsetsListener(Android.Views.View.IOnApplyWindowInsetsListener)" />.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -3549,7 +3554,7 @@
         <ReturnType>Android.Views.Autofill.AutofillId</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the unique, logical identifier of this view in the activity, for autofill purposes. The autofill id is created on demand, unless it is explicitly set by setAutofillId(AutofillId) . See setAutofillId(AutofillId) for more info.</summary>
+        <summary>Gets the unique, logical identifier of this view in the activity, for autofill purposes. The autofill ID is created on demand unless explicitly set.</summary>
         <value>The View's autofill id.</value>
         <remarks>
           <para>Property getter documentation:</para>
@@ -4222,7 +4227,7 @@
         <ReturnType>Android.Graphics.Drawables.Drawable</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the background drawable</summary>
+        <summary>Gets the background drawable. Set this property to <c>null</c> to remove the background.</summary>
         <value>The drawable used as the background for this view, if any.</value>
         <remarks>
           <para>Property getter documentation:</para>
@@ -9622,7 +9627,7 @@
             duration of the drag, which means that the source activity will not receive drag events for
             the current drag gesture.</summary>
         <remarks>
-          <para>For details, see the Android reference documentation for android.view.View.DRAG_FLAG_HIDE_CALLING_TASK_ON_DRAG_START.</para>
+          <para>Only the current <see cref="T:Android.Service.Voice.VoiceInteractionService" /> may use this flag.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/View#DRAG_FLAG_HIDE_CALLING_TASK_ON_DRAG_START" title="Reference documentation">Java documentation for android.view.View.DRAG_FLAG_HIDE_CALLING_TASK_ON_DRAG_START.</a>
@@ -10702,7 +10707,7 @@
       </ReturnValue>
       <Docs>
         <summary>Indicates the view is enabled.</summary>
-        <value>The drawable-state attribute ID for the enabled state.</value>
+        <value>A list containing the drawable-state attribute ID for the enabled state.</value>
         <remarks>
           <para>Indicates the view is enabled. States are used with
             <c>android.graphics.drawable.Drawable</c> to change the drawing of the
@@ -11052,9 +11057,9 @@
         <typeparam name="T">The expected view type.</typeparam>
         <param name="id">The resource identifier of the view to find.</param>
         <summary>Finds the view with the specified ID as the requested type.</summary>
-        <returns>The matching view as <typeparamref name="T" />, or <c>null</c> if <paramref name="id" /> is <see cref="F:Android.Views.View.NoId" /> or no matching view is found in this view's hierarchy.</returns>
+        <returns>The returned view as <typeparamref name="T" />, or <c>null</c> if <paramref name="id" /> is <see cref="F:Android.Views.View.NoId" /> or the search returns no view.</returns>
         <remarks>
-          <para>This managed convenience overload performs the same search as the non-generic overload. It returns <c>null</c> if <paramref name="id" /> is <see cref="F:Android.Views.View.NoId" /> or no matching view is found in this view's hierarchy; it throws <see cref="T:System.InvalidCastException" /> when the matching view cannot be cast to <typeparamref name="T" />.</para>
+          <para>This managed convenience overload performs the same search as the non-generic overload. It returns <c>null</c> if <paramref name="id" /> is <see cref="F:Android.Views.View.NoId" /> or the search returns no view. On Android 1.6 through 7.1 (API 4 through 25), the search also returns <c>null</c> for any other negative ID. It throws <see cref="T:System.InvalidCastException" /> when the returned view cannot be cast to <typeparamref name="T" />.</para>
         </remarks>
       </Docs>
     </Member>
@@ -11207,6 +11212,11 @@
             not render or both. Clients can specify how the search is to be performed via
             passing the <c>#FIND_VIEWS_WITH_TEXT</c> and
             <c>#FIND_VIEWS_WITH_CONTENT_DESCRIPTION</c> flags.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/View#findViewsWithText(java.util.ArrayList%3Candroid.view.View%3E,%20java.lang.CharSequence,%20int)" title="Reference documentation">Java documentation for <code>android.view.View.findViewsWithText(java.util.ArrayList&lt;android.view.View&gt;, java.lang.CharSequence, int)</code>.</a>
+            </format>
+          </para>
           <para>
                     Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -11523,7 +11533,7 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>When a view is focusable, it may not want to take focus when in touch mode.</summary>
+        <summary>When a view is focusable, it may not want to take focus when in touch mode. Set this property to control whether this view can receive focus in touch mode.</summary>
         <value>Whether the view is focusable in touch mode.</value>
         <remarks>
           <para>Property getter documentation:</para>
@@ -11755,7 +11765,7 @@
       </ReturnValue>
       <Docs>
         <summary>Indicates the view is focused.</summary>
-        <value>The drawable-state attribute ID for the focused state.</value>
+        <value>A list containing the drawable-state attribute ID for the focused state.</value>
         <remarks>
           <para>Indicates the view is focused. States are used with
             <c>android.graphics.drawable.Drawable</c> to change the drawing of the
@@ -11964,7 +11974,7 @@
       <Docs>
         <param name="hasOverlappingRendering">The value for overlapping rendering to be used internally
             instead of that returned by <c>#hasOverlappingRendering()</c>.</param>
-        <summary>Sets the behavior for overlapping rendering for this view (see hasOverlappingRendering() for more details on this behavior). Calling this method is an alternative to overriding hasOverlappingRendering() in a subclass, providing the value which is then used internally. That is, when forceHasOverlappingRendering(boolean) is called, the value of hasOverlappingRendering() is ignored and the value passed into this method is used instead.</summary>
+        <summary>Sets the behavior for overlapping rendering for this view (see <see cref="P:Android.Views.View.HasOverlappingRendering" /> for more details on this behavior). Calling this method is an alternative to overriding <see cref="P:Android.Views.View.HasOverlappingRendering" /> in a subclass, providing the value which is then used internally. When this method is called, the value of <see cref="P:Android.Views.View.HasOverlappingRendering" /> is ignored and the value passed into this method is used instead.</summary>
         <remarks>
           <para>Sets the behavior for overlapping rendering for this view (see <c>#hasOverlappingRendering()</c> for more details on this behavior). Calling this method
             is an alternative to overriding <c>#hasOverlappingRendering()</c> in a subclass,
@@ -12329,7 +12339,7 @@
         <ReturnType>System.Single</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Get the current velocity of the View.</summary>
+        <summary>Get the current velocity of the View. When the view is attached and the velocity API is enabled, setting this property records the magnitude of the supplied value.</summary>
         <value>0 by default, or value passed to <c>#setFrameContentVelocity(float)</c>.</value>
         <remarks>
           <para>Property getter documentation:</para>
@@ -14074,7 +14084,7 @@
       <Docs>
         <summary>Returns flags configuring the handwriting delegation behavior for this delegate editor view,
             as set by <c>#setHandwritingDelegateFlags</c>.</summary>
-        <value>Value is either 0 or InputMethodManager.HANDWRITING_DELEGATE_FLAG_HOME_DELEGATOR_ALLOWED</value>
+        <value>Use zero or <see cref="F:Android.Views.InputMethods.HandwritingDelegateFlag.HomeDelegatorAllowed" />.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns flags configuring the handwriting delegation behavior for this delegate editor view,
@@ -14611,7 +14621,7 @@
       <Docs>
         <summary>Indicates whether the view is currently tracking transient state that the
             app should not need to concern itself with saving and restoring, but that
-            the framework should take special note to preserve when possible.</summary>
+            the framework should take special note to preserve when possible. The setter is reference-counted; pair each <c>true</c> assignment with a later <c>false</c> assignment.</summary>
         <value>true if the view has transient state</value>
         <remarks>
           <para>Property getter documentation:</para>
@@ -16595,10 +16605,10 @@
                     otherwise.</value>
         <remarks>
           <para>Returns whether this View automatically reports its lifecycle events and layout bounds to the Content Capture Version 2.</para>
-          <para>By default, this method returns true, which instructs the Android View system to automatically track this view's visibility, position, layout bounds, and structural changes and report them directly to the active ContentCaptureSession.</para>
-          <para>Views can override this method to return false to disable this automatic monitoring and take full manual control over when and how their properties are reported. This is particularly useful for Views that participate in hybrid hierarchies that can nest Views and Virtual Views bidirectionally. By disabling this behavior, the View itself can choose its own parent id and report the relative bounds to that parent in the Content Capture hierarchy.</para>
-          <para>setImportantForContentCapture(int) can influence whether this View is reported to the Content Capture entirely, e.g. IMPORTANT_FOR_CONTENT_CAPTURE_NO also disables self reporting. However, not being important for Content Capture influences how descendant nodes are reported. If this View were to be set as NOT important for Content Capture, its children will skip this View while finding their parent id and relative bounds to that parent. Therefore, if this View needs to still act as a parent to its children in Content Capture hierarchy, but needs to control how itself is reported, overriding this method and returning false is recommended.</para>
-          <para>Note: If this method returns false, the view is fully responsible for notifying the system about its lifecycle and property updates by calling methods such as ContentCaptureSession.notifyNodeAppearedOrChanged(AutofillId,ContentCaptureNodeProperties) and ContentCaptureSession.notifyNodeDisappeared(AutofillId) on the main thread.</para>
+          <para>By default, this property returns true, which instructs the Android View system to automatically track this view's visibility, position, layout bounds, and structural changes and report them directly to the active ContentCaptureSession.</para>
+          <para>Views can override this property to return false to disable this automatic monitoring and take full manual control over when and how their properties are reported. This is particularly useful for Views that participate in hybrid hierarchies that can nest Views and Virtual Views bidirectionally. By disabling this behavior, the View itself can choose its own parent id and report the relative bounds to that parent in the Content Capture hierarchy.</para>
+          <para><see cref="P:Android.Views.View.ImportantForContentCapture" /> can influence whether this View is reported to Content Capture. For example, setting it to the integer value of <see cref="F:Android.Views.ViewImportantForContentCapture.No" /> also disables self-reporting. However, not being important for Content Capture influences how descendant nodes are reported. If this View is not important for Content Capture, its children will skip this View while finding their parent id and relative bounds to that parent. Therefore, if this View needs to still act as a parent to its children in the Content Capture hierarchy, but needs to control how it is reported, overriding this property and returning false is recommended.</para>
+          <para>Note: If this property returns false, the view is fully responsible for notifying the system about its lifecycle and property updates by calling methods such as <see cref="M:Android.Views.ContentCaptures.ContentCaptureSession.NotifyNodeAppearedOrChanged(Android.Views.Autofill.AutofillId,Android.Views.ContentCaptures.ContentCaptureNodeProperties)" /> and <see cref="M:Android.Views.ContentCaptures.ContentCaptureSession.NotifyNodeDisappeared(Android.Views.Autofill.AutofillId)" /> on the main thread.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/View#isContentCaptureSelfReportingEnabled()" title="Reference documentation">Android reference for <code>android.view.View.isContentCaptureSelfReportingEnabled</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -16683,7 +16693,7 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the mode for determining whether this view is a credential.</summary>
+        <summary>Gets the mode for determining whether this view is a credential. Set this property to mark the view as a credential for Credential Manager.</summary>
         <value>false by default, or value passed to <c>#setIsCredential(boolean)</c>.</value>
         <remarks>
           <para>Property getter documentation:</para>
@@ -18374,7 +18384,7 @@
         <ReturnType>Android.Views.LayoutDirection</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns the resolved layout direction for this view.</summary>
+        <summary>Returns the resolved layout direction for this view. Setting this property specifies the direction to resolve.</summary>
         <value>
           <c>#LAYOUT_DIRECTION_RTL</c> if the layout direction is RTL or returns
             <c>#LAYOUT_DIRECTION_LTR</c> if the layout direction is not RTL.
@@ -22412,9 +22422,9 @@
         <summary>Populates the properties of this View for Content Capture version 2.</summary>
         <remarks>
           <para>Populates the properties of this View for Content Capture version 2.</para>
-          <para>This method is called when a view that is eligible for content capture is initially registered and appeared on the screen, or when its properties are explicitly requested to be repopulated. The populated ContentCaptureNodeProperties is subsequently sent to the intelligence service through ContentCaptureSession.notifyNodeAppearedOrChanged(AutofillId,ContentCaptureNodeProperties).</para>
-          <para>The default implementation of this method computes and sets the most relevant properties, such as the layout bounds relative to the nearest content-capture-important parent, the parent's AutofillId, and the view's content description. Subclasses overriding this method should call the super implementation (super.onProvideContentCaptureNodeProperties(properties)) to populate these default properties, and then modify them as appropriate.</para>
-          <para>Note for Virtual Views: Views that host a virtual view structure (such as web pages) must only populate the node properties representing the host view itself and return immediately. They must subsequently report virtual child node events on the main (UI) thread by calling: ContentCaptureSession.notifyNodeAppearedOrChanged(AutofillId,ContentCaptureNodeProperties) when virtual nodes appear or their properties change; ContentCaptureSession.notifyNodeDisappeared(AutofillId) when virtual nodes disappear</para>
+          <para>This method is called when a view eligible for content capture is initially registered and appears on the screen, or when its properties are explicitly requested again. The populated properties are subsequently sent to the intelligence service through <see cref="M:Android.Views.ContentCaptures.ContentCaptureSession.NotifyNodeAppearedOrChanged(Android.Views.Autofill.AutofillId,Android.Views.ContentCaptures.ContentCaptureNodeProperties)" />.</para>
+          <para>The default implementation computes and sets the most relevant properties, such as the layout bounds relative to the nearest content-capture-important parent, the parent's autofill ID, and the view's content description. Subclasses overriding this method should call <c>base.OnProvideContentCaptureNodeProperties(properties)</c> to populate these default properties, and then modify them as appropriate.</para>
+          <para>Views that host a virtual view structure, such as a web page, must only populate the node properties representing the host view itself and return immediately. They must subsequently report virtual child node events on the main UI thread using <see cref="M:Android.Views.ContentCaptures.ContentCaptureSession.NotifyNodeAppearedOrChanged(Android.Views.Autofill.AutofillId,Android.Views.ContentCaptures.ContentCaptureNodeProperties)" /> when nodes appear or change, and <see cref="M:Android.Views.ContentCaptures.ContentCaptureSession.NotifyNodeDisappeared(Android.Views.Autofill.AutofillId)" /> when nodes disappear.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/View#onProvideContentCaptureNodeProperties(android.view.contentcapture.ContentCaptureNodeProperties)" title="Reference documentation">Android reference for <code>android.view.View.onProvideContentCaptureNodeProperties</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -23680,7 +23690,7 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>The shadow color set by setOutlineAmbientShadowColor(int) , or black if nothing was set</summary>
+        <summary>The shadow color set by <see cref="M:Android.Views.View.SetOutlineAmbientShadowColor(Android.Graphics.Color)" />, or black if nothing was set.</summary>
         <value>The shadow color set by <c>#setOutlineAmbientShadowColor(int)</c>, or black if
             nothing was set</value>
         <remarks>
@@ -23782,7 +23792,7 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>The shadow color set by setOutlineSpotShadowColor(int) , or black if nothing was set</summary>
+        <summary>The shadow color set by <see cref="M:Android.Views.View.SetOutlineSpotShadowColor(Android.Graphics.Color)" />, or black if nothing was set.</summary>
         <value>The shadow color set by <c>#setOutlineSpotShadowColor(int)</c>, or black if nothing
             was set</value>
         <remarks>
@@ -24361,7 +24371,7 @@
         <ReturnType>Android.Views.IViewParent</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the parent of this view. Note that the parent is a ViewParent and not necessarily a View.</summary>
+        <summary>Gets the parent of this view. The parent can be an <see cref="T:Android.Views.IViewParent" /> other than a <see cref="T:Android.Views.View" />.</summary>
         <value>Parent of this view.</value>
         <remarks>
           <para>Gets the parent of this view. Note that the parent is a
@@ -24400,7 +24410,7 @@
         <ReturnType>Android.Views.IViewParent</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the parent for accessibility purposes. Note that the parent for accessibility is not necessary the immediate parent. It is the first predecessor that is important for accessibility.</summary>
+        <summary>Gets the parent for accessibility purposes. It is not necessarily the immediate parent.</summary>
         <value>The parent for accessibility purposes.</value>
         <remarks>
           <para>Gets the parent for accessibility purposes. Note that the parent for
@@ -24784,13 +24794,13 @@
       </Parameters>
       <Docs>
         <param name="request">the HapticFeedbackRequest encapsulating the request for haptic. This value cannot be null.</param>
-        <summary>Like performHapticFeedback(int, int), but takes a HapticFeedbackRequest.</summary>
+        <summary>Provides haptic feedback using a <see cref="T:Android.OS.Vibrators.HapticFeedbackRequest" />.</summary>
         <returns>true if the haptic feedback request was sent to the system; otherwise, false, for example if the vibration usage is invalid or feedback is suppressed. A return value of true does not guarantee that vibration occurs.</returns>
         <remarks>
-          <para>Like performHapticFeedback(int, int), but takes a HapticFeedbackRequest.</para>
+          <para>Like <see cref="M:Android.Views.View.PerformHapticFeedback(Android.Views.FeedbackConstants,Android.Views.FeedbackFlags)" />, but takes a <see cref="T:Android.OS.Vibrators.HapticFeedbackRequest" />.</para>
           <para>Using a HapticFeedbackRequest allows you to make more elaborate haptic feedback requests, including setting the usage type for the requested feedback.</para>
           <para>Specifying the usage type for your feedback allows the system to understand the context of the feedback better, and tune the haptic accordingly. When not specifying the usage type for the feedback request, or when using the other performHapticFeedback APIs, the system will do a best guess of the vibration usage based on the constant.</para>
-          <para>See VibrationAttributes to learn more about vibration usages. The usage provided for this API must be of VibrationAttributes.USAGE_CLASS_FEEDBACK, or VibrationAttributes.USAGE_UNKNOWN. Otherwise, the haptic feedback will not be played. If VibrationAttributes.USAGE_UNKNOWN is used, the system will do a best guess of the vibration usage based on the constant.</para>
+          <para>See <see cref="T:Android.OS.VibrationAttributes" /> to learn more about vibration usages. The usage provided for this API must be in <see cref="F:Android.OS.VibrationAttributesUsageClass.Feedback" />, or be <see cref="F:Android.OS.VibrationAttributesUsageType.Unknown" />. Otherwise, the haptic feedback will not be played. If the usage is unknown, the system will choose a vibration usage based on the feedback constant.</para>
           <para>Note that, if you will be calling this API repeatedly and your HapticFeedbackRequest does not change across these repeated calls, it is recommended that you create, cache, and reuse the request object to avoid the costs of repeated object creation and garbage collection.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/View#performHapticFeedback(android.os.vibrator.HapticFeedbackRequest)" title="Reference documentation">Android reference for <code>android.view.View.performHapticFeedback</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -25270,8 +25280,8 @@
         <summary>A pointer capture mode in which touchpads report absolute finger locations.</summary>
         <remarks>
           <para>A pointer capture mode in which touchpads report absolute finger locations.</para>
-          <para>In this capture mode, no attempt is made to recognize gestures from touchpad input. Instead, the absolute location of each touch on the pad is reported directly to the View, in the same way that other touches on devices with InputDevice.SOURCE_CLASS_POINTER are reported.</para>
-          <para>Events will be delivered with the source InputDevice.SOURCE_TOUCHPAD. The absolute position of each touch will be available through MotionEvent.getX(int) and MotionEvent.getY(int), and their relative movements through MotionEvent.AXIS_RELATIVE_X and MotionEvent.AXIS_RELATIVE_Y. If the touchpad supports them, touch dimension information may be available through the MotionEvent.AXIS_PRESSURE, MotionEvent.AXIS_TOUCH_MAJOR, MotionEvent.AXIS_TOUCH_MINOR, MotionEvent.AXIS_TOOL_MAJOR, MotionEvent.AXIS_TOOL_MINOR, and MotionEvent.AXIS_ORIENTATION axes.</para>
+          <para>In this capture mode, no attempt is made to recognize gestures from touchpad input. Instead, the absolute location of each touch on the pad is reported directly to the view, in the same way that other touches on devices with <see cref="F:Android.Views.InputSourceType.ClassPointer" /> are reported.</para>
+          <para>Events are delivered with the source <see cref="F:Android.Views.InputSourceType.Touchpad" />. The absolute position of each touch is available through <see cref="M:Android.Views.MotionEvent.GetX(System.Int32)" /> and <see cref="M:Android.Views.MotionEvent.GetY(System.Int32)" />, and their relative movements through <see cref="F:Android.Views.Axis.RelativeX" /> and <see cref="F:Android.Views.Axis.RelativeY" />. If the touchpad supports them, touch dimension information may be available through the <see cref="F:Android.Views.Axis.Pressure" />, <see cref="F:Android.Views.Axis.TouchMajor" />, <see cref="F:Android.Views.Axis.TouchMinor" />, <see cref="F:Android.Views.Axis.ToolMajor" />, <see cref="F:Android.Views.Axis.ToolMinor" />, and <see cref="F:Android.Views.Axis.Orientation" /> axes.</para>
           <para>Events from mice are always reported in the same way regardless of capture mode.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/View#POINTER_CAPTURE_MODE_ABSOLUTE" title="Reference documentation">Android reference for <code>android.view.View.POINTER_CAPTURE_MODE_ABSOLUTE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -25312,10 +25322,10 @@
         <remarks>
           <para>A pointer capture mode in which touchpad gestures are recognized and reported like mouse movements.</para>
           <para>In this capture mode, the following gestures made on a captured touchpad will be recognized and reported:</para>
-          <para>Pointer movement gestures (such as moving a single finger on the pad) will be reported like mouse movements, with the MotionEvent.ACTION_MOVE action and their relative position changes available through MotionEvent.getX and MotionEvent.getY.</para>
-          <para>Scrolling gestures (such as two-finger swipes) will be reported like scroll wheel movements on a mouse, with the MotionEvent.ACTION_SCROLL action and the scroll amounts available through the MotionEvent.AXIS_VSCROLL and MotionEvent.AXIS_HSCROLL axes.</para>
-          <para>Motion values are proportional to the physical motion of the gesturing finger(s), and the physical movement in mm can be found using the resolution reported by InputDevice.MotionRange.getResolution for the relevant axis.</para>
-          <para>These events will be reported with InputDevice.SOURCE_MOUSE_RELATIVE.</para>
+          <para>Pointer movement gestures (such as moving a single finger on the pad) are reported like mouse movements, with the <see cref="F:Android.Views.MotionEventActions.Move" /> action and their relative position changes available through <see cref="M:Android.Views.MotionEvent.GetX" /> and <see cref="M:Android.Views.MotionEvent.GetY" />.</para>
+          <para>Scrolling gestures (such as two-finger swipes) are reported like scroll wheel movements on a mouse, with the <see cref="F:Android.Views.MotionEventActions.Scroll" /> action and the scroll amounts available through the <see cref="F:Android.Views.Axis.Vscroll" /> and <see cref="F:Android.Views.Axis.Hscroll" /> axes.</para>
+          <para>Motion values are proportional to the physical motion of the gesturing fingers, and the physical movement in mm can be found using the <see cref="P:Android.Views.InputDevice.MotionRange.Resolution" /> for the relevant axis.</para>
+          <para>These events are reported with <see cref="F:Android.Views.InputSourceType.MouseRelative" />.</para>
           <para>Events from mice are always reported in the same way regardless of capture mode.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/View#POINTER_CAPTURE_MODE_RELATIVE" title="Reference documentation">Android reference for <code>android.view.View.POINTER_CAPTURE_MODE_RELATIVE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -25354,7 +25364,7 @@
         <summary>A "pointer capture mode" in which the pointer is not captured.</summary>
         <remarks>
           <para>A "pointer capture mode" in which the pointer is not captured.</para>
-          <para>Passing this to requestPointerCapture(int) is equivalent to calling releasePointerCapture().</para>
+          <para>Passing this to <see cref="M:Android.Views.View.RequestPointerCapture(System.Int32)" /> is equivalent to calling <see cref="M:Android.Views.View.ReleasePointerCapture" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/View#POINTER_CAPTURE_MODE_UNCAPTURED" title="Reference documentation">Android reference for <code>android.view.View.POINTER_CAPTURE_MODE_UNCAPTURED</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -26012,7 +26022,7 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Retrieve the preference for this view to be kept clear.</summary>
+        <summary>Retrieve the preference for this view to be kept clear. The preference applies to floating windows above this view's window, but the system may ignore it.</summary>
         <value>true if the view requests that its area be kept clear; otherwise, false.</value>
         <remarks>
           <para>Property getter documentation:</para>
@@ -26782,7 +26792,7 @@
       </ReturnValue>
       <Docs>
         <summary>Indicates the view is pressed.</summary>
-        <value>The drawable-state attribute ID for the pressed state.</value>
+        <value>A list containing the drawable-state attribute ID for the pressed state.</value>
         <remarks>
           <para>Indicates the view is pressed. States are used with
             <c>android.graphics.drawable.Drawable</c> to change the drawing of the
@@ -26986,11 +26996,9 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>Represents that the user interaction that is requesting a rectangle on screen is
-            doing so via the original <c>#requestRectangleOnScreen(Rect)</c> or
-            <c>#requestRectangleOnScreen(Rect, boolean)</c> APIs that do not define the source.</summary>
+        <summary>Indicates that a rectangle is requested through the original <see cref="M:Android.Views.View.RequestRectangleOnScreen(Android.Graphics.Rect)" /> or <see cref="M:Android.Views.View.RequestRectangleOnScreen(Android.Graphics.Rect,System.Boolean)" /> overload, which does not define the source.</summary>
         <remarks>
-          <para>Represents that the user interaction that is requesting a rectangle on screen is doing so via the original requestRectangleOnScreen(Rect) or requestRectangleOnScreen(Rect,boolean) APIs that do not define the source. RECTANGLE_ON_SCREEN_REQUEST_SOURCE_UNDEFINED should be reserved for backward compatibility and should only be provided from calls to the original API.</para>
+          <para>Indicates that a rectangle is requested through the original <see cref="M:Android.Views.View.RequestRectangleOnScreen(Android.Graphics.Rect)" /> or <see cref="M:Android.Views.View.RequestRectangleOnScreen(Android.Graphics.Rect,System.Boolean)" /> overload, which does not define the source. This value is reserved for backward compatibility and should only be provided from calls to the original API.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/View#RECTANGLE_ON_SCREEN_REQUEST_SOURCE_UNDEFINED" title="Reference documentation">Android reference for <code>android.view.View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_UNDEFINED</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -27439,7 +27447,7 @@
         <ReturnType>System.Single</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Get the current preferred frame rate of the View.</summary>
+        <summary>Get the current preferred frame rate of the View. Set a positive frame rate or a frame-rate category.</summary>
         <value>REQUESTED_FRAME_RATE_CATEGORY_DEFAULT by default,
             or value passed to <c>#setRequestedFrameRate(float)</c>.</value>
         <remarks>
@@ -28084,19 +28092,19 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="mode">The mode in which to capture the pointer, which determines how events from touchpads are delivered. Value is one of the following: POINTER_CAPTURE_MODE_UNCAPTURED; POINTER_CAPTURE_MODE_ABSOLUTE; POINTER_CAPTURE_MODE_RELATIVE</param>
+        <param name="mode">The mode that determines how touchpad events are delivered. Pass the integer value of <see cref="F:Android.Views.PointerCaptureMode.Uncaptured" />, <see cref="F:Android.Views.PointerCaptureMode.Absolute" />, or <see cref="F:Android.Views.PointerCaptureMode.Relative" />.</param>
         <summary>Requests pointer capture in the specified mode.</summary>
         <remarks>
           <para>Requests pointer capture in the specified mode.</para>
           <para>When the window has pointer capture, the mouse pointer icon will disappear and will not change its position. Enabling pointer capture will change the behavior of input devices in the following ways:</para>
-          <para>Events from a mouse will be delivered with the source InputDevice.SOURCE_MOUSE_RELATIVE, and relative position changes will be available through MotionEvent.getX and MotionEvent.getY.</para>
-          <para>Events from a touchpad (also known as a trackpad) will be delivered according to the chosen pointer capture mode. See POINTER_CAPTURE_MODE_RELATIVE and POINTER_CAPTURE_MODE_ABSOLUTE for details.</para>
+          <para>Events from a mouse are delivered with the source <see cref="F:Android.Views.InputSourceType.MouseRelative" />, and relative position changes are available through <see cref="M:Android.Views.MotionEvent.GetX" /> and <see cref="M:Android.Views.MotionEvent.GetY" />.</para>
+          <para>Events from a touchpad, also known as a trackpad, are delivered according to the chosen pointer capture mode. See <see cref="F:Android.Views.View.PointerCaptureModeRelative" /> and <see cref="F:Android.Views.View.PointerCaptureModeAbsolute" /> for details.</para>
           <para>Events from other types of devices, such as touchscreens, will not be affected.</para>
           <para>Pointer ballistics curves and the user's pointer speed settings will not be applied in this mode.</para>
-          <para>When pointer capture changes, connected mouse and touchpad devices may be reconfigured, and their properties (such as their sources or motion ranges) may change. Use an InputManager.InputDeviceListener to be notified when a device changes (which may happen after enabling or disabling pointer capture), and use InputDevice.getDevice(int) to get the updated InputDevice.</para>
-          <para>Events captured through pointer capture are dispatched to OnCapturedPointerListener.onCapturedPointer(View,MotionEvent) if an OnCapturedPointerListener is set. If the listener is not set or returns false, the event is dispatched to onCapturedPointerEvent(MotionEvent).</para>
+          <para>When pointer capture changes, connected mouse and touchpad devices may be reconfigured, and their properties, such as their sources or motion ranges, may change. Use an <see cref="T:Android.Hardware.Input.InputManager.IInputDeviceListener" /> to be notified when a device changes, and use <see cref="M:Android.Views.InputDevice.GetDevice(System.Int32)" /> to get the updated device.</para>
+          <para>Captured events are dispatched to <see cref="M:Android.Views.View.IOnCapturedPointerListener.OnCapturedPointer(Android.Views.View,Android.Views.MotionEvent)" /> if a listener is set. If the listener is not set or returns <c>false</c>, the event is dispatched to <see cref="M:Android.Views.View.OnCapturedPointerEvent(Android.Views.MotionEvent)" />.</para>
           <para>If the window already has pointer capture in the same mode, this call does nothing. If it already has pointer capture in a different mode, it will transition to the new mode.</para>
-          <para>The capture may be released through releasePointerCapture(), or will be lost automatically when the window loses focus.</para>
+          <para>The capture may be released through <see cref="M:Android.Views.View.ReleasePointerCapture" />, or will be lost automatically when the window loses focus.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/View#requestPointerCapture(int)" title="Reference documentation">Android reference for <code>android.view.View.requestPointerCapture</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -28248,7 +28256,7 @@
       <Docs>
         <param name="rectangle">The rectangle in the View's content coordinate space. This value cannot be null.</param>
         <param name="immediate">True to forbid animated scrolling, false otherwise</param>
-        <param name="source">The type of user interaction that requested this rectangle. Value is one of the following: RECTANGLE_ON_SCREEN_REQUEST_SOURCE_UNDEFINED; RECTANGLE_ON_SCREEN_REQUEST_SOURCE_SCROLL_ONLY; RECTANGLE_ON_SCREEN_REQUEST_SOURCE_TEXT_CURSOR; RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS</param>
+        <param name="source">The type of user interaction that requested this rectangle. Pass the integer value of <see cref="F:Android.Views.ViewRectangleOnScreenRequestSource.Undefined" />, <see cref="F:Android.Views.ViewRectangleOnScreenRequestSource.ScrollOnly" />, <see cref="F:Android.Views.ViewRectangleOnScreenRequestSource.TextCursor" />, or <see cref="F:Android.Views.ViewRectangleOnScreenRequestSource.InputFocus" />.</param>
         <summary>Request that a rectangle of this view be visible on the screen, scrolling if necessary just enough.</summary>
         <returns><c>true</c> if at least one parent reports that it scrolled or will scroll to handle the request; otherwise, <c>false</c>. Scrolling may be animated.</returns>
         <remarks>
@@ -28256,7 +28264,7 @@
           <para>A View should call this if it maintains some notion of which part of its content is interesting. For example, a text editing view should call this when its cursor moves.</para>
           <para>The Rectangle passed into this method should be in the View's content coordinate space. It should not be affected by which part of the View is currently visible or its scroll position.</para>
           <para>When immediate is set to true, scrolling will not be animated.</para>
-          <para>The source parameter is used to differentiate behaviors of certain system features, like focus-following with display magnification, based on user preferences and the source of requests to show content on-screen. Callers are encouraged to provide one of the following request sources, when applicable, instead of using requestRectangleOnScreen(Rect) or requestRectangleOnScreen(Rect,boolean): RECTANGLE_ON_SCREEN_REQUEST_SOURCE_SCROLL_ONLY; RECTANGLE_ON_SCREEN_REQUEST_SOURCE_TEXT_CURSOR; RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS</para>
+          <para>The <paramref name="source" /> parameter differentiates behaviors of certain system features, such as focus-following with display magnification, based on user preferences and the source of requests to show content on-screen. When applicable, callers are encouraged to provide <see cref="F:Android.Views.ViewRectangleOnScreenRequestSource.ScrollOnly" />, <see cref="F:Android.Views.ViewRectangleOnScreenRequestSource.TextCursor" />, or <see cref="F:Android.Views.ViewRectangleOnScreenRequestSource.InputFocus" /> rather than using the overloads that do not specify a source.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/View#requestRectangleOnScreen(android.graphics.Rect,%20boolean,%20int)" title="Reference documentation">Android reference for <code>android.view.View.requestRectangleOnScreen</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -29795,7 +29803,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns whether the view should be treated as a focusable unit by screen reader
-            accessibility tools.</summary>
+            accessibility tools. Screen readers can include non-focusable views in this view's subtree when giving feedback.</summary>
         <value>Whether the view should be treated as a focusable unit by screen reader.</value>
         <remarks>
           <para>Property getter documentation:</para>
@@ -30895,7 +30903,7 @@
       </ReturnValue>
       <Docs>
         <summary>Indicates the view is selected.</summary>
-        <value>The drawable-state attribute ID for the selected state.</value>
+        <value>A list containing the drawable-state attribute ID for the selected state.</value>
         <remarks>
           <para>Indicates the view is selected. States are used with
             <c>android.graphics.drawable.Drawable</c> to change the drawing of the
@@ -31429,7 +31437,7 @@
         <param name="renderEffect">to be applied to the View. Passing null clears the previously configured RenderEffect</param>
         <summary>Configure the RenderEffect to apply to the backdrop contents of this View.</summary>
         <remarks>
-          <para>Configure the RenderEffect to apply to the backdrop contents of this View. This will apply a visual effect to the result of the backdrop contents of this View before it is drawn. For example if RenderEffect.createBlurEffect(float,float,RenderEffect,Shader.TileMode) is provided, the previous content behind this View will be blurred before this View is drawn.</para>
+          <para>Configure the RenderEffect to apply to the backdrop contents of this view before it is drawn. For example, if <see cref="M:Android.Graphics.RenderEffect.CreateBlurEffect(System.Single,System.Single,Android.Graphics.RenderEffect,Android.Graphics.Shader.TileMode)" /> is provided, the content behind this view is blurred before the view is drawn.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/View#setBackdropRenderEffect(android.graphics.RenderEffect)" title="Reference documentation">Android reference for <code>android.view.View.setBackdropRenderEffect</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -33192,7 +33200,7 @@
       </Parameters>
       <Docs>
         <param name="callback">the new callback to assign</param>
-        <summary>Sets the callback to receive scroll capture requests. This component is the adapter between the scroll capture API and application UI code. If no callback is set, the system may provide an implementation. Any value provided here will take precedence over a system version. This view will be ignored when SCROLL_CAPTURE_HINT_EXCLUDE is set in its scrollCaptureHint, regardless whether a callback has been set. It is recommended to set the scroll capture hint SCROLL_CAPTURE_HINT_INCLUDE when setting a custom callback to help ensure it is selected as the target.</summary>
+        <summary>Sets the callback to receive scroll capture requests. The callback connects the scroll capture API to application UI code. If no callback is set, the system may provide an implementation. A custom callback takes precedence over a system version. The view is ignored when its <see cref="P:Android.Views.View.ScrollCaptureHint" /> includes <see cref="F:Android.Views.ScrollCaptureHint.Exclude" />. Setting <see cref="F:Android.Views.ScrollCaptureHint.Include" /> is recommended when providing a custom callback.</summary>
         <remarks>
           <para>Sets the callback to receive scroll capture requests. This component is the adapter between
             the scroll capture API and application UI code. If no callback is set, the system may provide
@@ -34738,7 +34746,7 @@
         <ReturnType>Java.Lang.ICharSequence</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns the View's supplemental description. A supplemental description provides brief supplemental information for this node, such as the purpose of the node when that purpose is not conveyed within its textual representation. For example, if a dropdown select has a purpose of setting font family, the supplemental description could be "font family". If this node has children, its supplemental description serves as additional information and is not intended to replace any existing information in the subtree. This is different from the getContentDescription() in that this description is purely supplemental while a content description may be used to replace a description for a node or its subtree that an assistive technology would otherwise compute based on other properties of the node and its descendants. Note: Do not override this method, as it will have no effect on the supplemental description presented to accessibility services. You must call setSupplementalDescription(CharSequence) to modify the supplemental description.</summary>
+        <summary>Gets or sets the view's supplemental description. A supplemental description provides brief supplemental information for this node, such as the purpose of the node when that purpose is not conveyed within its textual representation. For example, if a dropdown select has a purpose of setting font family, the supplemental description could be "font family". If this node has children, its supplemental description serves as additional information and is not intended to replace any existing information in the subtree. Unlike <see cref="P:Android.Views.View.ContentDescriptionFormatted" />, this description is purely supplemental, while a content description may replace a description for a node or its subtree that an assistive technology would otherwise compute from other properties of the node and its descendants. Do not override this property's getter, as it will have no effect on the supplemental description presented to accessibility services. Set this property to modify the supplemental description.</summary>
         <value>the supplemental description. This value may be null.</value>
         <remarks>
           <para>For details, see the Android reference documentation for android.view.View.getSupplementalDescription.</para>
@@ -35569,7 +35577,7 @@
         <ReturnType>Android.Views.StatusBarVisibility</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns the last <c>#setSystemUiVisibility(int)</c> that this view has requested.</summary>
+        <summary>Returns the last <c>#setSystemUiVisibility(int)</c> that this view has requested. Set this property to request a change to the visibility of system UI decorations.</summary>
         <value>Bitwise-or of flags <c>#SYSTEM_UI_FLAG_LOW_PROFILE</c>,
             <c>#SYSTEM_UI_FLAG_HIDE_NAVIGATION</c>, <c>#SYSTEM_UI_FLAG_FULLSCREEN</c>,
             <c>#SYSTEM_UI_FLAG_LAYOUT_STABLE</c>, <c>#SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION</c>,
@@ -35740,7 +35748,7 @@
         <ReturnType>Android.Views.TextAlignment</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Return the resolved text alignment.</summary>
+        <summary>Return the resolved text alignment. Setting this property specifies the requested alignment.</summary>
         <value>the resolved text alignment. Returns one of:
             
             <c>#TEXT_ALIGNMENT_GRAVITY</c>,
@@ -36154,7 +36162,7 @@
         <ReturnType>Android.Views.TextDirection</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Return the resolved text direction.</summary>
+        <summary>Return the resolved text direction. Setting this property specifies the requested direction.</summary>
         <value>the resolved text direction. Returns one of:
             
             <c>#TEXT_DIRECTION_FIRST_STRONG</c>,
@@ -37456,9 +37464,9 @@
       </Parameters>
       <Docs>
         <param name="listener">The listener to unregister. This value cannot be null.</param>
-        <summary>Unregisters a listener that was previously registered with registerCalledFromWrongThreadListener(CalledFromWrongThreadListener).</summary>
+        <summary>Unregisters a listener previously registered with <see cref="M:Android.Views.View.RegisterCalledFromWrongThreadListener(Android.Views.View.ICalledFromWrongThreadListener)" />.</summary>
         <remarks>
-          <para>Unregisters a listener that was previously registered with registerCalledFromWrongThreadListener(CalledFromWrongThreadListener).</para>
+          <para>Unregisters a listener previously registered with <see cref="M:Android.Views.View.RegisterCalledFromWrongThreadListener(Android.Views.View.ICalledFromWrongThreadListener)" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/View#unregisterCalledFromWrongThreadListener(android.view.View.CalledFromWrongThreadListener)" title="Reference documentation">Android reference for <code>android.view.View.unregisterCalledFromWrongThreadListener</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -38490,7 +38498,7 @@
       </ReturnValue>
       <Docs>
         <summary>Indicates the view's window has focus.</summary>
-        <value>The drawable-state attribute ID for the window-focused state.</value>
+        <value>A list containing the drawable-state attribute ID for the window-focused state.</value>
         <remarks>
           <para>Indicates the view's window has focus. States are used with
             <c>android.graphics.drawable.Drawable</c> to change the drawing of the
