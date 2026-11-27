@@ -218,7 +218,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies whether to release the incoming JNI reference and whether to register the managed peer.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -552,7 +552,7 @@
       <Docs>
         <param name="currAmt">The numeric amount and its currency to format.</param>
         <summary><b>[icu]</b> Convenience method to format a CurrencyAmount.</summary>
-        <returns>The amount formatted with its associated currency.</returns>
+        <returns>The formatted amount as a string. Whether the output includes the currency depends on the formatter.</returns>
         <remarks>
           <para><b>[icu]</b> Convenience method to format a CurrencyAmount.</para>
           <para>
@@ -1215,10 +1215,10 @@
       </Parameters>
       <Docs>
         <param name="type">the DisplayContext.Type whose value to return</param>
-        <summary>[icu] Get the formatter's DisplayContext value for the specified DisplayContext.Type, such as <see cref="P:Android.Icu.Text.DisplayContext.Type.Capitalization" />.</summary>
-        <returns>the current DisplayContext setting for the specified type</returns>
+        <summary>Gets a display context setting for this formatter.</summary>
+        <returns>In the base implementation, the capitalization setting for the capitalization type; otherwise, <see cref="P:Android.Icu.Text.DisplayContext.CapitalizationNone" />.</returns>
         <remarks>
-          <para>[icu] Get the formatter's DisplayContext value for the specified DisplayContext.Type, such as <see cref="P:Android.Icu.Text.DisplayContext.Type.Capitalization" />.</para>
+          <para>The base implementation tracks capitalization settings. For other context types, it returns <see cref="P:Android.Icu.Text.DisplayContext.CapitalizationNone" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/NumberFormat#getContext(android.icu.text.DisplayContext.Type)" title="Reference documentation">Android reference for <code>android.icu.text.NumberFormat.getContext</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2817,13 +2817,13 @@
         <param name="text">The text in which to parse a number.</param>
         <param name="parsePosition">Its index selects where parsing begins and advances on success; its error index can report a parsing failure.</param>
         <summary>Returns a parsed number. The returned numeric type depends on the implementation and its settings.</summary>
-        <returns>The parsed number, or <see langword="null" /> if no number could be parsed.</returns>
+        <returns>The parsed number. Some implementations return <see langword="null" /> when parsing fails; others can return a number without consuming text.</returns>
         <remarks>
           <para>The returned numeric type depends on the implementation and its settings. For example, <see cref="P:Android.Icu.Text.DecimalFormat.ParseBigDecimal" /> makes <see cref="T:Android.Icu.Text.DecimalFormat" /> prefer a BigDecimal result when possible.</para>
           <para>If IntegerOnly is set, will stop at a decimal
             point (or equivalent; e.g., for rational numbers "1 2/3", will stop
             after the 1).</para>
-          <para>If no object can be parsed, the index is unchanged. An implementation can throw an exception for invalid arguments.</para>
+          <para>If no object can be parsed, the index is unchanged. Compare <see cref="P:Java.Text.ParsePosition.Index" /> before and after the call to check whether text was consumed. An implementation can throw an exception for invalid arguments.</para>
           <para>For more detail on parsing, see the "Parsing" header in the class
             documentation of <c>DecimalFormat</c>.</para>
           <para>
