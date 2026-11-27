@@ -127,7 +127,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies how to handle the incoming JNI reference and whether to register the managed peer.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -277,7 +277,7 @@
         <summary>Sets the format of the audio data to be played by the AudioTrack.</summary>
         <returns>the same Builder instance. This value cannot be null.</returns>
         <remarks>
-          <para>Sets the format of the audio data to be played by the AudioTrack. See AudioFormat.Builder for configuring the audio format parameters such as encoding, channel mask and sample rate.</para>
+          <para>Sets the format of the audio data to be played by the AudioTrack. See <see cref="T:Android.Media.AudioFormat.Builder" /> for configuring the audio format parameters such as encoding, channel mask and sample rate.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioTrack.Builder#setAudioFormat(android.media.AudioFormat)" title="Reference documentation">Android reference for <code>android.media.AudioTrack.Builder.setAudioFormat</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -314,7 +314,7 @@
         <summary>Sets the total size (in bytes) of the buffer where audio data is read from for playback.</summary>
         <returns>the same Builder instance. This value cannot be null.</returns>
         <remarks>
-          <para>Sets the total size (in bytes) of the buffer where audio data is read from for playback. If using the AudioTrack in streaming mode (see AudioTrack.MODE_STREAM), you can write data into this buffer in smaller chunks than this size. See AudioTrack.getMinBufferSize(int, int, int) to determine the estimated minimum buffer size for the creation of an AudioTrack instance in streaming mode. If using the AudioTrack in static mode (see AudioTrack.MODE_STATIC ), this is the maximum size of the sound that will be played by this instance.</para>
+          <para>Sets the total size (in bytes) of the buffer where audio data is read from for playback. In <see cref="F:Android.Media.AudioTrackMode.Stream" /> mode, you can write data into this buffer in smaller chunks than this size. See <see cref="M:Android.Media.AudioTrack.GetMinBufferSize(System.Int32,Android.Media.ChannelOut,Android.Media.Encoding)" /> to determine the estimated minimum buffer size for a streaming AudioTrack. In <see cref="F:Android.Media.AudioTrackMode.Static" /> mode, this is the maximum size of the sound that will be played by this instance.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioTrack.Builder#setBufferSizeInBytes(int)" title="Reference documentation">Android reference for <code>android.media.AudioTrack.Builder.setBufferSizeInBytes</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -351,7 +351,7 @@
         <summary>Sets the source codec of the audio data using a media type.</summary>
         <returns>the same Builder instance. This value cannot be null.</returns>
         <remarks>
-          <para>Sets the source codec of the audio data using a media type. This information may be used by the audio framework and the audio HAL for selecting the best spatial renderer. Used when the format of the audio data used for the AudioTrack is different from the original codec. The values for codec media types should be provided using corresponding constants from the MediaFormat class. For example, MediaFormat.MIMETYPE_AUDIO_EAC3_JOC may be used for audio content originating from Dolby Atmos media.</para>
+          <para>Sets the source codec of the audio data using a media type. This information may be used by the audio framework and the audio HAL for selecting the best spatial renderer. Used when the format of the audio data used for the AudioTrack is different from the original codec. The values for codec media types should be provided using corresponding constants from the MediaFormat class. For example, <see cref="F:Android.Media.MediaFormat.MimetypeAudioEac3Joc" /> may be used for audio content originating from Dolby Atmos media.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioTrack.Builder#setCodecProvenance(java.lang.String)" title="Reference documentation">Android reference for <code>android.media.AudioTrack.Builder.setCodecProvenance</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -421,7 +421,7 @@
         <Parameter Name="encapsulationMode" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="encapsulationMode">one of AudioTrack.ENCAPSULATION_MODE_NONE, or AudioTrack.ENCAPSULATION_MODE_ELEMENTARY_STREAM. Value is one of the following: AudioTrack.ENCAPSULATION_MODE_NONE AudioTrack.ENCAPSULATION_MODE_ELEMENTARY_STREAM</param>
+        <param name="encapsulationMode">The encapsulation mode. Public values include <see cref="F:Android.Media.AudioTrackEncapsulationMode.None" /> and <see cref="F:Android.Media.AudioTrackEncapsulationMode.ElementaryStream" />, cast to <c>int</c>.</param>
         <summary>Sets the encapsulation mode.</summary>
         <returns>the same Builder instance. This value cannot be null.</returns>
         <remarks>
@@ -462,7 +462,7 @@
         <summary>Sets whether this track will play through the offloaded audio path.</summary>
         <returns>the same Builder instance. This value cannot be null.</returns>
         <remarks>
-          <para>Sets whether this track will play through the offloaded audio path. When set to true, at build time, the audio format will be checked against AudioManager.isOffloadedPlaybackSupported(AudioFormat,AudioAttributes) to verify the audio format used by this track is supported on the device's offload path (if any). Offload is only supported for media audio streams, and therefore requires that the usage be AudioAttributes.USAGE_MEDIA.</para>
+          <para>Sets whether this track will play through the offloaded audio path. When set to true, at build time, the audio format will be checked against <see cref="M:Android.Media.AudioManager.IsOffloadedPlaybackSupported(Android.Media.AudioFormat,Android.Media.AudioAttributes)" /> to verify the audio format used by this track is supported on the device's offload path (if any). Offload is only supported for media audio streams, and therefore requires a usage of <see cref="F:Android.Media.AudioUsageKind.Media" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioTrack.Builder#setOffloadedPlayback(boolean)" title="Reference documentation">Android reference for <code>android.media.AudioTrack.Builder.setOffloadedPlayback</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -502,7 +502,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="performanceMode">one of AudioTrack.PERFORMANCE_MODE_NONE, AudioTrack.PERFORMANCE_MODE_LOW_LATENCY, or AudioTrack.PERFORMANCE_MODE_POWER_SAVING. Value is one of the following: <see cref="F:Android.Media.AudioTrackPerformanceMode.None" /> <see cref="F:Android.Media.AudioTrackPerformanceMode.LowLatency" /> <see cref="F:Android.Media.AudioTrackPerformanceMode.PowerSaving" /></param>
+        <param name="performanceMode">One of <see cref="F:Android.Media.AudioTrackPerformanceMode.None" />, <see cref="F:Android.Media.AudioTrackPerformanceMode.LowLatency" />, or <see cref="F:Android.Media.AudioTrackPerformanceMode.PowerSaving" />.</param>
         <summary>Sets the AudioTrack performance mode.</summary>
         <returns>the same Builder instance. This value cannot be null.</returns>
         <remarks>
@@ -539,11 +539,11 @@
         <Parameter Name="sessionId" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="sessionId">a strictly positive ID number retrieved from another AudioTrack via AudioTrack.getAudioSessionId() or allocated by AudioManager via AudioManager.generateAudioSessionId(), or AudioManager.AUDIO_SESSION_ID_GENERATE.</param>
+        <param name="sessionId">A strictly positive ID retrieved from another AudioTrack via <see cref="P:Android.Media.AudioTrack.AudioSessionId" /> or allocated via <see cref="M:Android.Media.AudioManager.GenerateAudioSessionId" />, or <see cref="F:Android.Media.AudioManager.AudioSessionIdGenerate" />.</param>
         <summary>Sets the session ID the AudioTrack will be attached to.</summary>
         <returns>the same Builder instance. This value cannot be null.</returns>
         <remarks>
-          <para>Sets the session ID the AudioTrack will be attached to. Note, that if there's a device specific session id asociated with the context, explicitly setting a session id using this method will override it (see Builder.setContext(Context) ).</para>
+          <para>Sets the session ID the AudioTrack will be attached to. If a device-specific session ID is associated with the context, explicitly setting a session ID using this method overrides it. See <see cref="M:Android.Media.AudioTrack.Builder.SetContext(Android.Content.Context)" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioTrack.Builder#setSessionId(int)" title="Reference documentation">Android reference for <code>android.media.AudioTrack.Builder.setSessionId</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -583,7 +583,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="mode">one of AudioTrack.MODE_STREAM, AudioTrack.MODE_STATIC. Value is one of the following: <see cref="F:Android.Media.AudioTrackMode.Static" /> <see cref="F:Android.Media.AudioTrackMode.Stream" /></param>
+        <param name="mode">One of <see cref="F:Android.Media.AudioTrackMode.Stream" /> or <see cref="F:Android.Media.AudioTrackMode.Static" />.</param>
         <summary>Sets the mode under which buffers of audio data are transferred from the AudioTrack to the framework.</summary>
         <returns>the same Builder instance. This value cannot be null.</returns>
         <remarks>

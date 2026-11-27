@@ -119,7 +119,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies how to handle the incoming JNI reference and whether to register the managed peer.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -155,7 +155,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Requires Manifest.permission.RECORD_AUDIO</summary>
+        <summary>Creates an initialized audio recorder with the configured settings. Requires the <see cref="F:Android.Manifest.Permission.RecordAudio" /> permission.</summary>
         <returns>a new <c>AudioRecord</c> instance successfully initialized with all
                 the parameters set on this <c>Builder</c>.</returns>
         <remarks>
@@ -321,7 +321,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="source">the audio source. See MediaRecorder.AudioSource for the supported audio source definitions. Value is one of the following: <see cref="F:Android.Media.AudioSource.Default" />; <see cref="F:Android.Media.AudioSource.Mic" />; <see cref="F:Android.Media.AudioSource.VoiceUplink" />; <see cref="F:Android.Media.AudioSource.VoiceDownlink" />; <see cref="F:Android.Media.AudioSource.VoiceCall" />; <see cref="F:Android.Media.AudioSource.Camcorder" />; <see cref="F:Android.Media.AudioSource.VoiceRecognition" />; <see cref="F:Android.Media.AudioSource.VoiceCommunication" />; <see cref="F:Android.Media.AudioSource.Unprocessed" />; <see cref="F:Android.Media.AudioSource.VoicePerformance" /></param>
+        <param name="source">The audio source. See <see cref="T:Android.Media.AudioSource" /> for the supported audio source definitions. Value is one of the following: <see cref="F:Android.Media.AudioSource.Default" />; <see cref="F:Android.Media.AudioSource.Mic" />; <see cref="F:Android.Media.AudioSource.VoiceUplink" />; <see cref="F:Android.Media.AudioSource.VoiceDownlink" />; <see cref="F:Android.Media.AudioSource.VoiceCall" />; <see cref="F:Android.Media.AudioSource.Camcorder" />; <see cref="F:Android.Media.AudioSource.VoiceRecognition" />; <see cref="F:Android.Media.AudioSource.VoiceCommunication" />; <see cref="F:Android.Media.AudioSource.Unprocessed" />; <see cref="F:Android.Media.AudioSource.VoicePerformance" /></param>
         <summary>Configures the recording builder's capture source.</summary>
         <returns>the same Builder instance.</returns>
         <remarks>
@@ -365,7 +365,7 @@
         <summary>Sets the total size (in bytes) of the buffer where audio data is written during the recording.</summary>
         <returns>the same Builder instance.</returns>
         <remarks>
-          <para>Sets the total size (in bytes) of the buffer where audio data is written during the recording. New audio data can be read from this buffer in smaller chunks than this size. See AudioRecord.getMinBufferSize(int, int, int) to determine the minimum required buffer size for the successful creation of an AudioRecord instance. Since bufferSizeInBytes may be internally increased to accommodate the source requirements, use AudioRecord.getBufferSizeInFrames() to determine the actual buffer size in frames.</para>
+          <para>Sets the total size (in bytes) of the buffer where audio data is written during the recording. New audio data can be read from this buffer in smaller chunks than this size. See <see cref="M:Android.Media.AudioRecord.GetMinBufferSize(System.Int32,Android.Media.ChannelIn,Android.Media.Encoding)" /> to determine the minimum required buffer size for the successful creation of an AudioRecord instance. Since bufferSizeInBytes may be internally increased to accommodate the source requirements, use <see cref="P:Android.Media.AudioRecord.BufferSizeInFrames" /> to determine the actual buffer size in frames.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioRecord.Builder#setBufferSizeInBytes(int)" title="Reference documentation">Android reference for <code>android.media.AudioRecord.Builder.setBufferSizeInBytes</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -439,8 +439,8 @@
         <summary>Sets whether this capture request is privacy sensitive.</summary>
         <returns>A recording builder with the supplied privacy-sensitive setting recorded.</returns>
         <remarks>
-          <para>Sets whether this capture request is privacy sensitive. The default is not privacy sensitive except when the source set with <see cref="M:Android.Media.AudioRecord.Builder.SetAudioSource(Android.Media.AudioSource)" /> is <see cref="F:Android.Media.AudioSource.VoiceCommunication" /> or <see cref="F:Android.Media.AudioSource.Camcorder" />. For a recording built from an audio source, an explicit setting takes precedence over the default from the source. On Android 16, <see cref="M:Android.Media.AudioRecord.Builder.Build" /> throws an <see cref="T:Java.Lang.UnsupportedOperationException" /> if an explicit privacy setting is used with the <see cref="F:Android.Media.AudioSource.RemoteSubmix" />, <see cref="F:Android.Media.AudioSource.VoiceDownlink" />, <see cref="F:Android.Media.AudioSource.VoiceUplink" />, or <see cref="F:Android.Media.AudioSource.VoiceCall" /> source.</para>
-          <para>On Android 16, if a playback capture configuration is set, <see cref="M:Android.Media.AudioRecord.Builder.Build" /> does not apply the privacy-sensitive setting.</para>
+          <para>Sets whether this capture request is privacy sensitive. The default is not privacy sensitive except when the source set with <see cref="M:Android.Media.AudioRecord.Builder.SetAudioSource(Android.Media.AudioSource)" /> is <see cref="F:Android.Media.AudioSource.VoiceCommunication" /> or <see cref="F:Android.Media.AudioSource.Camcorder" />. For a recording built from an audio source, an explicit setting takes precedence over the default from the source. <see cref="M:Android.Media.AudioRecord.Builder.Build" /> throws an <see cref="T:Java.Lang.UnsupportedOperationException" /> if an explicit privacy setting is used with the <see cref="F:Android.Media.AudioSource.RemoteSubmix" />, <see cref="F:Android.Media.AudioSource.VoiceDownlink" />, <see cref="F:Android.Media.AudioSource.VoiceUplink" />, or <see cref="F:Android.Media.AudioSource.VoiceCall" /> source.</para>
+          <para>If a playback capture configuration is set, <see cref="M:Android.Media.AudioRecord.Builder.Build" /> does not apply the privacy-sensitive setting.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioRecord.Builder#setPrivacySensitive(boolean)" title="Reference documentation">Android reference for <code>android.media.AudioRecord.Builder.setPrivacySensitive</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
