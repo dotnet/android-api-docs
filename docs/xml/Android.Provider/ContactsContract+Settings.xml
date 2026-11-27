@@ -303,11 +303,14 @@
       </Parameters>
       <Docs>
         <param name="resolver">The ContentResolver to use for the query. This value cannot be null.</param>
-        <param name="account">The account to query. If null, this queries the attributes of the local, device-only account (where both account_name and account_type are null).</param>
+        <param name="account">The account to query. If this parameter is null and <paramref name="dataSet" /> is null or empty, the request identifies the local, device-only account.</param>
         <param name="dataSet">The data set specific to the account type, which may be null.</param>
         <summary>Returns the attributes of a given account as a 64-bit bitmask.</summary>
         <returns>A long representing the attributes bitmask. The value is 0 or a combination of <see cref="F:Android.Provider.ContactsContract.Settings.AccountAttributes.AttributeDataOriginLocal" />, <see cref="F:Android.Provider.ContactsContract.Settings.AccountAttributes.AttributeDataOriginSim" />, <see cref="F:Android.Provider.ContactsContract.Settings.AccountAttributes.AttributeDataOriginCloud" />, <see cref="F:Android.Provider.ContactsContract.Settings.AccountAttributes.AttributeSyncModeUpSync" />, <see cref="F:Android.Provider.ContactsContract.Settings.AccountAttributes.AttributeSyncModeDownSync" />, and <see cref="F:Android.Provider.ContactsContract.Settings.AccountAttributes.AttributeDataTypeCustomDeclared" />.</returns>
+        <exception cref="T:Java.Lang.IllegalArgumentException">The provider rejects the account as invalid.</exception>
         <exception cref="T:Java.Lang.IllegalStateException">The provider does not return the account's attributes.</exception>
+        <exception cref="T:Java.Lang.SecurityException">The caller does not have permission to read contacts.</exception>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">The provider does not support querying account attributes.</exception>
         <remarks>
           <para>Returns the attributes of a given account as a 64-bit bitmask.</para>
           <para>A return value of 0L indicates the account exists but has no specific attributes enabled or set. Requires the <see cref="F:Android.Manifest.Permission.ReadContacts" /> permission.</para>
@@ -452,7 +455,8 @@
         <param name="dataSet">The data set within the account, which may be null.</param>
         <summary>Resets the attributes for a given account to their system-evaluated defaults.</summary>
         <exception cref="T:Java.Lang.IllegalArgumentException">The provider rejects the account as invalid.</exception>
-        <exception cref="T:Java.Lang.SecurityException">The calling package is not the authenticator for the account type.</exception>
+        <exception cref="T:Java.Lang.SecurityException">The caller does not have permission to write contacts, the calling package is not the authenticator for the account type, or the provider rejects a null account.</exception>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">The provider does not support resetting account attributes.</exception>
         <remarks>
           <para>Resets the attributes for a given account to their system-evaluated defaults.</para>
           <para>This operation removes any explicit overrides set via <see cref="M:Android.Provider.ContactsContract.Settings.SetAccountAttributes(Android.Content.ContentResolver,Android.Accounts.Account,System.String,System.Int64)" /> and causes the system to immediately re-evaluate the account's attributes based on its type and other characteristics.</para>
@@ -506,10 +510,12 @@
         <param name="resolver">The ContentResolver to use for the update. This value cannot be null.</param>
         <param name="account">The target account whose name and type are included in the request; <see langword="null" /> omits those account fields.</param>
         <param name="dataSet">The data set within the account, which may be null.</param>
-        <param name="newAttributes">The complete new bitmask of attributes to apply. The value is 0 or a combination of <see cref="F:Android.Provider.ContactsContract.Settings.AccountAttributes.AttributeDataOriginLocal" />, <see cref="F:Android.Provider.ContactsContract.Settings.AccountAttributes.AttributeDataOriginSim" />, <see cref="F:Android.Provider.ContactsContract.Settings.AccountAttributes.AttributeDataOriginCloud" />, <see cref="F:Android.Provider.ContactsContract.Settings.AccountAttributes.AttributeSyncModeUpSync" />, <see cref="F:Android.Provider.ContactsContract.Settings.AccountAttributes.AttributeSyncModeDownSync" />, and <see cref="F:Android.Provider.ContactsContract.Settings.AccountAttributes.AttributeDataTypeCustomDeclared" />.</param>
+        <param name="newAttributes">The complete new bitmask of attributes to apply. It can contain <see cref="F:Android.Provider.ContactsContract.Settings.AccountAttributes.AttributeDataOriginLocal" />, <see cref="F:Android.Provider.ContactsContract.Settings.AccountAttributes.AttributeDataOriginSim" />, <see cref="F:Android.Provider.ContactsContract.Settings.AccountAttributes.AttributeDataOriginCloud" />, <see cref="F:Android.Provider.ContactsContract.Settings.AccountAttributes.AttributeSyncModeUpSync" />, <see cref="F:Android.Provider.ContactsContract.Settings.AccountAttributes.AttributeSyncModeDownSync" />, and <see cref="F:Android.Provider.ContactsContract.Settings.AccountAttributes.AttributeDataTypeCustomDeclared" />. The provider can reject a bitmask with no data-origin flag or more than one data-origin flag.</param>
         <summary>Sets the attributes for a given account with a new set of flags.</summary>
         <exception cref="T:Java.Lang.IllegalArgumentException">The provider rejects the account as invalid or the bitmask contains undefined bits.</exception>
-        <exception cref="T:Java.Lang.SecurityException">The calling package is not the authenticator for the account type.</exception>
+        <exception cref="T:Java.Lang.IllegalStateException">The provider rejects the bitmask because it has no data-origin flag or has more than one.</exception>
+        <exception cref="T:Java.Lang.SecurityException">The caller does not have permission to write contacts, the calling package is not the authenticator for the account type, or the provider rejects a null account.</exception>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">The provider does not support setting account attributes.</exception>
         <remarks>
           <para>Sets the attributes for a given account with a new set of flags.</para>
           <para>Warning: This is a destructive operation. Any attributes previously set on the account will be cleared and replaced by the provided newAttributes.</para>
