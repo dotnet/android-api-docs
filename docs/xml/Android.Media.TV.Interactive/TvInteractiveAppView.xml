@@ -133,7 +133,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies how to handle the incoming JNI reference and whether to register the managed peer.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>The runtime calls this constructor to create a managed representation of an existing Java object.</para>
@@ -1238,7 +1238,7 @@
         <summary>This is called when the view is attached to a window.</summary>
         <remarks>
           <para>This is called when the view is attached to a window. At this point it has a Surface and will start drawing. Note that this function is guaranteed to be called before onDraw(android.graphics.Canvas), however it may be called any time before the first onDraw -- including before or after onMeasure(int, int). If you override this method you must call through to the superclass implementation.</para>
-          <para>In Android 16, this implementation calls the base method, then requests the session media view if a session is available and the media view has not been created.</para>
+          <para>This implementation calls the base method, then requests the session media view if a session is available and the media view has not been created.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/interactive/TvInteractiveAppView#onAttachedToWindow()" title="Reference documentation">Android reference for <code>android.media.tv.interactive.TvInteractiveAppView.onAttachedToWindow</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1272,7 +1272,7 @@
         <summary>This is called when the view is detached from a window.</summary>
         <remarks>
           <para>This is called when the view is detached from a window. At this point it no longer has a surface for drawing. If you override this method you must call through to the superclass implementation.</para>
-          <para>In Android 16, this implementation requests removal of the session media view, if one was created, before it calls the base method.</para>
+          <para>This implementation requests removal of the session media view, if one was created, before it calls the base method.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/interactive/TvInteractiveAppView#onDetachedFromWindow()" title="Reference documentation">Android reference for <code>android.media.tv.interactive.TvInteractiveAppView.onDetachedFromWindow</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1317,7 +1317,7 @@
         <summary>Called from layout when this view should assign a size and position to each of its children.</summary>
         <remarks>
           <para>Called from layout when this view should assign a size and position to each of its children. Derived classes with children should override this method and call layout on each of their children.</para>
-          <para>In Android 16, this implementation lays out its child <see cref="T:Android.Views.SurfaceView" /> with the surface bounds requested by the session, if present. Otherwise, it uses bounds from <c>(0, 0)</c> to <c>(right - left, bottom - top)</c>.</para>
+          <para>This implementation lays out its child <see cref="T:Android.Views.SurfaceView" /> with the surface bounds requested by the session, if present. Otherwise, it uses bounds from <c>(0, 0)</c> to <c>(right - left, bottom - top)</c>.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/interactive/TvInteractiveAppView#onLayout(boolean,%20int,%20int,%20int,%20int)" title="Reference documentation">Android reference for <code>android.media.tv.interactive.TvInteractiveAppView.onLayout</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1358,7 +1358,7 @@
           <para>Measure the view and its content to determine the measured width and the measured height. This method is invoked by measure(int, int) and should be overridden by subclasses to provide accurate and efficient measurement of their contents.</para>
           <para>CONTRACT: When overriding this method, you must call setMeasuredDimension(int, int) to store the measured width and height of this view. Failure to do so will trigger an IllegalStateException, thrown by measure(int, int). Calling the superclass' onMeasure(int, int) is a valid use.</para>
           <para>The base class implementation of measure defaults to the background size, unless a larger size is allowed by the MeasureSpec. Subclasses should override onMeasure(int, int) to provide better measurements of their content.</para>
-          <para>The preceding default-size description applies to the generic <see cref="T:Android.Views.View" /> implementation. In Android 16, this override measures its child <see cref="T:Android.Views.SurfaceView" /> with <paramref name="widthMeasureSpec" /> and <paramref name="heightMeasureSpec" />, then resolves this view's dimensions from the child's measured size and state.</para>
+          <para>The preceding default-size description applies to the generic <see cref="T:Android.Views.View" /> implementation. This override measures its child <see cref="T:Android.Views.SurfaceView" /> with <paramref name="widthMeasureSpec" /> and <paramref name="heightMeasureSpec" />, then resolves this view's dimensions from the child's measured size and state.</para>
           <para>If this method is overridden, it is the subclass's responsibility to make sure the measured height and width are at least the view's minimum height and width (getSuggestedMinimumHeight() and getSuggestedMinimumWidth()).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/interactive/TvInteractiveAppView#onMeasure(int,%20int)" title="Reference documentation">Android reference for <code>android.media.tv.interactive.TvInteractiveAppView.onMeasure</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1496,7 +1496,7 @@
         <summary>Called when the visibility of the view or an ancestor of the view has changed.</summary>
         <remarks>
           <para>Called when the visibility of the view or an ancestor of the view has changed.</para>
-          <para>In Android 16, this implementation forwards <paramref name="visibility" /> to its child <see cref="T:Android.Views.SurfaceView" />. It requests a session media view when visible and attached to a window with a session, and requests removal for other visibility states.</para>
+          <para>This implementation forwards <paramref name="visibility" /> to its child <see cref="T:Android.Views.SurfaceView" />. It requests a session media view when visible and attached to a window with a session, and requests removal for other visibility states.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/interactive/TvInteractiveAppView#onVisibilityChanged(android.view.View,%20int)" title="Reference documentation">Android reference for <code>android.media.tv.interactive.TvInteractiveAppView.onVisibilityChanged</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2299,7 +2299,7 @@
         <Parameter Name="callback" Type="Android.Media.TV.Interactive.TvInteractiveAppView+TvInteractiveAppCallback" />
       </Parameters>
       <Docs>
-        <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="executor">The executor used to dispatch some calls to <paramref name="callback" />. This value cannot be <see langword="null" />. The view invokes some callbacks directly, such as <see cref="M:Android.Media.TV.Interactive.TvInteractiveAppView.TvInteractiveAppCallback.OnTeletextAppStateChanged(System.String,System.Int32)" />, without using this executor. To dispatch callbacks that use the executor on the main thread, use <see cref="P:Android.Content.Context.MainExecutor" />. Otherwise, provide an executor that dispatches to an appropriate thread.</param>
         <param name="callback">the callback to receive events. MUST NOT be null.</param>
         <summary>Sets the callback to be invoked when an event is dispatched to this TvInteractiveAppView.</summary>
         <remarks>
@@ -2337,11 +2337,11 @@
         <Parameter Name="listener" Type="Android.Media.TV.Interactive.TvInteractiveAppView+IOnUnhandledInputEventListener" />
       </Parameters>
       <Docs>
-        <param name="executor">The required executor argument. The Android 16 implementation does not use this argument to dispatch unhandled input events.</param>
+        <param name="executor">The required executor argument. The implementation does not use this argument to dispatch unhandled input events.</param>
         <param name="listener">The callback to be invoked when the unhandled input event is received. This value cannot be null.</param>
-        <summary>Sets a listener to be invoked when an input event is not handled by the TV Interactive App.</summary>
+        <summary>Sets a listener for unhandled input events.</summary>
         <remarks>
-          <para>The listener gets input events that the interactive app did not handle. In Android 16, <see cref="M:Android.Media.TV.Interactive.TvInteractiveAppView.DispatchUnhandledInputEvent(Android.Views.InputEvent)" /> calls the listener directly; this method does not schedule it on <paramref name="executor" />.</para>
+          <para><see cref="M:Android.Media.TV.Interactive.TvInteractiveAppView.DispatchUnhandledInputEvent(Android.Views.InputEvent)" /> calls the listener directly; it does not schedule the call on <paramref name="executor" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/interactive/TvInteractiveAppView#setOnUnhandledInputEventListener(java.util.concurrent.Executor,%20android.media.tv.interactive.TvInteractiveAppView.OnUnhandledInputEventListener)" title="Reference documentation">Android reference for <code>android.media.tv.interactive.TvInteractiveAppView.setOnUnhandledInputEventListener</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
