@@ -71,7 +71,7 @@
       </Parameters>
       <Docs>
         <param name="widgetType">The widget type: <see cref="F:Android.Graphics.Pdf.Models.FormWidgetInfoWidgetType.Unknown" />, <see cref="F:Android.Graphics.Pdf.Models.FormWidgetInfoWidgetType.PushButton" />, <see cref="F:Android.Graphics.Pdf.Models.FormWidgetInfoWidgetType.CheckBox" />, <see cref="F:Android.Graphics.Pdf.Models.FormWidgetInfoWidgetType.RadioButton" />, <see cref="F:Android.Graphics.Pdf.Models.FormWidgetInfoWidgetType.ComboBox" />, <see cref="F:Android.Graphics.Pdf.Models.FormWidgetInfoWidgetType.ListBox" />, <see cref="F:Android.Graphics.Pdf.Models.FormWidgetInfoWidgetType.TextField" />, or <see cref="F:Android.Graphics.Pdf.Models.FormWidgetInfoWidgetType.Signature" />.</param>
-        <param name="widgetIndex">The zero-based widget index in the page annotation array, which must be zero or greater.</param>
+        <param name="widgetIndex">The form widget's zero-based index on the page. Use a value of zero or greater; the constructor does not check the range.</param>
         <param name="widgetRect">The non-null rectangle occupied by the widget in page coordinates.</param>
         <param name="textValue">The non-null text value of the widget.</param>
         <param name="accessibilityLabel">The non-null accessibility label of the field.</param>
@@ -240,7 +240,7 @@
         <summary>Sets the font size for text input.</summary>
         <returns>This builder.</returns>
         <remarks>
-          <para>This setting is supported only for combo boxes and text fields. The font size must be zero or greater.</para>
+          <para>This setting is supported only for combo boxes and text fields. Use a font size greater than zero. Some Android implementations reject zero and <c>NaN</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/graphics/pdf/models/FormWidgetInfo.Builder#setFontSize(float)" title="Reference documentation">Java documentation for <code>android.graphics.pdf.models.FormWidgetInfo.Builder.setFontSize(float)</code>.</a>
@@ -252,7 +252,7 @@
   and used according to terms described in the
   <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
-        <exception cref="T:Java.Lang.IllegalArgumentException">Thrown when this widget is not a combo box or text field, or when <paramref name="fontSize" /> is negative.</exception>
+        <exception cref="T:Java.Lang.IllegalArgumentException">Thrown when this widget is not a combo box or text field, or when <paramref name="fontSize" /> is negative. Some Android implementations also throw when <paramref name="fontSize" /> is zero or <c>NaN</c>.</exception>
       </Docs>
     </Member>
     <Member MemberName="SetListItems">
@@ -333,7 +333,7 @@
         <summary>Sets the maximum text length supported by the widget.</summary>
         <returns>This builder.</returns>
         <remarks>
-          <para>This setting is supported only for text fields. The maximum length must be zero or greater.</para>
+          <para>This setting is supported only for text fields. Use a maximum length greater than zero. Some Android implementations reject zero.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/graphics/pdf/models/FormWidgetInfo.Builder#setMaxLength(int)" title="Reference documentation">Java documentation for <code>android.graphics.pdf.models.FormWidgetInfo.Builder.setMaxLength(int)</code>.</a>
@@ -345,7 +345,7 @@
   and used according to terms described in the
   <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
-        <exception cref="T:Java.Lang.IllegalArgumentException">Thrown when this widget is not a text field, or when <paramref name="maxLength" /> is negative.</exception>
+        <exception cref="T:Java.Lang.IllegalArgumentException">Thrown when this widget is not a text field, or when <paramref name="maxLength" /> is negative. Some Android implementations also throw when <paramref name="maxLength" /> is zero.</exception>
       </Docs>
     </Member>
     <Member MemberName="SetMultiLineText">

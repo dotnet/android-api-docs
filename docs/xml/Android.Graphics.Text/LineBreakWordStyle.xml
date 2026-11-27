@@ -47,7 +47,7 @@
         <summary>
           <para>A special value for the line breaking word style option.</para>
           <para>The auto option for the line break word style does some heuristics based on locales and line count.</para>
-          <para>In the API Build.VERSION_CODES.VANILLA_ICE_CREAM, auto option does followings: - If at least one locale in the locale list contains Korean script, this option is equivalent to LINE_BREAK_WORD_STYLE_PHRASE. - If not, then if at least one locale in the locale list contains Japanese script, this option is equivalent to LINE_BREAK_WORD_STYLE_PHRASE if the result of its line count is less than 5 lines. - Otherwise, this option is equivalent to LINE_BREAK_WORD_STYLE_NONE.</para>
+          <para>If a locale list contains Korean script, this option uses <see cref="F:Android.Graphics.Text.LineBreakWordStyle.Phrase" />. If it contains Japanese script but not Korean script, the line breaker can try phrase-based breaks when its first result has fewer than five lines. It keeps the phrase-based result only if that result also has fewer than five lines. Otherwise, it uses <see cref="F:Android.Graphics.Text.LineBreakWordStyle.None" />.</para>
           <para>Note: future versions may have special line breaking word style rules for other locales.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/LineBreakConfig#LINE_BREAK_WORD_STYLE_AUTO" title="Reference documentation">Android reference for <code>android.graphics.text.LineBreakConfig.LINE_BREAK_WORD_STYLE_AUTO</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -112,7 +112,7 @@
       <MemberValue>1</MemberValue>
       <Docs>
         <summary>
-          <para>Line breaking is based on phrases, which results in text wrapping only on meaningful words.</para>
+          <para>Line breaking is based on phrases, which helps text wrap at meaningful word boundaries. If text cannot fit, it may still be broken at a grapheme boundary.</para>
           <para>Support for this line-break word style depends on locale. If the current locale does not support phrase-based text wrapping, this setting has no effect.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/LineBreakConfig#LINE_BREAK_WORD_STYLE_PHRASE" title="Reference documentation">Android reference for <code>android.graphics.text.LineBreakConfig.LINE_BREAK_WORD_STYLE_PHRASE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -145,17 +145,17 @@
       <MemberValue>-1</MemberValue>
       <Docs>
         <summary>
-          <para>No line break word style is specified. This is a special value of line break word style indicating no style value is specified. When overriding a LineBreakConfig with another LineBreakConfig with Builder.merge(LineBreakConfig) function, the line break word style of overridden config will be kept if the line break word style of overriding config is LINE_BREAK_WORD_STYLE_UNSPECIFIED.</para>
-          <code lang="text/java">    val override = LineBreakConfig.Builder()
+          <para>No line-break word style is specified. When <see cref="M:Android.Graphics.Text.LineBreakConfig.Builder.Merge(Android.Graphics.Text.LineBreakConfig)" /> merges a configuration with an unspecified word style, it keeps the builder's existing word style.</para>
+          <code lang="text/java">    LineBreakConfig override = new LineBreakConfig.Builder()
          .setLineBreakStyle(LineBreakConfig.LINE_BREAK_STYLE_STRICT)
          .build();  // UNSPECIFIED if no setLineBreakWordStyle is called.
-    val config = LineBreakConfig.Builder()
+    LineBreakConfig config = new LineBreakConfig.Builder()
          .setLineBreakWordStyle(LineBreakConfig.LINE_BREAK_WORD_STYLE_PHRASE)
          .merge(override)
-         .build()
+         .build();
     // Here, config has LINE_BREAK_STYLE_STRICT for line break config and
     // LINE_BREAK_WORD_STYLE_PHRASE for line break word style.</code>
-          <para>This value is resolved to LINE_BREAK_WORD_STYLE_NONE if the target SDK version is API Build.VERSION_CODES.UPSIDE_DOWN_CAKE or before and this value is used for text layout/rendering. This value is resolved to LINE_BREAK_WORD_STYLE_AUTO if the target SDK version is API Build.VERSION_CODES.VANILLA_ICE_CREAM or after and this value is used for text layout/rendering.</para>
+          <para>For text layout, this value resolves to <see cref="F:Android.Graphics.Text.LineBreakWordStyle.None" /> when the target SDK is API level 34 or earlier, and to <see cref="F:Android.Graphics.Text.LineBreakWordStyle.Auto" /> when the target SDK is API level 35 or later.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/LineBreakConfig#LINE_BREAK_WORD_STYLE_UNSPECIFIED" title="Reference documentation">Android reference for <code>android.graphics.text.LineBreakConfig.LINE_BREAK_WORD_STYLE_UNSPECIFIED</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </summary>
