@@ -232,7 +232,7 @@
           <para>The content of a virtual display is rendered to a Surface provided by the application.</para>
           <para>The virtual display should be released when no longer needed. Because a virtual display renders to a surface provided by the application, it will be released automatically when the process terminates and all remaining windows on it will be forcibly removed.</para>
           <para>The behavior of the virtual display depends on the flags that are provided to this method. By default, virtual displays are created to be private, non-presentation and unsecure. Permissions may be required to use certain flags.</para>
-          <para>As of Build.VERSION_CODES.KITKAT_WATCH, the surface may be attached or detached dynamically using VirtualDisplay.setSurface. Previously, the surface had to be non-null when the virtual display was created and could not be changed for the lifetime of the display.</para>
+          <para>On Android 4.4W (API level 20) and later, the surface may be attached or detached dynamically using <see cref="P:Android.Hardware.Display.VirtualDisplay.Surface" />. Previously, the surface had to be non-null when the virtual display was created and could not be changed for the lifetime of the display.</para>
           <para>Detaching the surface that backs a virtual display has a similar effect to turning off the screen.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/display/DisplayManager#createVirtualDisplay(android.hardware.display.VirtualDisplayConfig,%20android.os.Handler,%20android.hardware.display.VirtualDisplay.Callback)" title="Reference documentation">Android reference for <code>android.hardware.display.DisplayManager.createVirtualDisplay</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -285,11 +285,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="name">The non-null, nonempty name used to identify the virtual display.</param>
+        <param name="name">The non-null name used to identify the virtual display. Android 10 (API level 29) and earlier require a nonempty name.</param>
         <param name="width">Value is 1 or greater</param>
         <param name="height">Value is 1 or greater</param>
         <param name="densityDpi">Value is 1 or greater</param>
-        <param name="surface">The surface that receives the display's rendered content, or <see langword="null" /> to create the display without an initial surface.</param>
+        <param name="surface">The surface that receives the display's rendered content. On Android 4.4W (API level 20) and later, use <see langword="null" /> to create the display without an initial surface.</param>
         <param name="flags">Value is either 0 or a combination of the following: <see cref="F:Android.Hardware.Display.VirtualDisplayFlags.Public" />; <see cref="F:Android.Hardware.Display.VirtualDisplayFlags.Presentation" />; <see cref="F:Android.Hardware.Display.VirtualDisplayFlags.Secure" />; <see cref="F:Android.Hardware.Display.VirtualDisplayFlags.OwnContentOnly" />; <see cref="F:Android.Hardware.Display.VirtualDisplayFlags.AutoMirror" /></param>
         <summary>Creates a virtual display.</summary>
         <returns>A wrapper for the created virtual display, or <see langword="null" /> if creation does not produce an available display.</returns>
@@ -377,7 +377,7 @@
           <para>The content of a virtual display is rendered to a Surface provided by the application.</para>
           <para>The virtual display should be released when no longer needed. Because a virtual display renders to a surface provided by the application, it will be released automatically when the process terminates and all remaining windows on it will be forcibly removed.</para>
           <para>The behavior of the virtual display depends on the flags that are provided to this method. By default, virtual displays are created to be private, non-presentation and unsecure. Permissions may be required to use certain flags.</para>
-          <para>As of Build.VERSION_CODES.KITKAT_WATCH, the surface may be attached or detached dynamically using VirtualDisplay.setSurface. Previously, the surface had to be non-null when the virtual display was created and could not be changed for the lifetime of the display.</para>
+          <para>On Android 4.4W (API level 20) and later, the surface may be attached or detached dynamically using <see cref="P:Android.Hardware.Display.VirtualDisplay.Surface" />. Previously, the surface had to be non-null when the virtual display was created and could not be changed for the lifetime of the display.</para>
           <para>Detaching the surface that backs a virtual display has a similar effect to turning off the screen.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/display/DisplayManager#createVirtualDisplay(java.lang.String,%20int,%20int,%20int,%20android.view.Surface,%20int,%20android.hardware.display.VirtualDisplay.Callback,%20android.os.Handler)" title="Reference documentation">Android reference for <code>android.hardware.display.DisplayManager.createVirtualDisplay</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -414,7 +414,7 @@
         <summary>Display category: Built in displays.</summary>
         <remarks>
           <para>Display category: Built in displays.</para>
-          <para>This category can be used to identify displays that are built into the device. The displays that are returned may be inactive or disabled at the current moment. The returned displays are useful in identifying the various sizes of built-in displays. The id from Display.getDisplayId() is not guaranteed to be stable and may change when the display becomes active.</para>
+          <para>This category can be used to identify displays that are built into the device. The displays that are returned may be inactive or disabled at the current moment. The returned displays are useful in identifying the various sizes of built-in displays. The ID from <see cref="P:Android.Views.Display.DisplayId" /> is not guaranteed to be stable and may change when the display becomes active.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/display/DisplayManager#DISPLAY_CATEGORY_BUILT_IN_DISPLAYS" title="Reference documentation">Android reference for <code>android.hardware.display.DisplayManager.DISPLAY_CATEGORY_BUILT_IN_DISPLAYS</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -574,8 +574,8 @@
         <summary>Event type to register for a display's brightness changes.</summary>
         <remarks>
           <para>Event type to register for a display's brightness changes. This notification is sent
-            through the <c>DisplayListener#onDisplayChanged</c> callback method. New brightness
-            values can be retrieved via <c>android.view.Display#getBrightnessInfo()</c>.</para>
+            through the <see cref="M:Android.Hardware.Display.DisplayManager.IDisplayListener.OnDisplayChanged(System.Int32)" /> callback method. The display's brightness
+            can also be queried with <see cref="M:Android.Hardware.Display.DisplayManager.GetBrightness(System.Int32,System.Int32)" />.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/display/DisplayManager#EVENT_TYPE_DISPLAY_BRIGHTNESS" title="Reference documentation">Java documentation for <code>android.hardware.display.DisplayManager.EVENT_TYPE_DISPLAY_BRIGHTNESS</code>.</a>
@@ -1397,7 +1397,7 @@
         <Parameter Name="listener" Type="Java.Util.Functions.IConsumer" />
       </Parameters>
       <Docs>
-        <param name="executor">The executor specifying the thread on which the callbacks will be invoked. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="executor">The executor specifying the thread on which the callbacks will be invoked. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use <see cref="P:Android.Content.Context.MainExecutor" />. Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
         <param name="listener">The listener. This value cannot be null.</param>
         <summary>Register a listener to receive display topology updates.</summary>
         <remarks>
@@ -1453,7 +1453,7 @@
         <summary>Sets the brightness of the specified display.</summary>
         <remarks>
           <para>Sets the brightness of the specified display. Accepts different brightness units.</para>
-          <para>The brightness value, regardless of the unit, might be adjusted by the system to reflect the current system setting and constraints. Requires Manifest.permission.WRITE_SETTINGS</para>
+          <para>The brightness value, regardless of the unit, might be adjusted by the system to reflect the current system setting and constraints. Requires <see cref="F:Android.Manifest.Permission.WriteSettings" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/display/DisplayManager#setBrightness(int,%20float,%20int)" title="Reference documentation">Android reference for <code>android.hardware.display.DisplayManager.setBrightness</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
