@@ -131,7 +131,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies how the incoming JNI reference is released and whether the peer is registered.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -246,12 +246,12 @@
         <Parameter Name="value" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="field">an index to the Calendar fields</param>
+        <param name="field">The calendar field to set.</param>
         <param name="value">the field value</param>
         <summary>Sets the field parameter to the given value.</summary>
         <returns>this Calendar.Builder</returns>
         <remarks>
-          <para>Sets the field parameter to the given value. field is an index to the Calendar.fields, such as DAY_OF_MONTH. Field value validation is not performed in this method. Any out of range values are either normalized in lenient mode or detected as an invalid value in non-lenient mode when building a Calendar.</para>
+          <para>Sets the field parameter to the given value. The field is a <see cref="T:Java.Util.CalendarField" /> value, such as <see cref="F:Java.Util.CalendarField.DayOfMonth" />. Field value validation is not performed in this method. Any out of range values are either normalized in lenient mode or detected as an invalid value in non-lenient mode when building a Calendar.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Calendar.Builder.html#set(int,int)" title="Reference documentation">Java reference for <code>java.util.Calendar.Builder.set</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -288,7 +288,7 @@
         <summary>Sets the calendar type parameter to the given type.</summary>
         <returns>this Calendar.Builder</returns>
         <remarks>
-          <para>Sets the calendar type parameter to the given type. The calendar type given by this method has precedence over any explicit or implicit calendar type given by the locale. In addition to the available calendar types returned by the Calendar.getAvailableCalendarTypes method, "gregorian" and "iso8601" as aliases of "gregory" can be used with this method.</para>
+          <para>Sets the calendar type parameter to the given type. The calendar type given by this method has precedence over any explicit or implicit calendar type given by the locale. In addition to the types in <see cref="P:Java.Util.Calendar.AvailableCalendarTypes" />, "gregorian" is accepted as an alias for "gregory". The "iso8601" type selects a proleptic Gregorian calendar with ISO week rules.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Calendar.Builder.html#setCalendarType(java.lang.String)" title="Reference documentation">Java reference for <code>java.util.Calendar.Builder.setCalendarType</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -531,7 +531,7 @@
         <summary>Sets the locale parameter to the given locale.</summary>
         <returns>this Calendar.Builder</returns>
         <remarks>
-          <para>Sets the locale parameter to the given locale. If no locale is given to this Calendar.Builder, the default Locale for Locale.Category.FORMAT will be used. If no calendar type is explicitly given by a call to the setCalendarType method, the Locale value is used to determine what type of Calendar to be built. If no week definition parameters are explicitly given by a call to the setWeekDefinition method, the Locale's default values are used.</para>
+          <para>Sets the locale parameter to the given locale. If no locale is given to this Calendar.Builder, the default Locale will be used. If no calendar type is explicitly given by a call to the setCalendarType method, the Locale value is used to determine what type of Calendar to be built. For the "gregory" type, the locale's week definition is used unless one is explicitly set. The "iso8601" type uses Monday and four days in the first week.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Calendar.Builder.html#setLocale(java.util.Locale)" title="Reference documentation">Java reference for <code>java.util.Calendar.Builder.setLocale</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -657,7 +657,7 @@
         <summary>Sets the time zone parameter to the given zone.</summary>
         <returns>this Calendar.Builder</returns>
         <remarks>
-          <para>Sets the time zone parameter to the given zone. If no time zone parameter is given to this Calendar.Builder, the default TimeZone will be used in the build method.</para>
+          <para>Sets the time zone parameter to the given zone. If no time zone has been set, the first build uses the default TimeZone. On Android 14 through 17, it instead uses a recognized Unicode "tz" extension in the locale when one is present.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Calendar.Builder.html#setTimeZone(java.util.TimeZone)" title="Reference documentation">Java reference for <code>java.util.Calendar.Builder.setTimeZone</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -694,7 +694,7 @@
       <Docs>
         <param name="weekYear">the week year</param>
         <param name="weekOfYear">the week number based on weekYear</param>
-        <param name="dayOfWeek">the day of week value: one of the constants for the DAY_OF_WEEK field: SUNDAY,..., SATURDAY.</param>
+        <param name="dayOfWeek">The day of the week, from <see cref="F:Java.Util.Calendar.Sunday" /> through <see cref="F:Java.Util.Calendar.Saturday" />.</param>
         <summary>Sets the week-based date parameters to the values with the given date specifiers - week year, week of year, and day of week.</summary>
         <returns>this Calendar.Builder</returns>
         <remarks>
@@ -732,12 +732,12 @@
         <Parameter Name="minimalDaysInFirstWeek" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="firstDayOfWeek">the first day of a week; one of Calendar.SUNDAY to Calendar.SATURDAY</param>
+        <param name="firstDayOfWeek">The first day of the week, from <see cref="F:Java.Util.Calendar.Sunday" /> through <see cref="F:Java.Util.Calendar.Saturday" />.</param>
         <param name="minimalDaysInFirstWeek">the minimal number of days in the first week (1..7)</param>
         <summary>Sets the week definition parameters to the values given by firstDayOfWeek and minimalDaysInFirstWeek that are used to determine the first week of a year.</summary>
         <returns>this Calendar.Builder</returns>
         <remarks>
-          <para>Sets the week definition parameters to the values given by firstDayOfWeek and minimalDaysInFirstWeek that are used to determine the first week of a year. The parameters given by this method have precedence over the default values given by the locale.</para>
+          <para>Sets the week definition parameters to the values given by firstDayOfWeek and minimalDaysInFirstWeek that are used to determine the first week of a year. For the "gregory" calendar type, these parameters take precedence over the locale's defaults. For "iso8601", the build method replaces them with Monday and four days in the first week.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Calendar.Builder.html#setWeekDefinition(int,int)" title="Reference documentation">Java reference for <code>java.util.Calendar.Builder.setWeekDefinition</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

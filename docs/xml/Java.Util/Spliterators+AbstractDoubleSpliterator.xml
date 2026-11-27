@@ -114,7 +114,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies how the incoming JNI reference is released and whether the peer is registered.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -152,10 +152,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Returns a set of characteristics of this Spliterator and its elements.</summary>
-        <returns>a representation of characteristics</returns>
+        <summary>Returns the characteristics of this spliterator and its elements.</summary>
+        <returns>A combination of <see cref="T:Java.Util.SpliteratorCharacteristics" /> values.</returns>
         <remarks>
-          <para>Returns a set of characteristics of this Spliterator and its elements. The result is represented as ORed values from Spliterator.ORDERED, Spliterator.DISTINCT, Spliterator.SORTED, Spliterator.SIZED, Spliterator.NONNULL, Spliterator.IMMUTABLE, Spliterator.CONCURRENT, Spliterator.SUBSIZED. Repeated calls to characteristics() on a given spliterator, prior to or in-between calls to trySplit, should always return the same result. If a Spliterator reports an inconsistent set of characteristics (either those returned from a single invocation or across multiple invocations), no guarantees can be made about any computation using this Spliterator.</para>
+          <para>The result is a bitwise combination of <see cref="T:Java.Util.SpliteratorCharacteristics" /> values. Repeated calls before or between calls to <c>TrySplit</c> should return the same result. If a spliterator reports inconsistent characteristics in one call or across calls, no guarantees can be made about computations that use it.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/Spliterators.AbstractDoubleSpliterator#characteristics()" title="Reference documentation">Java documentation for <code>java.util.Spliterators.AbstractDoubleSpliterator.characteristics()</code>.</a>
@@ -196,9 +196,9 @@
       <Parameters />
       <Docs>
         <summary>Gets the initial size estimate, reduced by splits when it is not <see cref="F:Java.Lang.Long.MaxValue" />.</summary>
-        <returns>the estimated size, or Long.MAX_VALUE if infinite, unknown, or too expensive to compute.</returns>
+        <returns>The estimated size, or <c>long.MaxValue</c> if the size is infinite, unknown, or too expensive to compute.</returns>
         <remarks>
-          <para>Returns an estimate of the number of elements that would be encountered by a Spliterator.forEachRemaining(java.util.function.Consumer&lt;? super T&gt;) traversal, or returns Long.MAX_VALUE if infinite, unknown, or too expensive to compute. If this Spliterator is Spliterator.SIZED and has not yet been partially traversed or split, or this Spliterator is Spliterator.SUBSIZED and has not yet been partially traversed, this estimate must be an accurate count of elements that would be encountered by a complete traversal. Otherwise, this estimate may be arbitrarily inaccurate, but must decrease as specified across invocations of Spliterator.trySplit().</para>
+          <para>The estimate is the estimated number of elements that would be encountered by a complete traversal, or <c>long.MaxValue</c> if the size is infinite, unknown, or too expensive to compute. It must be accurate if the spliterator has the <see cref="F:Java.Util.SpliteratorCharacteristics.Sized" /> characteristic and has not been partially traversed or split, or if it has the <see cref="F:Java.Util.SpliteratorCharacteristics.Subsized" /> characteristic and has not been partially traversed. Otherwise, it can be inaccurate. After a split, each resulting estimate must not exceed the estimate before the split. If this spliterator has the <c>Subsized</c> characteristic, the two estimates must add up to the estimate before the split.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/Spliterators.AbstractDoubleSpliterator#estimateSize()" title="Reference documentation">Java documentation for <code>java.util.Spliterators.AbstractDoubleSpliterator.estimateSize()</code>.</a>
