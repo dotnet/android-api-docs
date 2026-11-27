@@ -310,7 +310,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies whether to release the incoming JNI reference and whether to register the managed peer.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -556,7 +556,7 @@
       <Parameters />
       <Docs>
         <summary><b>[icu]</b> Returns whether significant digits are being used in rounding.</summary>
-        <returns><see langword="true" /> if either significant-digit limit has been set; otherwise, <see langword="false" />.</returns>
+        <returns><see langword="true" /> if significant digits are used in rounding; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para><b>[icu]</b> Returns whether significant digits are being used in rounding.</para>
           <para>
@@ -765,26 +765,24 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <param name="value">true to either require or forbid the decimal point according to the pattern; false
-                to disable this feature.</param>
-        <summary><b>[icu]</b> Returns whether the presence of a decimal point must match the pattern. -or- <b>[icu]</b> <b>Parsing:</b> This method is used to either <i>require</i> or
-            <i>forbid</i> the presence of a decimal point in the string being parsed (disabled by
-            default).</summary>
-        <value><see langword="true" /> to require the input's decimal-point presence to agree with the pattern; otherwise, <see langword="false" />.</value>
+        <param name="value"><see langword="true" /> to enable the decimal-point check; <see langword="false" /> to disable it.</param>
+        <summary>Gets or sets whether to check the decimal point when parsing.</summary>
+        <value><see langword="true" /> if the decimal-point check is enabled; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Property getter documentation:</para>
-          <para><b>[icu]</b> Returns whether the presence of a decimal point must match the pattern.</para>
+          <para>Returns whether the decimal-point check is enabled when parsing.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#isDecimalPatternMatchRequired()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.isDecimalPatternMatchRequired()</code>.</a>
             </format>
           </para>
           <para>Property setter documentation:</para>
-          <para><b>[icu]</b> <b>Parsing:</b> This method is used to either <i>require</i> or
-            <i>forbid</i> the presence of a decimal point in the string being parsed (disabled by
-            default). This feature was designed to be an extra layer of strictness on top of strict
-            parsing, although it can be used in either lenient mode or strict mode.</para>
-          <para>To <i>require</i> a decimal point, call this method in combination with either a pattern
+          <para><b>[icu]</b> <b>Parsing:</b> Enables a decimal-point check for the string being parsed. The check is
+            disabled by default and can be used in either lenient mode or strict mode.</para>
+          <para>On Android 7.0 through 8.1, the check does not always match the pattern. For example, with U.S.
+            decimal symbols, it can accept "1.5" for pattern "0" or reject "0.1" for pattern "0.0".</para>
+          <para>On Android 17 and later, NaN and infinity are not subject to this check.</para>
+          <para>On Android 9 and later, to <i>require</i> a decimal point, call this method in combination with either a pattern
             containing a decimal point or with <c>#setDecimalSeparatorAlwaysShown</c>.</para>
           <code lang="text/java">// Require a decimal point in the string being parsed:
             df.applyPattern("#.");
@@ -794,8 +792,8 @@
             df.setDecimalSeparatorAlwaysShown(true);
             df.setDecimalPatternMatchRequired(true);
             </code>
-          <para>To <i>forbid</i> a decimal point, call this method in combination with a pattern containing
-            no decimal point. Alternatively, use <c>#setParseIntegerOnly</c> for the same behavior without
+          <para>On Android 9 and later, to <i>forbid</i> a decimal point, call this method in combination with a pattern containing
+            no decimal point. Alternatively, use <c>#setParseIntegerOnly</c> to stop parsing at the decimal point without
             depending on the contents of the pattern string.</para>
           <code lang="text/java">// Forbid a decimal point in the string being parsed:
             df.applyPattern("#");
@@ -1221,7 +1219,7 @@
         <param name="width">The minimum number of characters in the output.</param>
         <summary>Returns the minimum number of characters in formatted output. -or- <b>Padding:</b> Sets the minimum width of the string output by the formatting
             pipeline.</summary>
-        <value>The minimum output width used when padding formatted numbers.</value>
+        <value>The minimum output width for padding, or a nonpositive value when padding is disabled.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns the minimum number of characters in formatted output.</para>
@@ -1287,7 +1285,7 @@
         <param name="width">The grouping size to use.</param>
         <summary>Returns the primary grouping size in use. -or- <b>Grouping:</b> Sets the primary grouping size (distance between grouping
             separators) used when formatting large numbers.</summary>
-        <value>The primary grouping size reported by the formatter; an unset size is reported as zero.</value>
+        <value>The primary grouping size reported by the formatter, in digits.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns the primary grouping size in use.</para>
@@ -1391,7 +1389,7 @@
         <param name="mathContext">The MathContext to use when rounding numbers.</param>
         <summary><b>[icu]</b> Returns the <c>java.math.MathContext</c> being used to round numbers. -or- <b>[icu]</b> <b>Rounding and Digit Limits:</b> Sets the <c>java.math.MathContext</c> used
             to round numbers.</summary>
-        <value>The effective Java math context specifying rounding precision and mode.</value>
+        <value>The Java math context specifying rounding precision and mode, or <see langword="null" /> when none is set.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the <c>java.math.MathContext</c> being used to round numbers.</para>
@@ -1457,7 +1455,7 @@
         <param name="mathContextICU">The MathContext to use when rounding numbers.</param>
         <summary><b>[icu]</b> Returns the <c>android.icu.math.MathContext</c> being used to round numbers. -or- <b>[icu]</b> <b>Rounding and Digit Limits:</b> Overload of <c>#setMathContext</c> for
             <c>android.icu.math.MathContext</c>.</summary>
-        <value>A new ICU math context containing the current precision, rounding mode, and ICU notation form.</value>
+        <value>The ICU math context used for rounding, or <see langword="null" /> when none is set.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para><b>[icu]</b> Returns the <c>android.icu.math.MathContext</c> being used to round numbers.</para>
@@ -1648,7 +1646,7 @@
         <param name="number">The minimum number of digits before grouping is triggered.</param>
         <summary><b>[icu]</b> Returns the minimum number of digits before grouping is triggered. -or- <b>[icu]</b> Sets the minimum number of digits that must be before the first grouping separator in
             order for the grouping separator to be printed.</summary>
-        <value>The reported minimum number of digits before the first grouping separator, with a fallback of one.</value>
+        <value>The reported minimum-grouping setting, or 1 when the stored setting is not positive.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para><b>[icu]</b> Returns the minimum number of digits before grouping is triggered.</para>
@@ -2495,22 +2493,21 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <param name="value">true to force case (uppercase/lowercase) to match when parsing; false to ignore
-                case and perform case folding.</param>
-        <summary><b>[icu]</b> Returns whether to force case (uppercase/lowercase) to match when parsing. -or- <b>[icu]</b> Specifies whether parsing should require cases to match in affixes, exponent separators,
-            and currency codes.</summary>
-        <value><see langword="true" /> if parsing requires letter case to match in affixes, exponent separators, and currency codes; otherwise, <see langword="false" />.</value>
+        <param name="value"><see langword="true" /> to request case-sensitive matching; <see langword="false" /> to request case-insensitive matching.</param>
+        <summary>Gets or sets the case-sensitivity setting for parsing.</summary>
+        <value><see langword="true" /> to request case-sensitive matching; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Property getter documentation:</para>
-          <para><b>[icu]</b> Returns whether to force case (uppercase/lowercase) to match when parsing.</para>
+          <para>Returns whether case-sensitive matching is requested.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#isParseCaseSensitive()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.isParseCaseSensitive()</code>.</a>
             </format>
           </para>
           <para>Property setter documentation:</para>
-          <para><b>[icu]</b> Specifies whether parsing should require cases to match in affixes, exponent separators,
-            and currency codes. Case mapping is performed for each code point using <c>UCharacter#foldCase</c>.</para>
+          <para><b>[icu]</b> Controls case-sensitive matching in affixes, exponent separators, and currency codes.
+            When case-insensitive matching is used, case folding is performed for each code point using <c>UCharacter#foldCase</c>.</para>
+          <para>Some currency matches can ignore case even when this property is <see langword="true" />. For example, a U.S. currency formatter can use <see cref="M:Android.Icu.Text.NumberFormat.ParseCurrency(System.String,Java.Text.ParsePosition)" /> to parse "usd 1.00" as USD.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setParseCaseSensitive(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setParseCaseSensitive(boolean)</code>.</a>
@@ -2562,11 +2559,11 @@
       <Docs>
         <param name="maxDigits">Prior to ICU 59, the maximum number of digits in the output number after
                 exponential notation is applied.</param>
-        <summary>Always returns 1000, the default prior to ICU 59.</summary>
-        <value>The compatibility value 1000; assigning this obsolete setting does not change parsing.</value>
+        <summary>Gets or sets the parse exponent limit on Android 7.0 through 8.1. On Android 9 and later, this setting has no effect.</summary>
+        <value>On Android 7.0 through 8.1, the configured limit, which defaults to 1000. On Android 9 and later, 1000.</value>
         <remarks>
           <para>Property getter documentation:</para>
-          <para>Always returns 1000, the default prior to ICU 59.</para>
+          <para>On Android 7.0 through 8.1, the getter returns the configured exponent limit. On Android 9 and later, it returns 1000.</para>
           <para>This member is deprecated. Setting max parse digits has no effect since ICU4J 59.</para>
           <para>
             <format type="text/html">
@@ -2574,6 +2571,7 @@
             </format>
           </para>
           <para>Property setter documentation:</para>
+          <para>On Android 7.0 through 8.1, a positive value sets the exponent limit. Nonpositive values are ignored.</para>
           <para>This member is deprecated. Setting max parse digits has no effect since ICU4J 59.</para>
           <para>
             <format type="text/html">
@@ -2620,9 +2618,9 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <param name="value">true to prevent exponents from being parsed; false to allow them to be parsed.</param>
-        <summary><b>[icu]</b> Returns whether to ignore exponents when parsing. -or- <b>[icu]</b> Specifies whether to stop parsing when an exponent separator is encountered.</summary>
-        <value><see langword="true" /> if parsing stops at an exponent separator instead of consuming an exponent; otherwise, <see langword="false" />.</value>
+        <param name="value"><see langword="true" /> to request that parsing stop at an exponent separator; <see langword="false" /> to allow exponent parsing.</param>
+        <summary>Gets or sets whether to stop parsing at an exponent separator.</summary>
+        <value><see langword="true" /> to request that parsing stop at an exponent separator; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para><b>[icu]</b> Returns whether to ignore exponents when parsing.</para>
@@ -2633,8 +2631,10 @@
           </para>
           <para>Property setter documentation:</para>
           <para><b>[icu]</b> Specifies whether to stop parsing when an exponent separator is encountered. For
-            example, parses "123E4" to 123 (with parse position 3) instead of 1230000 (with parse position
-            5).</para>
+            example, with a non-scientific format, parses "123E4" to 123 (with parse position 3) instead of
+            1230000 (with parse position 5).</para>
+          <para>When <see cref="P:Android.Icu.Text.DecimalFormat.MinimumExponentDigits" /> is greater than zero,
+            exponents are parsed even if this property is <see langword="true" />.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setParseNoExponent(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setParseNoExponent(boolean)</code>.</a>
@@ -2817,12 +2817,11 @@
       </ReturnValue>
       <Docs>
         <param name="increment">The increment to which numbers are to be rounded.</param>
-        <summary><b>[icu]</b> Returns the increment to which numbers are being rounded. -or- <b>[icu]</b> <b>Rounding and Digit Limits:</b> Sets an increment, or interval, to which
-            numbers are rounded.</summary>
-        <value>The effective rounding increment, or <see langword="null" /> when increment rounding is not in effect.</value>
+        <summary>Gets or sets the rounding increment.</summary>
+        <value>The reported rounding increment, or <see langword="null" /> if none is reported. Other digit settings can affect the rounding applied.</value>
         <remarks>
           <para>Property getter documentation:</para>
-          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the increment to which numbers are being rounded.</para>
+          <para>Returns the reported rounding increment.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getRoundingIncrement()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getRoundingIncrement()</code>.</a>
@@ -2886,7 +2885,7 @@
         <param name="useScientific">true to enable scientific notation; false to disable it.</param>
         <summary><b>[icu]</b> Returns whether scientific (exponential) notation is enabled on this formatter. -or- <b>[icu]</b> <b>Scientific Notation:</b> Sets whether this formatter should print in
             scientific (exponential) notation.</summary>
-        <value><see langword="true" /> if an exponent-width setting enables scientific notation; otherwise, <see langword="false" />.</value>
+        <value><see langword="true" /> if scientific notation is enabled; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para><b>[icu]</b> Returns whether scientific (exponential) notation is enabled on this formatter.</para>
@@ -2950,7 +2949,7 @@
         <param name="width">The secondary grouping size to use.</param>
         <summary><b>[icu]</b> Returns the secondary grouping size in use. -or- <b>[icu]</b> <b>Grouping:</b> Sets the secondary grouping size (distance between grouping
             separators after the first separator) used when formatting large numbers.</summary>
-        <value>The grouping size to the left of the primary group; an unset size is reported as zero.</value>
+        <value>The secondary grouping size reported by the formatter, in digits.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para><b>[icu]</b> Returns the secondary grouping size in use.</para>

@@ -94,7 +94,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies whether to release the incoming JNI reference and whether to register the managed peer.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -382,13 +382,13 @@
       </Parameters>
       <Docs>
         <param name="data">the binary, big-endian normalization (.nrm file) data, or null for ICU data</param>
-        <param name="name">"nfc" or "nfkc" or "nfkc_cf" or "nfkc_scf" or name of custom data file</param>
+        <param name="name">"nfc", "nfkc", "nfkc_cf", or another built-in or custom data name. The built-in "nfkc_scf" data is not available on all Android versions.</param>
         <param name="mode">normalization mode (compose or decompose etc.)</param>
         <summary>Returns a Normalizer2 instance which uses the specified data file (an ICU data file if data=null, or else custom binary data) and which composes or decomposes text according to the specified mode.</summary>
         <returns>the requested Normalizer2, if successful</returns>
         <remarks>
           <para>This method was deprecated in API level 31. Don't use because the binary data format is not stable across API levels.</para>
-          <para>Returns a Normalizer2 instance which uses the specified data file (an ICU data file if data=null, or else custom binary data) and which composes or decomposes text according to the specified mode. Returns an unmodifiable singleton instance. Use data=null for data files that are part of ICU's own data. Use name="nfc" and COMPOSE/DECOMPOSE for Unicode standard NFC/NFD. Use name="nfkc" and COMPOSE/DECOMPOSE for Unicode standard NFKC/NFKD. Use name="nfkc_cf" and COMPOSE for Unicode standard NFKC_CF=NFKC_Casefold. When data is non-null, it is read and closed before the cache is checked. Normalization data is cached using the provided name as the key. Any IOException is wrapped into a ICUUncheckedIOException.</para>
+          <para>Returns a Normalizer2 instance which uses the specified data file (an ICU data file if data=null, or else custom binary data) and which composes or decomposes text according to the specified mode. Returns an unmodifiable instance. Use data=null for data files that are part of ICU's own data. Use name="nfc" and COMPOSE/DECOMPOSE for Unicode standard NFC/NFD. Use name="nfkc" and COMPOSE/DECOMPOSE for Unicode standard NFKC/NFKD. Use name="nfkc_cf" and COMPOSE for Unicode standard NFKC_CF=NFKC_Casefold. When data is non-null, it is read and closed before the cache is checked. Custom normalization data is cached using the provided name as the key. A <see cref="T:Java.IO.IOException" /> from reading or closing the input is wrapped in an <see cref="T:Android.Icu.Util.ICUUncheckedIOException" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/Normalizer2#getInstance(java.io.InputStream,%20java.lang.String,%20android.icu.text.Normalizer2.Mode)" title="Reference documentation">Android reference for <code>android.icu.text.Normalizer2.getInstance</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

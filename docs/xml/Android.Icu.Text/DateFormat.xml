@@ -173,7 +173,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies whether to release the incoming JNI reference and whether to register the managed peer.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1336,7 +1336,7 @@
         <summary>Formats a <c>Temporal</c> into a date/time string.</summary>
         <returns>the formatted time string.</returns>
         <remarks>
-          <para>Formats a Temporal into a date/time string.</para>
+          <para>Formats a Temporal into a date/time string. The base implementation of the three-argument overload does not support every Temporal type; for example, it rejects <see cref="T:Java.Time.Instant" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/DateFormat#format(java.time.temporal.Temporal)" title="Reference documentation">Android reference for <code>android.icu.text.DateFormat.format</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1555,18 +1555,18 @@
               On input: an alignment field, if desired.&lt;br&gt;
               On output: the offsets of the alignment field.&lt;br&gt;
               For example, given a time text "1996.07.10 AD at 15:08:56 PDT",
-              if the given <c>fieldPosition</c> is <c>DateFormat.YEAR_FIELD</c>, the begin index and end index
+              if the field specified by <c>fieldPosition</c> is <c>(int)DateFormatField.Year</c>, the begin index and end index
               of <c>fieldPosition</c> will be set to 0 and 4, respectively.&lt;br&gt;
               Notice that if the same time field appears more than once in a pattern, the fieldPosition will
               be set for the first occurrence of that time field. For instance, formatting a <c>Temporal</c>
               to the time string "1 PM PDT (Pacific Daylight Time)" using the pattern "h a z (zzzz)" and the
-              alignment field <c>DateFormat.TIMEZONE_FIELD</c>, the begin index and end index
+              alignment field <c>(int)DateFormatField.Timezone</c>, the begin index and end index
               of <c>fieldPosition</c> will be set to 5 and 8, respectively, for the first occurrence of the
               timezone pattern character 'z'.</param>
         <summary>Formats a <c>Temporal</c> into a date/time string.</summary>
         <returns>The buffer containing the formatted date/time string.</returns>
         <remarks>
-          <para>Formats a Temporal into a date/time string.</para>
+          <para>Formats a Temporal into a date/time string. The base implementation does not support every Temporal type; for example, it rejects <see cref="T:Java.Time.Instant" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/DateFormat#format(java.time.temporal.Temporal,%20java.lang.StringBuffer,%20java.text.FieldPosition)" title="Reference documentation">Android reference for <code>android.icu.text.DateFormat.format</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1895,10 +1895,10 @@
       </Parameters>
       <Docs>
         <param name="type">the DisplayContext.Type whose value to return</param>
-        <summary>[icu] Get the formatter's DisplayContext value for the specified DisplayContext.Type, such as CAPITALIZATION.</summary>
-        <returns>the current DisplayContext setting for the specified type</returns>
+        <summary>Gets a display context setting for this formatter.</summary>
+        <returns>In the base implementation, the capitalization setting for the capitalization type; otherwise, <see cref="P:Android.Icu.Text.DisplayContext.CapitalizationNone" />.</returns>
         <remarks>
-          <para>[icu] Get the formatter's DisplayContext value for the specified DisplayContext.Type, such as CAPITALIZATION.</para>
+          <para>The base implementation tracks capitalization settings. For other context types, it returns <see cref="P:Android.Icu.Text.DisplayContext.CapitalizationNone" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/DateFormat#getContext(android.icu.text.DisplayContext.Type)" title="Reference documentation">Android reference for <code>android.icu.text.DateFormat.getContext</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

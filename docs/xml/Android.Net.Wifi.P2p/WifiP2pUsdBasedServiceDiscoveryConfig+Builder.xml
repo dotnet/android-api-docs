@@ -187,9 +187,10 @@
         <summary>Specifies the band requested for service discovery.</summary>
         <returns>Instance of Builder to enable chaining of the builder method. This value cannot be null.</returns>
         <remarks>
-          <para>Specifies the band requested for service discovery. The band should be one of the following band constants defined in ScanResult#WIFI_BAND_24_GHZ, ScanResult#WIFI_BAND_5_GHZ or ScanResult#WIFI_BAND_6_GHZ</para>
-          <para>This is mutually exclusive with setFrequenciesMhz(int[]). Calling this method will clear any frequencies that were previously set.</para>
-          <para>Optional. ScanResult#UNSPECIFIED by default.</para>
+          <para>Specifies the band requested for service discovery. Pass an integer containing one or more of the values <see cref="F:Android.Net.Wifi.WifiBand.Band24Ghz" />, <see cref="F:Android.Net.Wifi.WifiBand.Band5Ghz" />, and <see cref="F:Android.Net.Wifi.WifiBand.Band6Ghz" />.</para>
+          <para>In the Android 16 release and Android 16 QPR1 AOSP implementations, <see cref="M:Android.Net.Wifi.P2p.WifiP2pUsdBasedServiceDiscoveryConfig.Builder.Build" /> throws if both a band and frequencies are set. The builder starts with a frequency of 2437 MHz, and this method does not clear it.</para>
+          <para>In the Android 17 release AOSP implementation, this method clears any previously set frequencies. <see cref="M:Android.Net.Wifi.P2p.WifiP2pUsdBasedServiceDiscoveryConfig.Builder.SetFrequenciesMhz(System.Int32[])" /> clears any previously set band.</para>
+          <para>Optional. The initial band is <see cref="F:Android.Net.Wifi.WifiBand.Unspecified" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pUsdBasedServiceDiscoveryConfig.Builder#setBand(int)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pUsdBasedServiceDiscoveryConfig.Builder.setBand</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -222,12 +223,13 @@
         <Parameter Name="frequenciesMhz" Type="System.Int32[]" />
       </Parameters>
       <Docs>
-        <param name="frequenciesMhz">Frequencies in MHz to scan for services. This value cannot be an empty array of frequencies. This value cannot be null.</param>
+        <param name="frequenciesMhz">Frequencies in MHz to scan for services. The array must contain between 1 and 48 frequencies and cannot be null.</param>
         <summary>Set the frequencies requested for service discovery.</summary>
         <returns>Instance of Builder to enable chaining of the builder method. This value cannot be null.</returns>
         <remarks>
           <para>Set the frequencies requested for service discovery.</para>
-          <para>This is mutually exclusive with setBand(int). Calling this method will clear any band that was previously set.</para>
+          <para>In the Android 16 release and Android 16 QPR1 AOSP implementations, this method does not clear a previously set band. <see cref="M:Android.Net.Wifi.P2p.WifiP2pUsdBasedServiceDiscoveryConfig.Builder.Build" /> throws if both a band and frequencies are set.</para>
+          <para>In the Android 17 release AOSP implementation, this method clears any previously set band. <see cref="M:Android.Net.Wifi.P2p.WifiP2pUsdBasedServiceDiscoveryConfig.Builder.SetBand(System.Int32)" /> clears any previously set frequencies.</para>
           <para>Optional. 2437 by default.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pUsdBasedServiceDiscoveryConfig.Builder#setFrequenciesMhz(int[])" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pUsdBasedServiceDiscoveryConfig.Builder.setFrequenciesMhz</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
