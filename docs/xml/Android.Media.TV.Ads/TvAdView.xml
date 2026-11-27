@@ -133,7 +133,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies how to handle the incoming JNI reference and whether to register the managed peer.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>The runtime calls this constructor to create a managed representation of an existing Java object.</para>
@@ -679,6 +679,7 @@
           <para>Measure the view and its content to determine the measured width and the measured height. This method is invoked by measure(int, int) and should be overridden by subclasses to provide accurate and efficient measurement of their contents.</para>
           <para>CONTRACT: When overriding this method, you must call setMeasuredDimension(int, int) to store the measured width and height of this view. Failure to do so will trigger an IllegalStateException, thrown by measure(int, int). Calling the superclass' onMeasure(int, int) is a valid use.</para>
           <para>The base class implementation of measure defaults to the background size, unless a larger size is allowed by the MeasureSpec. Subclasses should override onMeasure(int, int) to provide better measurements of their content.</para>
+          <para>The preceding default-size description applies to the generic <see cref="T:Android.Views.View" /> implementation. This override measures its child <see cref="T:Android.Views.SurfaceView" /> with <paramref name="widthMeasureSpec" /> and <paramref name="heightMeasureSpec" />, then resolves this view's dimensions from the child's measured size and state.</para>
           <para>If this method is overridden, it is the subclass's responsibility to make sure the measured height and width are at least the view's minimum height and width (getSuggestedMinimumHeight() and getSuggestedMinimumWidth()).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/ad/TvAdView#onMeasure(int,%20int)" title="Reference documentation">Android reference for <code>android.media.tv.ad.TvAdView.onMeasure</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -712,7 +713,7 @@
         <Parameter Name="e" Type="Android.Views.InputEvent" />
       </Parameters>
       <Docs>
-        <param name="e">The input event that the registered listener did not handle.</param>
+        <param name="e">The input event to handle.</param>
         <param name="event">The input event.</param>
         <summary>Called when an unhandled input event also has not been handled by the user provided
             callback.</summary>
@@ -779,8 +780,8 @@
         <ReturnType>Android.Media.TV.Ads.TvAdView+IOnUnhandledInputEventListener</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the OnUnhandledInputEventListener.</summary>
-        <value>The listener for input events not handled by the TV advertisement service, or <see langword="null" /> if no listener is set or the listener has been cleared.</value>
+        <summary>Gets or sets the listener for unhandled input events.</summary>
+        <value>The listener called when unhandled input events are dispatched, or <see langword="null" /> if no listener is set or the listener has been cleared.</value>
         <remarks>
           <para>Gets the OnUnhandledInputEventListener.</para>
           <para>Returns null if the listener is not set or is cleared.</para>
@@ -1237,7 +1238,7 @@
         <Parameter Name="callback" Type="Android.Media.TV.Ads.TvAdView+TvAdCallback" />
       </Parameters>
       <Docs>
-        <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="executor">The executor used to dispatch calls to <paramref name="callback" />. This value cannot be <see langword="null" />. To dispatch callbacks on the main thread, use <see cref="P:Android.Content.Context.MainExecutor" />. Otherwise, provide an executor that dispatches to an appropriate thread.</param>
         <param name="callback">the callback to receive events. MUST NOT be null.</param>
         <summary>Sets the callback to be invoked when an event is dispatched to this TvAdView.</summary>
         <remarks>
