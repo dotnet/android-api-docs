@@ -120,7 +120,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies whether the runtime releases <paramref name="javaReference" /> and whether the managed peer is registered.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>The runtime calls this constructor to create a managed representation of an existing Java object.</para>
@@ -216,11 +216,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="method">The request name. Names that start with <c>android:</c> select platform cloud-media operations.</param>
+        <param name="method">The request name. Names that start with <c>android:</c> are handled as platform requests.</param>
         <param name="arg">The argument passed to the base provider for a non-platform request; platform cloud-media operations do not use it.</param>
         <param name="extras">Arguments for the selected cloud-media operation. A platform request with no bundle uses an empty bundle.</param>
         <summary>Implementation is provided by the parent class.</summary>
         <returns>The bundle produced by the selected platform operation, or the result of the base provider for a non-platform request.</returns>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">The platform request name is not supported.</exception>
         <remarks>
           <para>Implementation is provided by the parent class. Cannot be overridden.</para>
           <para>
@@ -505,8 +506,8 @@
         <Parameter Name="callback" Type="Android.Provider.CloudMediaProvider+CloudMediaSurfaceStateChangedCallback" />
       </Parameters>
       <Docs>
-        <param name="config">containing configuration parameters for CloudMediaSurfaceController CloudMediaProviderContract.EXTRA_LOOPING_PLAYBACK_ENABLED CloudMediaProviderContract.EXTRA_SURFACE_CONTROLLER_AUDIO_MUTE_ENABLED. This value cannot be null.</param>
-        <param name="callback">CloudMediaSurfaceStateChangedCallback to send state updates for Surface to picker launched via MediaStore.ACTION_PICK_IMAGES This value cannot be null.</param>
+        <param name="config">The configuration bundle, including <see cref="F:Android.Provider.CloudMediaProviderContract.ExtraLoopingPlaybackEnabled" /> and <see cref="F:Android.Provider.CloudMediaProviderContract.ExtraSurfaceControllerAudioMuteEnabled" />. This value cannot be null.</param>
+        <param name="callback">The callback used to send surface state updates to the picker launched by <see cref="F:Android.Provider.MediaStore.ActionPickImages" />. This value cannot be null.</param>
         <summary>Returns a CloudMediaSurfaceController used for rendering the preview of media items, or null if preview rendering is not supported.</summary>
         <returns>A preview-surface controller when supplied by a subclass. The base method returns <see langword="null" />.</returns>
         <remarks>
@@ -722,8 +723,8 @@
             already locally on the device and doesn't require downloading from the cloud.</param>
         <param name="extras">Options that control how the descriptor is opened. For a video, when
             <see cref="F:Android.Provider.CloudMediaProviderContract.ExtraPreviewThumbnail" /> is
-            <see langword="true" />, return a thumbnail image; when it is <see langword="false" /> or
-            absent, return a descriptor for the media file. Returning the wrong kind may cause
+            present, return a thumbnail image; when it is absent, return a descriptor for the media
+            file. Returning the wrong kind may cause
             unexpected preview behavior in the photo picker.</param>
         <param name="signal">used by the OS to signal if the request should be cancelled</param>
         <summary>Returns a descriptor for a preview of the specified media item.</summary>
@@ -733,9 +734,9 @@
           <para>For an image thumbnail, the cloud media provider should use the original
             MIME type of the item.</para>
           <para>A thumbnail is expected to be a much lower resolution version than the item returned by
-            <c>#onOpenMedia</c>.</para>
+            <see cref="M:Android.Provider.CloudMediaProvider.OnOpenMedia(System.String,Android.OS.Bundle,Android.OS.CancellationSignal)" />.</para>
           <para>If you block while downloading content, you should periodically check
-            <c>CancellationSignal#isCanceled()</c> to abort abandoned open requests.</para>
+            <see cref="P:Android.OS.CancellationSignal.IsCanceled" /> to abort abandoned open requests.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#onOpenPreview(java.lang.String,%20android.graphics.Point,%20android.os.Bundle,%20android.os.CancellationSignal)" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.onOpenPreview(java.lang.String, android.graphics.Point, android.os.Bundle, android.os.CancellationSignal)</code>.</a>
