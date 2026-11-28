@@ -7268,9 +7268,12 @@
         <remarks>
           <para>Returns <c>true</c> if the context is a UI context which can access UI components such as
             <c>WindowManager</c>, <c>android.view.LayoutInflater LayoutInflater</c> or
-            <c>android.app.WallpaperManager WallpaperManager</c>. Accessing UI components from non-UI
-            contexts throws <c>android.os.strictmode.Violation</c> if
-            <c>android.os.StrictMode.VmPolicy.Builder#detectIncorrectContextUse()</c> is enabled.</para>
+            <c>android.app.WallpaperManager WallpaperManager</c>. If
+            <c>android.os.StrictMode.VmPolicy.Builder#detectIncorrectContextUse()</c> is enabled,
+            accessing UI components from non-UI contexts makes StrictMode report an
+            <c>android.os.strictmode.Violation</c>. StrictMode does not throw the Violation; it applies
+            the penalties of the configured VmPolicy, such as a log entry, process termination, or a
+            listener callback.</para>
           <para>Examples of UI contexts are
             an <c>android.app.Activity Activity</c>, a context created from
             <c>#createWindowContext(int, Bundle)</c> or
