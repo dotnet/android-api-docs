@@ -559,8 +559,8 @@
             Requests selection of a private key alias.
             </summary>
         <returns>
-            A <see cref="T:System.Threading.Tasks.Task`1" /> representing the asynchronous operation. The result is the alias chosen by the user,
-            or <see langword="null" /> if the user cancelled the selection.
+            A <see cref="T:System.Threading.Tasks.Task`1" /> representing the asynchronous operation. The result is the selected alias,
+            or <see langword="null" /> if no alias is selected, such as when no private key is available or the user cancels.
             </returns>
         <remarks>
             This is an async wrapper around <see cref="M:Android.Security.KeyChain.ChoosePrivateKeyAlias(Android.App.Activity,Android.Security.IKeyChainAliasCallback,System.String[],Java.Security.IPrincipal[],Android.Net.Uri,System.String)" />.
@@ -637,8 +637,8 @@
             Requests selection of a private key alias.
             </summary>
         <returns>
-            A <see cref="T:System.Threading.Tasks.Task`1" /> representing the asynchronous operation. The result is the alias chosen by the user,
-            or <see langword="null" /> if the user cancelled the selection.
+            A <see cref="T:System.Threading.Tasks.Task`1" /> representing the asynchronous operation. The result is the selected alias,
+            or <see langword="null" /> if no alias is selected, such as when no private key is available or the user cancels.
             </returns>
         <remarks>
             This is an async wrapper around <see cref="M:Android.Security.KeyChain.ChoosePrivateKeyAlias(Android.App.Activity,Android.Security.IKeyChainAliasCallback,System.String[],Java.Security.IPrincipal[],System.String,System.Int32,System.String)" />.
@@ -718,12 +718,14 @@
             </summary>
         <returns>
             A <see cref="T:System.Threading.Tasks.Task`1" /> representing the asynchronous operation. The result is an <see cref="T:System.Security.Cryptography.X509Certificates.X509Certificate2" />
-            containing the certificate and private key, or <see langword="null" /> if the user cancelled the selection
-            or the certificate could not be retrieved.
+            containing the certificate and private key, or <see langword="null" /> if no alias is selected
+            or the certificate or private key is unavailable.
+            On Android 6.0 through Android 9 (API levels 23 through 28), an unavailable key can instead fault the task with a <see cref="T:Android.Security.KeyChainException" />.
             </returns>
         <remarks>
             This method combines <see cref="M:Android.Security.KeyChain.ChoosePrivateKeyAliasAsync(Android.App.Activity,System.String[],Java.Security.IPrincipal[],Android.Net.Uri,System.String)" />
             and <see cref="M:Android.Security.KeyChain.GetX509Certificate2WithPrivateKey(Android.Content.Context,System.String)" /> into a single call for a one-step TLS client certificate workflow.
+            After an alias is selected, the method retrieves the key and certificate on the captured synchronization context when one is present. The retrieval must not run on the main thread.
             This overload requires Android API 23 or later.
             </remarks>
       </Docs>
@@ -799,12 +801,14 @@
             </summary>
         <returns>
             A <see cref="T:System.Threading.Tasks.Task`1" /> representing the asynchronous operation. The result is an <see cref="T:System.Security.Cryptography.X509Certificates.X509Certificate2" />
-            containing the certificate and private key, or <see langword="null" /> if the user cancelled the selection
-            or the certificate could not be retrieved.
+            containing the certificate and private key, or <see langword="null" /> if no alias is selected
+            or the certificate or private key is unavailable.
+            On Android 4.0 through Android 9 (API levels 14 through 28), an unavailable key can instead fault the task with a <see cref="T:Android.Security.KeyChainException" />.
             </returns>
         <remarks>
             This method combines <see cref="M:Android.Security.KeyChain.ChoosePrivateKeyAliasAsync(Android.App.Activity,System.String[],Java.Security.IPrincipal[],System.String,System.Int32,System.String)" />
             and <see cref="M:Android.Security.KeyChain.GetX509Certificate2WithPrivateKey(Android.Content.Context,System.String)" /> into a single call for a one-step TLS client certificate workflow.
+            After an alias is selected, the method retrieves the key and certificate on the captured synchronization context when one is present. The retrieval must not run on the main thread.
             </remarks>
       </Docs>
     </Member>
@@ -831,7 +835,7 @@
       <Docs>
         <summary>Returns an <c>Intent</c> that can be used for credential
             installation.</summary>
-        <returns>An intent that opens the system credential installer. Certificate or key-store data can be supplied as intent extras; without extras, the user selects the data to install.</returns>
+        <returns>An intent that opens the system credential installer. Certificate or key-store data can be supplied as intent extras; without extras, the user selects the data to install. On Android 11 through Android 17 (API levels 30 through 37), this intent cannot install CA certificates.</returns>
         <remarks>
           <para>Returns an <c>Intent</c> that can be used for credential
             installation. The intent may be used without any extras, in
@@ -895,7 +899,7 @@
                           certificate pair should be used for authentication.</param>
         <summary>Returns an <c>Intent</c> that should be used by an app to request to manage the user's
             credentials.</summary>
-        <returns>An intent that asks the user to approve this application as the credential management app, with the supplied authentication policy.</returns>
+        <returns>An intent that asks the user to approve this application as the credential management app, with the supplied authentication policy. The request is limited to unmanaged devices.</returns>
         <remarks>
           <para>Returns an <c>Intent</c> that should be used by an app to request to manage the user's
             credentials. This is limited to unmanaged devices. The authentication policy must be
@@ -1288,7 +1292,7 @@
                          <c>KeyChainAliasCallback#alias</c>.</param>
         <summary>Returns the <c>PrivateKey</c> for the requested alias, or null if the alias does not exist
             or the caller has no permission to access it (see note on exceptions below).</summary>
-        <returns>The private key identified by <paramref name="alias" />, or <see langword="null" /> if the alias does not exist or the caller cannot access it. Before Android 10 (API level 29), an unavailable key causes a <see cref="T:Android.Security.KeyChainException" /> instead.</returns>
+        <returns>The private key identified by <paramref name="alias" />. On Android 10 through Android 17 (API levels 29 through 37), the method can return <see langword="null" /> if no key is available or the caller cannot access it. Before Android 10 (API level 29), an unavailable key can cause a <see cref="T:Android.Security.KeyChainException" /> instead.</returns>
         <remarks>
           <para>Returns the <c>PrivateKey</c> for the requested alias, or null if the alias does not exist
             or the caller has no permission to access it (see note on exceptions below).</para>
@@ -1300,8 +1304,8 @@
           <para>If the caller provides a valid alias to which it was not granted access, then the
             caller must invoke <c>#choosePrivateKeyAlias</c> again to get another valid alias
             or a grant to access the same alias.</para>
-          <para>On Android versions prior to Q, when a key associated with the specified alias is
-            unavailable, the method will throw a <c>KeyChainException</c> rather than return null.
+          <para>Before Android 10 (API level 29), when a key associated with the specified alias is
+            unavailable, the method can throw a <c>KeyChainException</c> rather than return null.
             If the exception's cause (as obtained by calling <c>KeyChainException.getCause()</c>)
             is a throwable of type <c>IllegalStateException</c> then the caller lacks a grant
             to access the key and certificates associated with this alias.</para>
@@ -1355,11 +1359,13 @@
         <returns>
             An <see cref="T:System.Security.Cryptography.X509Certificates.X509Certificate2" /> containing the certificate and private key,
             or <see langword="null" /> if the private key or certificate chain is not available for the given alias.
+            On Android 4.0 through Android 9 (API levels 14 through 28), an unavailable key can instead cause a <see cref="T:Android.Security.KeyChainException" />.
             </returns>
         <remarks>
             This method combines <see cref="M:Android.Security.KeyChain.GetPrivateKey(Android.Content.Context,System.String)" /> and <see cref="M:Android.Security.KeyChain.GetCertificateChain(Android.Content.Context,System.String)" />
             into a single call that returns a .NET <see cref="T:System.Security.Cryptography.X509Certificates.X509Certificate2" /> suitable for use with
             <see cref="P:System.Net.Http.HttpClientHandler.ClientCertificates" /> or other TLS APIs.
+            The key and certificate retrieval can block and must not run on the main thread.
             </remarks>
       </Docs>
     </Member>
@@ -1392,9 +1398,9 @@
       <Docs>
         <param name="algorithm">The key algorithm name for the legacy hardware-support check, such as <c>RSA</c>.</param>
         <summary>Returns a legacy indication of hardware support for the specified key algorithm.</summary>
-        <returns>A legacy indication of hardware support for the algorithm. In the Android 12 and Android 16 implementations, this method always returns <see langword="true" />, regardless of the algorithm. The result does not determine whether an individual key is hardware-backed; inspect that key's <see cref="T:Android.Security.Keystore.KeyInfo" /> instead.</returns>
+        <returns>A legacy indication of hardware support for the algorithm. In the Android 12 (API 31) through Android 17 (API 37) implementations, this method always returns <see langword="true" />, regardless of the algorithm. The result does not determine whether an individual key is hardware-backed; inspect that key's <see cref="T:Android.Security.Keystore.KeyInfo" /> instead.</returns>
         <remarks>
-          <para>On Android 8, this method checks whether the algorithm is supported and hardware-backed. Other Android versions can return a different result.</para>
+          <para>On Android 4.3 (API 18), this method checks whether the algorithm is supported and whether hardware-backed key storage is available. On Android 4.4 (API 19) through Android 11 (API 30), it checks whether the algorithm is supported and hardware-backed.</para>
           <para>This member is deprecated. Whether the key is bound to the secure hardware is known only
             once the key has been imported. To find out, use:
             &lt;pre&gt;<c>PrivateKey key = ...; // private key from KeyChain
@@ -1493,10 +1499,10 @@
         <Parameter Name="algorithm" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="algorithm">The key algorithm name to test, such as <c>RSA</c> or <c>EC</c>.</param>
+        <param name="algorithm">The key algorithm name to test, such as <c>RSA</c> or <c>EC</c>. A null value returns false on Android 4.3 (API 18) and throws <see cref="T:Java.Lang.NullPointerException" /> on Android 4.4 (API 19) through Android 17 (API 37).</param>
         <summary>Returns <c>true</c> if the current device's <c>KeyChain</c> supports a
             specific <c>PrivateKey</c> type indicated by <c>algorithm</c> (e.</summary>
-        <returns><see langword="true" /> if KeyChain supports the specified key algorithm on this device; otherwise, <see langword="false" />.</returns>
+        <returns><see langword="true" /> if the algorithm name is in the Android version's supported list; otherwise, <see langword="false" /> for a non-null name. This does not check whether an individual key is hardware-backed.</returns>
         <remarks>
           <para>Returns <c>true</c> if the current device's <c>KeyChain</c> supports a
             specific <c>PrivateKey</c> type indicated by <c>algorithm</c> (e.g.,
