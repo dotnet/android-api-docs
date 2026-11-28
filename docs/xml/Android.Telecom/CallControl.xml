@@ -605,21 +605,21 @@
         <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" />
       </Parameters>
       <Docs>
-        <param name="uri">The content URI of the contact or group in the VoIP application's contact
-                              directory or a valid CP2 contact. This URI must be stable and resolvable
-                              by the system or null if unused.</param>
+        <param name="uri">A stable, resolvable contact URI with the <c>content</c> scheme and an
+                              authority ending in <c>com.android.contacts</c>, accessible to the calling
+                              user, or <see langword="null" /> if unused.</param>
         <param name="executor">The <c>Executor</c> on which the <c>OutcomeReceiver</c> callback
                               will be called on.</param>
         <param name="callback">The <c>OutcomeReceiver</c> that reports whether Telecom completed the
-                               request to set the contact URI. <c>OutcomeReceiver#onResult</c> is
-                               called on success. <c>OutcomeReceiver#onError</c> is called if the
+                               request to set the contact URI. <see cref="M:Android.OS.IOutcomeReceiver.OnResult(Java.Lang.Object)" /> is
+                               called on success. <see cref="M:Android.OS.IOutcomeReceiver.OnError(Java.Lang.Object)" /> is called if the
                                operation fails; the <c>CallException</c> describes the failure.</param>
         <summary>Sets the VoIP contact URI for an ongoing call.</summary>
         <remarks>
           <para>Sets the VoIP contact URI for an ongoing call.</para>
-          <para>Call this method when a VoIP call transitions to or from a group call, such as when a one-to-one call adds participants and becomes a conference. Call it alongside <c>CallControl#setGroupCallState</c>.</para>
+          <para>Call this method when a VoIP call transitions to or from a group call, such as when a one-to-one call adds participants and becomes a conference. Call it alongside <see cref="M:Android.Telecom.CallControl.SetGroupCallState(System.Boolean,Java.Util.Concurrent.IExecutor,Android.OS.IOutcomeReceiver)" />.</para>
           <para>Providing this URI allows the Android system to correctly represent the call in the system's user interface, such as the native call log. As part of the integrated call logs feature, which provides a unified history for both carrier and VoIP calls, accurately associating the calls with a valid lookup URI is essential for a consistent user experience.</para>
-          <para>The URI identifies a contact or group in the VoIP contact directory, or a CP2 contact. The system can use it to display associated contact information, such as a name or avatar, in the integrated call log.</para>
+          <para>The URI identifies a contact. The current validation requires the <c>content</c> scheme, an authority ending in <c>com.android.contacts</c>, and the calling user's profile. Other VoIP contact directory authorities are not accepted. The system can use the URI to display associated contact information, such as a name or avatar, in the integrated call log.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telecom/CallControl#setContactUri(android.net.Uri,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver&lt;java.lang.Void,android.telecom.CallException&gt;)" title="Reference documentation">Android reference for <code>android.telecom.CallControl.setContactUri</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -660,8 +660,8 @@
         <param name="executor">The <c>Executor</c> on which the <c>OutcomeReceiver</c> callback
                                will be called on.</param>
         <param name="callback">The <c>OutcomeReceiver</c> that reports whether Telecom completed the
-                               request to set the group-call state. <c>OutcomeReceiver#onResult</c> is
-                               called on success. <c>OutcomeReceiver#onError</c> is called if the
+                               request to set the group-call state. <see cref="M:Android.OS.IOutcomeReceiver.OnResult(Java.Lang.Object)" /> is
+                               called on success. <see cref="M:Android.OS.IOutcomeReceiver.OnError(Java.Lang.Object)" /> is called if the
                                operation fails; the <c>CallException</c> describes the failure.</param>
         <summary>Sets the group call state for an ongoing call.</summary>
         <remarks>
