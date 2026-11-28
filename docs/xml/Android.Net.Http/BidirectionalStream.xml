@@ -91,7 +91,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies how to handle the incoming JNI reference.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>The runtime calls this constructor to create a managed representation of an existing Java object.</para>
@@ -170,14 +170,15 @@
         <ReturnType>Android.Net.Http.FinishedRequestTimings</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns the detailed timing metrics for the request.</summary>
+        <summary>Gets the detailed timing metrics for the request.</summary>
         <value>The request's timing metrics. Individual timestamps may be <c>null</c> when unavailable.</value>
         <remarks>
-          <para>Returns the detailed timing metrics for the request.</para>
-          <para>This method can be only called when the request has reached a terminal callback. This is defined by the execution of one of the following callbacks: BidirectionalStream.Callback.onSucceeded, BidirectionalStream.Callback.onFailed or BidirectionalStream.Callback.onCanceled. It's also allowed to call this method in the terminal callback itself.</para>
+          <para>Gets the detailed timing metrics for the request.</para>
+          <para>This property can be accessed only when the request has reached a terminal callback: <see cref="M:Android.Net.Http.BidirectionalStream.ICallback.OnSucceeded(Android.Net.Http.BidirectionalStream,Android.Net.Http.UrlResponseInfo)" />, <see cref="M:Android.Net.Http.BidirectionalStream.ICallback.OnFailed(Android.Net.Http.BidirectionalStream,Android.Net.Http.UrlResponseInfo,Android.Net.Http.HttpException)" />, or <see cref="M:Android.Net.Http.BidirectionalStream.ICallback.OnCanceled(Android.Net.Http.BidirectionalStream,Android.Net.Http.UrlResponseInfo)" />. It can also be accessed within the terminal callback itself.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/BidirectionalStream#getFinishedRequestTimings()" title="Reference documentation">Android reference for <code>android.net.http.BidirectionalStream.getFinishedRequestTimings</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalStateException">The property was accessed before the terminal callback.</exception>
       </Docs>
     </Member>
     <Member MemberName="Flush">
@@ -247,10 +248,10 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>See BidirectionalStream.Builder.setTrafficStatsTag(int)</summary>
+        <summary>Gets whether a traffic statistics tag was set.</summary>
         <value><c>true</c> if a traffic statistics tag was set; otherwise, <c>false</c>.</value>
         <remarks>
-          <para>See BidirectionalStream.Builder.setTrafficStatsTag(int)</para>
+          <para>See <see cref="M:Android.Net.Http.BidirectionalStream.Builder.SetTrafficStatsTag(System.Int32)" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/BidirectionalStream#hasTrafficStatsTag()" title="Reference documentation">Android reference for <code>android.net.http.BidirectionalStream.hasTrafficStatsTag</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -280,10 +281,10 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>See BidirectionalStream.Builder.setTrafficStatsUid(int)</summary>
+        <summary>Gets whether a traffic statistics UID was set.</summary>
         <value><c>true</c> if a traffic statistics UID was set; otherwise, <c>false</c>.</value>
         <remarks>
-          <para>See BidirectionalStream.Builder.setTrafficStatsUid(int)</para>
+          <para>See <see cref="M:Android.Net.Http.BidirectionalStream.Builder.SetTrafficStatsUid(System.Int32)" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/BidirectionalStream#hasTrafficStatsUid()" title="Reference documentation">Android reference for <code>android.net.http.BidirectionalStream.hasTrafficStatsUid</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -313,10 +314,10 @@
         <ReturnType>Android.Net.Http.HeaderBlock</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>See Builder.addHeader(String,String)</summary>
+        <summary>Gets the HTTP request headers configured for the stream.</summary>
         <value>The HTTP request headers configured for the stream.</value>
         <remarks>
-          <para>See Builder.addHeader(String,String)</para>
+          <para>See <see cref="M:Android.Net.Http.BidirectionalStream.Builder.AddHeader(System.String,System.String)" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/BidirectionalStream#getHeaders()" title="Reference documentation">Android reference for <code>android.net.http.BidirectionalStream.getHeaders</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -346,10 +347,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>See BidirectionalStream.Builder.setHttpMethod(String).</summary>
+        <summary>Gets the configured HTTP method.</summary>
         <value>The configured HTTP method.</value>
         <remarks>
-          <para>See BidirectionalStream.Builder.setHttpMethod(String).</para>
+          <para>See <see cref="M:Android.Net.Http.BidirectionalStream.Builder.SetHttpMethod(System.String)" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/BidirectionalStream#getHttpMethod()" title="Reference documentation">Android reference for <code>android.net.http.BidirectionalStream.getHttpMethod</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -379,10 +380,10 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>See Builder.setDelayRequestHeadersUntilFirstFlushEnabled(boolean)</summary>
+        <summary>Gets whether request headers are delayed until the first flush.</summary>
         <value><c>true</c> if request headers are delayed until the first flush; otherwise, <c>false</c>.</value>
         <remarks>
-          <para>See Builder.setDelayRequestHeadersUntilFirstFlushEnabled(boolean)</para>
+          <para>See <see cref="M:Android.Net.Http.BidirectionalStream.Builder.SetDelayRequestHeadersUntilFirstFlushEnabled(System.Boolean)" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/BidirectionalStream#isDelayRequestHeadersUntilFirstFlushEnabled()" title="Reference documentation">Android reference for <code>android.net.http.BidirectionalStream.isDelayRequestHeadersUntilFirstFlushEnabled</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -476,10 +477,10 @@
         <ReturnType>Android.Net.Http.BidirectionalStreamPriority</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>See Builder.setPriority(int)</summary>
+        <summary>Gets the priority of the stream.</summary>
         <value>Value is one of the following: <see cref="F:Android.Net.Http.BidirectionalStreamPriority.Idle" />; <see cref="F:Android.Net.Http.BidirectionalStreamPriority.Lowest" />; <see cref="F:Android.Net.Http.BidirectionalStreamPriority.Low" />; <see cref="F:Android.Net.Http.BidirectionalStreamPriority.Medium" />; <see cref="F:Android.Net.Http.BidirectionalStreamPriority.Highest" /></value>
         <remarks>
-          <para>See Builder.setPriority(int)</para>
+          <para>See <see cref="M:Android.Net.Http.BidirectionalStream.Builder.SetPriority(Android.Net.Http.BidirectionalStreamPriority)" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/BidirectionalStream#getPriority()" title="Reference documentation">Android reference for <code>android.net.http.BidirectionalStream.getPriority</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -892,13 +893,14 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>See BidirectionalStream.Builder.setTrafficStatsTag(int)</summary>
-        <value>The configured socket traffic tag. This property throws if no tag was set.</value>
+        <summary>Gets the configured socket traffic tag.</summary>
+        <value>The configured socket traffic tag.</value>
         <remarks>
-          <para>See BidirectionalStream.Builder.setTrafficStatsTag(int)</para>
+          <para>See <see cref="M:Android.Net.Http.BidirectionalStream.Builder.SetTrafficStatsTag(System.Int32)" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/BidirectionalStream#getTrafficStatsTag()" title="Reference documentation">Android reference for <code>android.net.http.BidirectionalStream.getTrafficStatsTag</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalStateException">No traffic tag was set. Check <see cref="P:Android.Net.Http.BidirectionalStream.HasTrafficStatsTag" /> before reading this property.</exception>
       </Docs>
     </Member>
     <Member MemberName="TrafficStatsUid">
@@ -925,13 +927,14 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>See BidirectionalStream.Builder.setTrafficStatsUid(int)</summary>
-        <value>The configured UID for socket traffic accounting. This property throws if no UID was set.</value>
+        <summary>Gets the configured UID for socket traffic accounting.</summary>
+        <value>The configured UID for socket traffic accounting.</value>
         <remarks>
-          <para>See BidirectionalStream.Builder.setTrafficStatsUid(int)</para>
+          <para>See <see cref="M:Android.Net.Http.BidirectionalStream.Builder.SetTrafficStatsUid(System.Int32)" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/BidirectionalStream#getTrafficStatsUid()" title="Reference documentation">Android reference for <code>android.net.http.BidirectionalStream.getTrafficStatsUid</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalStateException">No traffic UID was set. Check <see cref="P:Android.Net.Http.BidirectionalStream.HasTrafficStatsUid" /> before reading this property.</exception>
       </Docs>
     </Member>
     <Member MemberName="Write">

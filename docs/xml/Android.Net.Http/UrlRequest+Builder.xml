@@ -60,7 +60,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies how to handle the incoming JNI reference.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>The runtime calls this constructor to create a managed representation of an existing Java object.</para>
@@ -253,10 +253,10 @@
       </Parameters>
       <Docs>
         <param name="disableCache">true to disable cache, false otherwise.</param>
-        <summary>WARNING: This method should not be called with `setCacheDisabled(false)` as this may lead to incorrect behaviour on older versions of HttpEngine.</summary>
+        <summary>Sets whether to disable the cache for the request.</summary>
         <returns>the builder to facilitate chaining. This value cannot be null.</returns>
         <remarks>
-          <para>WARNING: This method should not be called with `setCacheDisabled(false)` as this may lead to incorrect behaviour on older versions of HttpEngine. Whether to disable cache for the request. If the engine is not set up to use cache, this call has no effect.</para>
+          <para>Do not call <c>SetCacheDisabled(false)</c> on older versions of HttpEngine, because it may cause incorrect behavior. If the engine is not set up to use a cache, this call has no effect.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/UrlRequest.Builder#setCacheDisabled(boolean)" title="Reference documentation">Android reference for <code>android.net.http.UrlRequest.Builder.setCacheDisabled</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -290,10 +290,10 @@
       </Parameters>
       <Docs>
         <param name="allowDirectExecutor">true to allow executors performing inline execution, false otherwise.</param>
-        <summary>WARNING: This method should not be called with `setDirectExecutorAllowed(false)` as this may lead to incorrect behaviour on older versions of HttpEngine.</summary>
+        <summary>Sets whether the request can use an executor that runs tasks inline.</summary>
         <returns>the builder to facilitate chaining. This value cannot be null.</returns>
         <remarks>
-          <para>WARNING: This method should not be called with `setDirectExecutorAllowed(false)` as this may lead to incorrect behaviour on older versions of HttpEngine. Marks whether the executors this request will use to notify callbacks (for UploadDataProviders and UrlRequest.Callbacks) is intentionally performing inline execution, like Guava's directExecutor or ThreadPoolExecutor.CallerRunsPolicy.</para>
+          <para>Do not call <c>SetDirectExecutorAllowed(false)</c> on older versions of HttpEngine, because it may cause incorrect behavior. This option indicates whether the request's callback executors intentionally run tasks inline, as with Guava's direct executor or <c>ThreadPoolExecutor.CallerRunsPolicy</c>.</para>
           <para>Warning: If set to true: This option makes it easy to accidentally block the network thread. This should not be done if your callbacks perform disk I/O, acquire locks, or call into other code you don't carefully control and audit.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/UrlRequest.Builder#setDirectExecutorAllowed(boolean)" title="Reference documentation">Android reference for <code>android.net.http.UrlRequest.Builder.setDirectExecutorAllowed</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -327,7 +327,7 @@
         <Parameter Name="method" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="method">"GET", "HEAD", "DELETE", "POST" or "PUT". This value cannot be null.</param>
+        <param name="method">The HTTP method verb, such as "GET", "POST", or "PATCH". This value cannot be null.</param>
         <summary>Sets the HTTP method verb to use for this request.</summary>
         <returns>the builder to facilitate chaining. This value cannot be null.</returns>
         <remarks>
@@ -372,11 +372,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="priority">priority of the request which should be one of the REQUEST_PRIORITY_* values.</param>
-        <summary>Sets priority of the request which should be one of the REQUEST_PRIORITY_* values.</summary>
+        <param name="priority">A <see cref="T:Android.Net.Http.UrlRequestPriority" /> value that specifies the request priority.</param>
+        <summary>Sets the priority of the request.</summary>
         <returns>the builder to facilitate chaining. This value cannot be null.</returns>
         <remarks>
-          <para>Sets priority of the request which should be one of the REQUEST_PRIORITY_* values. The request is given UrlRequest.REQUEST_PRIORITY_MEDIUM priority if this method is not called.</para>
+          <para>If this method is not called, the request uses <see cref="F:Android.Net.Http.UrlRequestPriority.Medium" /> priority.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/UrlRequest.Builder#setPriority(int)" title="Reference documentation">Android reference for <code>android.net.http.UrlRequest.Builder.setPriority</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

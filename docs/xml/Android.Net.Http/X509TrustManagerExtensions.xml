@@ -254,6 +254,8 @@
                      and used according to terms described in the 
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Security.Cert.CertificateException">The certificate chain could not be verified.</exception>
+        <exception cref="T:Java.Lang.IllegalArgumentException">The trust manager does not support verification with OCSP and SCT data. A Conscrypt trust manager also throws this exception if the certificate chain or authentication type is <c>null</c> or empty.</exception>
       </Docs>
     </Member>
     <Member MemberName="IsSameTrustConfiguration">
@@ -290,13 +292,11 @@
       <Docs>
         <param name="hostname1">The first host name for the trust-configuration comparison.</param>
         <param name="hostname2">The second host name for the trust-configuration comparison.</param>
-        <summary>Returns <c>true</c> if the TrustManager uses the same trust configuration for the provided
-            hostnames.</summary>
+        <summary>Checks whether the TrustManager uses the same trust configuration for the provided hostnames.</summary>
         <returns>
           <c>true</c> if the comparison method is unavailable; otherwise, the result of that method.</returns>
         <remarks>
-          <para>Returns <c>true</c> if the TrustManager uses the same trust configuration for the provided
-            hostnames.</para>
+          <para>Checks whether the TrustManager uses the same trust configuration for the provided hostnames.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/http/X509TrustManagerExtensions#isSameTrustConfiguration(java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.net.http.X509TrustManagerExtensions.isSameTrustConfiguration(java.lang.String, java.lang.String)</code>.</a>
@@ -422,7 +422,7 @@
         <summary>Sets the NetworkSecurityPolicy to be used by this TrustManager.</summary>
         <remarks>
           <para>Sets the NetworkSecurityPolicy to be used by this TrustManager.</para>
-          <para>This method allows an application to associate a specific security policy with the wrapped X509TrustManager. On Android 37.2, it has no effect if the Conscrypt dynamic policy feature is disabled or if the trust manager does not support setting the policy.</para>
+          <para>This method allows an application to associate a specific security policy with the wrapped X509TrustManager. It has no effect if the Conscrypt dynamic policy feature is disabled or if the trust manager does not support setting the policy.</para>
           <para>When an <see cref="T:Javax.Net.Ssl.SSLContext" /> is initialized with the wrapped trust manager and Conscrypt can retrieve the attached policy, the policy's <see cref="M:Android.Security.NetworkSecurityPolicy.GetDomainEncryptionMode(System.String)" /> controls Encrypted Client Hello (ECH) for client connections. If ECH is required and no ECH configuration is available, starting the handshake fails with an <see cref="T:Javax.Net.Ssl.SSLException" />. The policy's <see cref="M:Android.Security.NetworkSecurityPolicy.IsCertificateTransparencyVerificationRequired(System.String)" /> can also determine whether Certificate Transparency (CT) information is requested during the handshake.</para>
           <para>When the wrapped trust manager is Conscrypt's TrustManagerImpl, the policy can also control CT verification. The Android default trust manager continues to use its network security configuration for certificate verification.</para>
           <para>By using a custom NetworkSecurityPolicy, applications can programmatically define granular security constraints that differ from the global application configuration. This is useful for specialized network stacks or for enforcing stricter security on specific sensitive connections.</para>

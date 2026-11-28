@@ -107,7 +107,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies how to handle the incoming JNI reference.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>The runtime calls this constructor to create a managed representation of an existing Java object.</para>
@@ -145,7 +145,7 @@
       </Parameters>
       <Docs>
         <param name="hostName">name of the host to which the public keys should be pinned. A host that consists only of digits and the dot character is treated as invalid. This value cannot be null.</param>
-        <param name="pinsSha256">a set of pins. Each pin is the SHA-256 cryptographic hash of the DER-encoded ASN.1 representation of the Subject Public Key Info (SPKI) of the host's X.509 certificate. Use Certificate.getPublicKey() and Key.getEncoded() to obtain DER-encoded ASN.1 representation of the SPKI. Although, the method does not mandate the presence of the backup pin that can be used if the control of the primary private key has been lost, it is highly recommended to supply one. This value cannot be null.</param>
+        <param name="pinsSha256">a collection of pins. Each pin is the SHA-256 cryptographic hash of the DER-encoded ASN.1 representation of the Subject Public Key Info (SPKI) of the host's X.509 certificate. Use <see cref="P:Java.Security.Cert.Certificate.PublicKey" /> and <see cref="M:Java.Security.IKey.GetEncoded" /> to obtain the DER-encoded ASN.1 representation of the SPKI. Although the method does not mandate a backup pin that can be used if control of the primary private key is lost, it is highly recommended to supply one. This value cannot be null.</param>
         <param name="includeSubdomains">indicates whether the pinning policy should be applied to subdomains of hostName.</param>
         <param name="expirationInstant">specifies the expiration instant for the pins. This value cannot be null.</param>
         <summary>Pins a set of public keys for a given host.</summary>
@@ -157,6 +157,8 @@
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/HttpEngine.Builder#addPublicKeyPins(java.lang.String,%20java.util.Set&lt;byte[]&gt;,%20boolean,%20java.time.Instant)" title="Reference documentation">Android reference for <code>android.net.http.HttpEngine.Builder.addPublicKeyPins</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.NullPointerException"><paramref name="hostName" />, <paramref name="pinsSha256" />, or <paramref name="expirationInstant" /> is null.</exception>
+        <exception cref="T:Java.Lang.IllegalArgumentException">The host name is invalid or a pin is not a valid SHA-256 hash.</exception>
       </Docs>
     </Member>
     <Member MemberName="AddQuicHint">
@@ -194,7 +196,7 @@
         <summary>Adds hint that host supports QUIC.</summary>
         <returns>the builder to facilitate chaining. This value cannot be null.</returns>
         <remarks>
-          <para>Adds hint that host supports QUIC. Note that enableHttpCache (HTTP_CACHE_DISK) is needed to take advantage of 0-RTT connection establishment between sessions.</para>
+          <para>Adds hint that host supports QUIC. Note that <see cref="M:Android.Net.Http.HttpEngine.Builder.SetEnableHttpCache(Android.Net.Http.HttpCacheType,System.Int64)" /> with <see cref="F:Android.Net.Http.HttpCacheType.Disk" /> is needed to take advantage of 0-RTT connection establishment between sessions.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/HttpEngine.Builder#addQuicHint(java.lang.String,%20int,%20int)" title="Reference documentation">Android reference for <code>android.net.http.HttpEngine.Builder.addQuicHint</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -534,7 +536,7 @@
         <returns>the builder to facilitate chaining. This value cannot be null.</returns>
         <remarks>
           <para>Configures the behavior of connection migration. For more details, see documentation of ConnectionMigrationOptions and the individual methods of ConnectionMigrationOptions.Builder.</para>
-          <para>Only relevant if setEnableQuic(boolean) is enabled.</para>
+          <para>Only relevant if <see cref="M:Android.Net.Http.HttpEngine.Builder.SetEnableQuic(System.Boolean)" /> enables QUIC.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/HttpEngine.Builder#setConnectionMigrationOptions(android.net.http.ConnectionMigrationOptions)" title="Reference documentation">Android reference for <code>android.net.http.HttpEngine.Builder.setConnectionMigrationOptions</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -572,7 +574,7 @@
         <returns>the builder to facilitate chaining. This value cannot be null.</returns>
         <remarks>
           <para>Configures the behavior of hostname lookup. For more details, see documentation of DnsOptions and the individual methods of DnsOptions.Builder.</para>
-          <para>Only relevant if setEnableQuic(boolean) is enabled.</para>
+          <para>The HTTP-stack DNS resolver and stale DNS settings can also affect connections when QUIC is disabled.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/HttpEngine.Builder#setDnsOptions(android.net.http.DnsOptions)" title="Reference documentation">Android reference for <code>android.net.http.HttpEngine.Builder.setDnsOptions</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -687,7 +689,7 @@
         <Parameter Name="maxSize" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="cacheMode">control location and type of cached data. Must be one of HTTP_CACHE_*.</param>
+        <param name="cacheMode">Controls the location and type of cached data. Use a value from <see cref="T:Android.Net.Http.HttpCacheType" />.</param>
         <param name="maxSize">maximum size in bytes used to cache data (advisory and maybe exceeded at times).</param>
         <summary>Enables or disables caching of HTTP data and other information like QUIC server information.</summary>
         <returns>the builder to facilitate chaining. This value cannot be null.</returns>
@@ -805,7 +807,7 @@
         <remarks>
           <para>Configures proxying behavior. This affects, in different ways: connections establishment, UrlRequest and BidirectionalStream. For more details, refer to the documentation of Proxy.</para>
           <para>This is not to be confused with proxy configuration that have been set up by: the user; or some enterprise profile configuration, or (most likely) some network autoconfiguration (e.g., Web Proxy Auto-Discovery Protocol). This is usually referred to as "system" proxy configuration. If present, respecting the system proxy configuration is often a requirement to obtain local and/or internet connectivity. HttpEngine already handles the system proxy configuration internally.</para>
-          <para>A proxy configuration defined via this API are refererred to as "app" proxy configuration. App and system proxy configuration are separate and, most importantly, differ. Currently, app and system proxy configurations are mutually exclusive: specifying ProxyOptions overrides the system proxy configuration, if present. This might cause connectivity problems in some scenarios where a system proxy configuration is present. In such scenarios, users might end up with no internet access, unless ProxyOptions has been configured with a final, null, fallback. Refer to ProxyOptions documentation.</para>
+          <para>A proxy configuration defined via this API is referred to as "app" proxy configuration. App and system proxy configuration are separate and, most importantly, differ. Currently, app and system proxy configurations are mutually exclusive: specifying ProxyOptions overrides the system proxy configuration, if present. This might cause connectivity problems in some scenarios where a system proxy configuration is present. In such scenarios, users might end up with no internet access. <see cref="F:Android.Net.Http.AllProxiesFailedBehavior.AllowDirect" /> allows a direct, non-proxied connection if all configured proxies fail.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/HttpEngine.Builder#setProxyOptions(android.net.http.ProxyOptions)" title="Reference documentation">Android reference for <code>android.net.http.HttpEngine.Builder.setProxyOptions</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -843,7 +845,7 @@
         <returns>the builder to facilitate chaining. This value cannot be null.</returns>
         <remarks>
           <para>Configures the behavior of the HTTP stack when using QUIC. For more details, see documentation of QuicOptions and the individual methods of QuicOptions.Builder.</para>
-          <para>Only relevant if setEnableQuic(boolean) is enabled.</para>
+          <para>Only relevant if <see cref="M:Android.Net.Http.HttpEngine.Builder.SetEnableQuic(System.Boolean)" /> enables QUIC.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/HttpEngine.Builder#setQuicOptions(android.net.http.QuicOptions)" title="Reference documentation">Android reference for <code>android.net.http.HttpEngine.Builder.setQuicOptions</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -918,7 +920,7 @@
         <summary>Overrides the User-Agent header for all requests.</summary>
         <returns>the builder to facilitate chaining. This value cannot be null.</returns>
         <remarks>
-          <para>Overrides the User-Agent header for all requests. An explicitly set User-Agent header (set using UrlRequest.Builder.addHeader) will override a value set using this function.</para>
+          <para>Overrides the User-Agent header for all requests. An explicitly set User-Agent header (set using <see cref="M:Android.Net.Http.UrlRequest.Builder.AddHeader(System.String,System.String)" />) will override a value set using this function.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/HttpEngine.Builder#setUserAgent(java.lang.String)" title="Reference documentation">Android reference for <code>android.net.http.HttpEngine.Builder.setUserAgent</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
