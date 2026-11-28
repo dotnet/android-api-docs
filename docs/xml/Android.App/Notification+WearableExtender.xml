@@ -41,7 +41,21 @@
   <Docs>
     <summary>Helper class to add wearable extensions to notifications.</summary>
     <remarks>
-      <para>Helper class to add wearable extensions to notifications. See Creating Notifications for Android Wear for more information on how to use this class. To create a notification with wearable extensions: Create a Notification.Builder, setting any desired properties. Create a Notification.WearableExtender. Set wearable-specific properties using the add and set methods of Notification.WearableExtender. Call Notification.Builder.extend(Extender) to apply the extensions to a notification. Post the notification to the notification system with the NotificationManager.notify(...) methods. Wearable extensions can be accessed on an existing notification by using the WearableExtender(Notification) constructor, and then using the get methods to access values.</para>
+      <para>Helper class to add wearable extensions to notifications. See Creating Notifications for Android Wear for more information on how to use this class. To create a notification with wearable extensions: Create a Notification.Builder, setting any desired properties. Create a Notification.WearableExtender. Set wearable-specific properties using the add and set methods of Notification.WearableExtender. Call Notification.Builder.extend(Extender) to apply the extensions to a notification. Post the notification to the notification system with the NotificationManager.notify(...) methods.</para>
+      <code lang="text/java">Notification notif = new Notification.Builder(mContext)
+        .setContentTitle("New mail from " + sender.toString())
+        .setContentText(subject)
+        .setSmallIcon(R.drawable.new_mail)
+        .extend(new Notification.WearableExtender()
+                .setContentIcon(R.drawable.new_mail))
+        .build();
+NotificationManager notificationManger =
+        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+notificationManger.notify(0, notif);</code>
+      <para>Wearable extensions can be accessed on an existing notification by using the WearableExtender(Notification) constructor, and then using the get methods to access values.</para>
+      <code lang="text/java">Notification.WearableExtender wearableExtender = new Notification.WearableExtender(
+        notification);
+List&lt;Notification&gt; pages = wearableExtender.getPages();</code>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/Notification.WearableExtender" title="Reference documentation">Android reference for <code>android.app.Notification.WearableExtender</code>.</a>
