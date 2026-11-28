@@ -85,7 +85,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Controls how the incoming JNI reference is released and whether the managed peer is registered.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -422,7 +422,7 @@
         <param name="peerHandle">The peer's handle for the pairing request. Must be a result of an
             <c>DiscoverySessionCallback#onServiceDiscovered(ServiceDiscoveryInfo)</c> or
             <c>DiscoverySessionCallback#onMessageReceived(PeerHandle, byte[])</c> events.</param>
-        <param name="method">one of the <see cref="T:Android.Net.Wifi.Aware.AwarePairingBootstrappingMethods" /> values, should match one
+        <param name="method">one of the <see cref="T:Android.Net.Wifi.Aware.AwarePairingBootstrappingMethods" /> values, should be compatible with one
                           of the methods received from <see cref="P:Android.Net.Wifi.Aware.ServiceDiscoveryInfo.PairingConfig" /> <see cref="P:Android.Net.Wifi.Aware.AwarePairingConfig.BootstrappingMethods" /></param>
         <summary>Defined as per Wi-Fi Aware specifications version 4.</summary>
         <remarks>
@@ -487,16 +487,15 @@
             <see cref="M:Android.Net.Wifi.Aware.DiscoverySessionCallback.OnServiceDiscovered(Android.Net.Wifi.Aware.ServiceDiscoveryInfo)" />,
             <see cref="M:Android.Net.Wifi.Aware.DiscoverySessionCallback.OnServiceDiscoveredWithinRange(Android.Net.Wifi.Aware.ServiceDiscoveryInfo,System.Int32)" />, or
             <see cref="M:Android.Net.Wifi.Aware.DiscoverySessionCallback.OnMessageReceived(Android.Net.Wifi.Aware.PeerHandle,System.Byte[])" />.</param>
-        <param name="method">one of the <see cref="T:Android.Net.Wifi.Aware.AwarePairingBootstrappingMethods" /> values, should match one
-                          of the methods received from <see cref="P:Android.Net.Wifi.Aware.ServiceDiscoveryInfo.PairingConfig" /> <see cref="P:Android.Net.Wifi.Aware.AwarePairingConfig.BootstrappingMethods" /></param>
-        <param name="message">An arbitrary byte array which can be sent as service info in Service
+        <param name="method">A method from <see cref="T:Android.Net.Wifi.Aware.AwarePairingBootstrappingMethods" /> that is compatible with the peer's supported methods. Get those methods from <see cref="P:Android.Net.Wifi.Aware.ServiceDiscoveryInfo.PairingConfig" /> and its <see cref="P:Android.Net.Wifi.Aware.AwarePairingConfig.BootstrappingMethods" /> property.</param>
+        <param name="message">A non-null byte array which can be sent as service info in Service
                             Descriptor Extension attribute (SDEA) - see Wi-Fi Aware specification 9.5.4.2
                             for more details. It is recommended to use
                             <see cref="M:Android.Net.Wifi.Aware.WifiAwareManager.CreateTxtRecordTlvBuffer(System.Collections.Generic.IDictionary{System.String,System.String})" /> to create a key-value
                             message in DNS-SD format.</param>
         <summary>Defined as per Wi-Fi Aware specifications version 4.0 Section 7.6.4.1.</summary>
         <remarks>
-          <para>Defined as per Wi-Fi Aware specifications version 4.0 Section 7.6.4.1. Initiate the bootstrapping request for a peer in a discovery session. The peer checks whether it supports the requested method configured by <see cref="M:Android.Net.Wifi.Aware.AwarePairingConfig.Builder.SetBootstrappingMethods(Android.Net.Wifi.Aware.AwarePairingBootstrappingMethods)" />. When bootstrapping succeeds, both peers receive <see cref="M:Android.Net.Wifi.Aware.DiscoverySessionCallback.OnBootstrappingSucceeded(Android.Net.Wifi.Aware.PeerHandle,Android.Net.Wifi.Aware.AwarePairingBootstrappingMethods,System.Byte[])" />.</para>
+          <para>Defined as per Wi-Fi Aware specifications version 4.0 Section 7.6.4.1. Initiate the bootstrapping request for a peer in a discovery session. The peer checks its supported methods, configured by <see cref="M:Android.Net.Wifi.Aware.AwarePairingConfig.Builder.SetBootstrappingMethods(Android.Net.Wifi.Aware.AwarePairingBootstrappingMethods)" />, for a compatible method. When bootstrapping succeeds, both peers receive <see cref="M:Android.Net.Wifi.Aware.DiscoverySessionCallback.OnBootstrappingSucceeded(Android.Net.Wifi.Aware.PeerHandle,Android.Net.Wifi.Aware.AwarePairingBootstrappingMethods,System.Byte[])" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySession#initiateBootstrappingRequest(android.net.wifi.aware.PeerHandle,%20int,%20byte[])" title="Reference documentation">Android reference for <code>android.net.wifi.aware.DiscoverySession.initiateBootstrappingRequest</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
