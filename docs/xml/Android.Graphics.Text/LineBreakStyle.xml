@@ -46,8 +46,8 @@
       <Docs>
         <summary>
           <para>A special value for the line breaking style option.</para>
-          <para>The auto option for the line break style set the line break style based on the locale of the text rendering context. You can specify the context locale by android.widget.TextView.setTextLocales(LocaleList) or android.graphics.Paint.setTextLocales(LocaleList).</para>
-          <para>In the API Build.VERSION_CODES.VANILLA_ICE_CREAM, auto option does followings: - If at least one locale in the locale list contains Japanese script, this option is equivalent to LINE_BREAK_STYLE_STRICT. - Otherwise, this option is equivalent to LINE_BREAK_STYLE_NONE.</para>
+          <para>The auto option selects a line-break style based on the locale of the text rendering context. You can set the context locale with <see cref="P:Android.Widget.TextView.TextLocales" /> or <see cref="P:Android.Graphics.Paint.TextLocales" />.</para>
+          <para>If the first locale in a text run's locale list supports Japanese script, this option is equivalent to <see cref="F:Android.Graphics.Text.LineBreakStyle.Strict" />; otherwise, it is equivalent to <see cref="F:Android.Graphics.Text.LineBreakStyle.None" />.</para>
           <para>Note: future versions may have special line breaking style rules for other locales.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/LineBreakConfig#LINE_BREAK_STYLE_AUTO" title="Reference documentation">Android reference for <code>android.graphics.text.LineBreakConfig.LINE_BREAK_STYLE_AUTO</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -112,7 +112,7 @@
       <MemberValue>4</MemberValue>
       <Docs>
         <summary>
-          <para>The line break style that used for preventing automatic line breaking. This is useful when you want to preserve some words in the same line by using LineBreakConfigSpan or LineBreakConfigSpan.createNoBreakSpan() as a shorthand. Note that even if this style is specified, the grapheme based line break is still performed for preventing clipping text.</para>
+          <para>This style prevents automatic line breaking. To keep words on the same line, use <see cref="T:Android.Text.Style.LineBreakConfigSpan" /> or the <see cref="M:Android.Text.Style.LineBreakConfigSpan.CreateNoBreakSpan" /> shorthand. Grapheme-based breaks can still occur to prevent clipping.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/LineBreakConfig#LINE_BREAK_STYLE_NO_BREAK" title="Reference documentation">Android reference for <code>android.graphics.text.LineBreakConfig.LINE_BREAK_STYLE_NO_BREAK</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </summary>
@@ -144,7 +144,7 @@
       <MemberValue>0</MemberValue>
       <Docs>
         <summary>
-          <para>No line-break rules are used for line breaking.</para>
+          <para>No additional line-break style rules are applied. The default line-break rules still apply.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/LineBreakConfig#LINE_BREAK_STYLE_NONE" title="Reference documentation">Android reference for <code>android.graphics.text.LineBreakConfig.LINE_BREAK_STYLE_NONE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </summary>
@@ -241,17 +241,17 @@
       <Docs>
         <summary>
           <para>No line break style is specified.</para>
-          <para>This is a special value of line break style indicating no style value is specified. When overriding a LineBreakConfig with another LineBreakConfig with Builder.merge(LineBreakConfig) function, the line break style of overridden config will be kept if the line break style of overriding config is LINE_BREAK_STYLE_UNSPECIFIED.</para>
-          <code lang="text/java">    val override = LineBreakConfig.Builder()
+          <para>When <see cref="M:Android.Graphics.Text.LineBreakConfig.Builder.Merge(Android.Graphics.Text.LineBreakConfig)" /> merges a configuration with an unspecified line-break style, it keeps the builder's existing style.</para>
+          <code lang="text/java">    LineBreakConfig override = new LineBreakConfig.Builder()
          .setLineBreakWordStyle(LineBreakConfig.LINE_BREAK_WORD_STYLE_PHRASE)
          .build();  // UNSPECIFIED if no setLineBreakStyle is called.
-    val config = LineBreakConfig.Builder()
+    LineBreakConfig config = new LineBreakConfig.Builder()
          .setLineBreakStyle(LineBreakConfig.LINE_BREAK_STYLE_STRICT)
          .merge(override)
-         .build()
+         .build();
     // Here, config has LINE_BREAK_STYLE_STRICT for line break config and
     // LINE_BREAK_WORD_STYLE_PHRASE for line break word style.</code>
-          <para>This value is resolved to LINE_BREAK_STYLE_NONE if the target SDK version is API Build.VERSION_CODES.UPSIDE_DOWN_CAKE or before and this value is used for text layout/rendering. This value is resolved to LINE_BREAK_STYLE_AUTO if the target SDK version is API Build.VERSION_CODES.VANILLA_ICE_CREAM or after and this value is used for text layout/rendering.</para>
+          <para>For text layout, this value resolves to <see cref="F:Android.Graphics.Text.LineBreakStyle.None" /> when the target SDK is API level 34 or earlier, and to <see cref="F:Android.Graphics.Text.LineBreakStyle.Auto" /> when the target SDK is API level 35 or later.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/LineBreakConfig#LINE_BREAK_STYLE_UNSPECIFIED" title="Reference documentation">Android reference for <code>android.graphics.text.LineBreakConfig.LINE_BREAK_STYLE_UNSPECIFIED</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </summary>

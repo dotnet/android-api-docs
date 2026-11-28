@@ -352,10 +352,10 @@
       </Parameters>
       <Docs>
         <param name="config">The pairing configuration advertised to the peer, or <see langword="null" />. A non-null configuration requires <see cref="P:Android.Net.Wifi.Aware.Characteristics.IsAwarePairingSupported" /> to be <see langword="true" />.</param>
-        <summary>Set the AwarePairingConfig for this publish session, the peer can use this info to determine the config of the following bootstrapping, pairing setup/verification request.</summary>
+        <summary>Sets the pairing configuration for this publish session.</summary>
         <returns>the current Builder builder, enabling chaining of builder methods. This value cannot be null.</returns>
         <remarks>
-          <para>Set the AwarePairingConfig for this publish session, the peer can use this info to determine the config of the following bootstrapping, pairing setup/verification request.</para>
+          <para>The peer can use this information to choose the configuration for later bootstrapping, pairing setup, or pairing verification requests.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/PublishConfig.Builder#setPairingConfig(android.net.wifi.aware.AwarePairingConfig)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.PublishConfig.Builder.setPairingConfig</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -490,7 +490,7 @@
         <remarks>
           <para>Specify the service name of the publish session. The actual on-air value is a 6 byte hashed representation of this string.</para>
           <para>The Service Name is a UTF-8 encoded string from 1 to 255 bytes in length. The only acceptable single-byte UTF-8 symbols for a Service Name are alphanumeric values (A-Z, a-z, 0-9), the hyphen ('-'), the period ('.') and the underscore ('_'). All valid multi-byte UTF-8 characters are acceptable in a Service Name.</para>
-          <para>Note: for compatibility with devices running Android 11 or older, avoid using underscore ('_') symbol as a single-byte UTF-8 service name.</para>
+          <para>For compatibility with devices running Android 11 or earlier, avoid underscores in service names.</para>
           <para>Must be called - an empty ServiceName is not valid.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/PublishConfig.Builder#setServiceName(java.lang.String)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.PublishConfig.Builder.setServiceName</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -570,11 +570,11 @@
         <Parameter Name="enable" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="enable">If true the terminate callback will be called when the publish is terminated. Otherwise it will not be called.</param>
-        <summary>Configure whether a publish terminate notification DiscoverySessionCallback.onSessionTerminated() is reported back to the callback.</summary>
+        <param name="enable">Whether to request discovery termination notifications from the Wi-Fi hardware.</param>
+        <summary>Configures termination notifications for a publish discovery session.</summary>
         <returns>The builder to facilitate chaining builder.setXXX(..).setXXX(..).</returns>
         <remarks>
-          <para>Configure whether a publish terminate notification DiscoverySessionCallback.onSessionTerminated() is reported back to the callback.</para>
+          <para>When enabled, termination notifications from the Wi-Fi hardware can invoke <see cref="M:Android.Net.Wifi.Aware.DiscoverySessionCallback.OnSessionTerminated" />. On Android 12 through Android 17, closing the discovery session can also invoke this callback when notifications are disabled.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/PublishConfig.Builder#setTerminateNotificationEnabled(boolean)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.PublishConfig.Builder.setTerminateNotificationEnabled</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -611,7 +611,7 @@
         <Parameter Name="ttlSec" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="ttlSec">Lifetime of a publish session in seconds. In the Android 8, 16, and 17 implementations, only the low 16 bits are sent to the Wi-Fi hardware; 65,536 becomes 0.</param>
+        <param name="ttlSec">Lifetime of a publish session in seconds. In Android 8 through Android 17, only the low 16 bits are sent to the Wi-Fi hardware; 65,536 becomes 0.</param>
         <summary>Sets the lifetime of a publish session in seconds.</summary>
         <returns>The builder to facilitate chaining builder.setXXX(..).setXXX(..).</returns>
         <remarks>

@@ -169,11 +169,11 @@
         <Parameter Name="uri" Type="Android.App.Job.JobInfo+TriggerContentUri" />
       </Parameters>
       <Docs>
-        <param name="uri">The content: URI to monitor. This value cannot be null.</param>
-        <summary>Add a new content: URI that will be monitored with a ContentObserver, and will cause the job to execute if changed.</summary>
+        <param name="uri">The trigger that describes the content URI to monitor. This value cannot be null.</param>
+        <summary>Adds a content URI to monitor for changes as a job constraint.</summary>
         <returns>This builder instance.</returns>
         <remarks>
-          <para>Add a new content: URI that will be monitored with a ContentObserver, and will cause the job to execute if changed. If you have any trigger content URIs associated with a job, it will not execute until there has been a change report for one or more of them.</para>
+          <para>Add a content URI to monitor with a ContentObserver. A change to a trigger URI can make the job eligible to run. If an override deadline is set, the job may also run after the deadline without a change report.</para>
           <para>Note that trigger URIs can not be used in combination with setPeriodic(long) or setPersisted(boolean). To continually monitor for content changes, you need to schedule a new JobInfo using the same job ID and observing the same URIs in place of calling JobService.jobFinished(JobParameters,boolean). Remember that JobScheduler.schedule(JobInfo) stops a running job if it uses the same job ID, so only call it after you've finished processing the most recent changes (in other words, call JobScheduler.schedule(JobInfo) where you would have normally called JobService.jobFinished(JobParameters,boolean). Following this pattern will ensure you do not lose any content changes: while your job is running, the system will continue monitoring for content changes, and propagate any changes it sees over to the next job you schedule, so you do not have to worry about missing new changes. Scheduling the new job before or during processing will cause the current job to be stopped (as described in JobScheduler.schedule(JobInfo)), meaning the wakelock will be released for the current job and your app process may be killed since it will no longer be in a valid component lifecycle. Since JobScheduler.schedule(JobInfo) stops the current job, you do not need to call JobService.jobFinished(JobParameters,boolean) if you call JobScheduler.schedule(JobInfo) using the same job ID as the currently running job.</para>
           <para>Because setting this property is not compatible with periodic or persisted jobs, doing so will throw an IllegalArgumentException when build() is called.</para>
           <para>The following example shows how this feature can be used to monitor for changes in the photos on a device.</para>
@@ -481,10 +481,10 @@ public class PhotosContentJob extends JobService {
       </Parameters>
       <Docs>
         <param name="tag">The tag to remove. This value cannot be null.</param>
-        <summary>Remove a tag set via addDebugTag(String).</summary>
+        <summary>Remove a tag set via <see cref="M:Android.App.Job.JobInfo.Builder.AddDebugTag(System.String)" />.</summary>
         <returns>This object for method chaining. This value cannot be null.</returns>
         <remarks>
-          <para>Remove a tag set via addDebugTag(String).</para>
+          <para>Remove a tag set via <see cref="M:Android.App.Job.JobInfo.Builder.AddDebugTag(System.String)" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#removeDebugTag(java.lang.String)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.removeDebugTag</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -571,7 +571,7 @@ public class PhotosContentJob extends JobService {
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="category">The category for this job, e.g., JobInfo.CATEGORY_APP_UPDATES. Value is one of the following: <see cref="F:Android.App.Job.JobInfoCategory.None" />; <see cref="F:Android.App.Job.JobInfoCategory.AppUpdates" /></param>
+        <param name="category">The category for this job, for example <see cref="F:Android.App.Job.JobInfoCategory.AppUpdates" />. Value is one of the following: <see cref="F:Android.App.Job.JobInfoCategory.None" />; <see cref="F:Android.App.Job.JobInfoCategory.AppUpdates" /></param>
         <summary>Sets the category for this job.</summary>
         <returns>This Builder object to allow for chaining of calls. This value cannot be null.</returns>
         <remarks>
@@ -618,14 +618,14 @@ public class PhotosContentJob extends JobService {
       </Parameters>
       <Docs>
         <param name="clip">The new clip to set. May be null to clear the current clip.</param>
-        <param name="grantFlags">The desired permissions to grant for any URIs. This should be a combination of Intent.FLAG_GRANT_READ_URI_PERMISSION, Intent.FLAG_GRANT_WRITE_URI_PERMISSION, and Intent.FLAG_GRANT_PREFIX_URI_PERMISSION.</param>
+        <param name="grantFlags">The desired permissions to grant for any URIs. This should be a combination of <see cref="F:Android.Content.ActivityFlags.GrantReadUriPermission" />, <see cref="F:Android.Content.ActivityFlags.GrantWriteUriPermission" />, and <see cref="F:Android.Content.ActivityFlags.GrantPrefixUriPermission" />.</param>
         <summary>Set a ClipData associated with this Job.</summary>
         <returns>This builder instance.</returns>
         <remarks>
           <para>Set a ClipData associated with this Job.</para>
           <para>The main purpose of providing a ClipData is to allow granting of URI permissions for data associated with the clip. The exact kind of permission grant to perform is specified through grantFlags.</para>
           <para>If the ClipData contains items that are Intents, any grant flags in those Intents will be ignored. Only flags provided as an argument to this method are respected, and will be applied to all Uri or Intent items in the clip (or sub-items of the clip).</para>
-          <para>Because setting this property is not compatible with persisted jobs, doing so will throw an IllegalArgumentException when build() is called.</para>
+          <para>For a persisted job, <see cref="M:Android.App.Job.JobInfo.Builder.Build" /> throws an IllegalArgumentException if non-null clip data is set.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setClipData(android.content.ClipData,%20int)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setClipData</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -668,10 +668,10 @@ public class PhotosContentJob extends JobService {
           <para>Apps are encouraged to provide values that are as accurate as possible, but when the exact size isn't available, an order-of-magnitude estimate can be provided instead. Here are some specific examples:</para>
           <para>A job that is backing up a photo knows the exact size of that photo, so it should provide that size as the estimate.</para>
           <para>A job that refreshes top news stories wouldn't know an exact size, but if the size is expected to be consistently around 100KB, it can provide that order-of-magnitude value as the estimate.</para>
-          <para>A job that synchronizes email could end up using an extreme range of data, from under 1KB when nothing has changed, to dozens of MB when there are new emails with attachments. Jobs that cannot provide reasonable estimates should use the sentinel value JobInfo.NETWORK_BYTES_UNKNOWN.</para>
-          <para>Note that the system may choose to delay jobs with large network usage estimates when the device has a poor network connection, in order to save battery and possible network costs. Starting from Android version Build.VERSION_CODES.S, JobScheduler may attempt to run large jobs when the device is charging and on an unmetered network, even if the network is slow. This gives large jobs an opportunity to make forward progress, even if they risk timing out.</para>
+          <para>A job that synchronizes email could end up using an extreme range of data, from under 1KB when nothing has changed, to dozens of MB when there are new emails with attachments. Jobs that cannot provide reasonable estimates should use the sentinel value <see cref="F:Android.App.Job.JobInfo.NetworkBytesUnknown" />.</para>
+          <para>Note that the system may choose to delay jobs with large network usage estimates when the device has a poor network connection, in order to save battery and possible network costs. Starting with Android 12, JobScheduler may attempt to run large jobs when the device is charging and on an unmetered network, even if the network is slow. This gives large jobs an opportunity to make forward progress, even if they risk timing out.</para>
           <para>The values provided here only reflect the traffic that will be performed by the base job; if you're using JobWorkItem then you also need to define the network traffic used by each work item when constructing them.</para>
-          <para>Prior to Android version Build.VERSION_CODES.TIRAMISU, JobScheduler used the estimated transfer numbers in a similar fashion to setMinimumNetworkChunkBytes(long) (to estimate if the work would complete within the time available to job). In other words, JobScheduler treated the transfer as all-or-nothing. Starting from Android version Build.VERSION_CODES.TIRAMISU, JobScheduler will only use the estimated transfer numbers in this manner if minimum chunk sizes have not been provided via setMinimumNetworkChunkBytes(long).</para>
+          <para>Before Android 13, JobScheduler used the estimated transfer numbers in a similar fashion to <see cref="M:Android.App.Job.JobInfo.Builder.SetMinimumNetworkChunkBytes(System.Int64)" /> (to estimate if the work would complete within the time available to the job). In other words, JobScheduler treated the transfer as all-or-nothing. Starting with Android 13, JobScheduler only uses the estimated transfer numbers in this manner if minimum chunk sizes have not been provided via <see cref="M:Android.App.Job.JobInfo.Builder.SetMinimumNetworkChunkBytes(System.Int64)" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setEstimatedNetworkBytes(long,%20long)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setEstimatedNetworkBytes</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -719,12 +719,12 @@ public class PhotosContentJob extends JobService {
           <para>Be less likely to be killed than regular jobs</para>
           <para>Be subject to background location throttling</para>
           <para>Be exempt from delay to optimize job execution</para>
-          <para>Expedited jobs are given JobInfo.PRIORITY_MAX by default.</para>
-          <para>Since these jobs have stronger guarantees than regular jobs, they will be subject to stricter quotas. As long as an app has available expedited quota, jobs scheduled with this set to true will run with these guarantees. If an app has run out of available expedited quota, any pending expedited jobs will run as regular jobs. JobParameters.isExpeditedJob() can be used to know whether the executing job has expedited guarantees or not. In addition, JobScheduler.schedule(JobInfo) will immediately return JobScheduler.RESULT_FAILURE if the app does not have available quota (and the job will not be successfully scheduled).</para>
+          <para>Starting with Android 13, expedited jobs are given <see cref="F:Android.App.Job.JobPriority.Max" /> priority by default.</para>
+          <para>Since these jobs have stronger guarantees than regular jobs, they will be subject to stricter quotas. As long as an app has available expedited quota, jobs scheduled with this set to true will run with these guarantees. If an app has run out of available expedited quota, any pending expedited jobs will run as regular jobs. <see cref="P:Android.App.Job.JobParameters.IsExpeditedJob" /> can be used to know whether the executing job has expedited guarantees or not. In addition, <see cref="M:Android.App.Job.JobScheduler.Schedule(Android.App.Job.JobInfo)" /> will immediately return <see cref="F:Android.App.Job.JobScheduler.ResultFailure" /> if the app does not have available quota (and the job will not be successfully scheduled).</para>
           <para>Expedited job quota will replenish over time and as the user interacts with the app, so you should not have to worry about running out of quota because of processing from frequent user engagement.</para>
           <para>Expedited jobs may only set network, storage-not-low, and persistence constraints. No other constraints are allowed.</para>
           <para>Assuming all constraints remain satisfied (including ideal system load conditions), expedited jobs can have an execution time of at least 1 minute. If your app has remaining expedited job quota, then the expedited job may potentially run longer until remaining quota is used up. Just like with regular jobs, quota is not consumed while the app is on top and visible to the user.</para>
-          <para>Note: Even though expedited jobs are meant to run as soon as possible, they may be deferred if the system is under heavy load or requested constraints are not satisfied. This delay may be true for expedited jobs of the foreground app on Android version Build.VERSION_CODES.S, but starting from Android version Build.VERSION_CODES.TIRAMISU, expedited jobs for the foreground app are guaranteed to be started before JobScheduler.schedule(JobInfo) returns (assuming all requested constraints are satisfied), similar to foreground services.</para>
+          <para>Note: Even though expedited jobs are meant to run as soon as possible, they may be deferred if the system is under heavy load or requested constraints are not satisfied. This delay may be true for expedited jobs of the foreground app on Android 12, but starting with Android 13, expedited jobs for the foreground app are guaranteed to be started before <see cref="M:Android.App.Job.JobScheduler.Schedule(Android.App.Job.JobInfo)" /> returns (assuming all requested constraints are satisfied), similar to foreground services.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setExpedited(boolean)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setExpedited</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -767,7 +767,7 @@ public class PhotosContentJob extends JobService {
         <summary>Set optional extras.</summary>
         <returns>This builder instance.</returns>
         <remarks>
-          <para>Set optional extras. This is persisted, so we only allow primitive types.</para>
+          <para>Set optional extras. The extras use the types supported by <see cref="T:Android.OS.PersistableBundle" /> and are persisted with a persisted job.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setExtras(android.os.PersistableBundle)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setExtras</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -804,14 +804,14 @@ public class PhotosContentJob extends JobService {
         <Parameter Name="importantWhileForeground" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="importantWhileForeground">whether to relax doze restrictions for this job when the app is in the foreground. False by default.</param>
-        <summary>Setting this to true indicates that this job is important while the scheduling app is in the foreground or on the temporary allowlist for background restrictions.</summary>
+        <param name="importantWhileForeground">Whether to request relaxed doze restrictions for this job when the app is in the foreground. The default is false. This flag is ignored on Android 16 and later.</param>
+        <summary>Requests that the job be treated as important while the scheduling app is in the foreground or on the temporary allowlist for background restrictions. This flag is ignored on Android 16 and later.</summary>
         <returns>This builder instance, including on Android 16 and later where the flag has no effect.</returns>
         <remarks>
-          <para>This method was deprecated in API level 31. Use setExpedited(boolean) instead.</para>
-          <para>Setting this to true indicates that this job is important while the scheduling app is in the foreground or on the temporary allowlist for background restrictions. This means that the system will relax doze restrictions on this job during this time. Apps should use this flag only for short jobs that are essential for the app to function properly in the foreground. Note that once the scheduling app is no longer allowlisted from background restrictions and in the background, or the job failed due to unsatisfied constraints, this job should be expected to behave like other jobs without this flag.</para>
-          <para>Jobs marked as important-while-foreground are given JobInfo.PRIORITY_HIGH by default.</para>
-          <para>Note: Beginning with Build.VERSION_CODES.BAKLAVA, this flag will be ignored and no longer function effectively, regardless of the calling app's target SDK version. JobInfo.isImportantWhileForeground() will always return false. Apps should use <c>setExpedited(boolean)</c> with true to indicate that this job is important and needs to run as soon as possible.</para>
+          <para>This method was deprecated in API level 31. Use <see cref="M:Android.App.Job.JobInfo.Builder.SetExpedited(System.Boolean)" /> instead.</para>
+          <para>On Android 9 through Android 15, setting this to true indicates that this job is important while the scheduling app is in the foreground or on the temporary allowlist for background restrictions. This means that the system will relax doze restrictions on this job during this time. Apps should use this flag only for short jobs that are essential for the app to function properly in the foreground. Note that once the scheduling app is no longer allowlisted from background restrictions and in the background, or the job failed due to unsatisfied constraints, this job should be expected to behave like other jobs without this flag.</para>
+          <para>On Android 13 through Android 15, jobs marked as important-while-foreground are given <see cref="F:Android.App.Job.JobPriority.High" /> priority by default.</para>
+          <para>Beginning with Android 16, this flag is ignored regardless of the calling app's target SDK version. <see cref="P:Android.App.Job.JobInfo.IsImportantWhileForeground" /> always returns false. Apps should use <see cref="M:Android.App.Job.JobInfo.Builder.SetExpedited(System.Boolean)" /> with true to indicate that this job is important and needs to run as soon as possible.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setImportantWhileForeground(boolean)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setImportantWhileForeground</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -840,12 +840,12 @@ public class PhotosContentJob extends JobService {
         <Parameter Name="minLatencyMillis" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="minLatencyMillis">Milliseconds before which this job will not be considered for execution.</param>
-        <summary>Specify that this job should be delayed by the provided amount of time.</summary>
+        <param name="minLatencyMillis">The minimum delay in milliseconds, unless an override deadline expires first.</param>
+        <summary>Set the minimum delay before the job is eligible to run.</summary>
         <returns>This builder instance.</returns>
         <remarks>
-          <para>Specify that this job should be delayed by the provided amount of time. The job may not run the instant the delay has elapsed. JobScheduler will start the job at an indeterminate time after the delay has elapsed.</para>
-          <para>Because it doesn't make sense setting this property on a periodic job, doing so will throw an IllegalArgumentException when build() is called. Negative latencies also don't make sense for a job and are indicative of an error, so starting in Android version Build.VERSION_CODES.VANILLA_ICE_CREAM, setting a negative latency will result in build() throwing an IllegalArgumentException.</para>
+          <para>The job normally cannot run before the delay has elapsed and may run later. An expired <see cref="M:Android.App.Job.JobInfo.Builder.SetOverrideDeadline(System.Int64)" /> can allow it to run before the delay has elapsed.</para>
+          <para>A periodic job with a nonzero minimum latency causes <see cref="M:Android.App.Job.JobInfo.Builder.Build" /> to throw an exception. On Android 15 and later, for apps targeting Android 15 or later, a negative latency also causes <see cref="M:Android.App.Job.JobInfo.Builder.Build" /> to throw an exception.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setMinimumLatency(long)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setMinimumLatency</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -886,8 +886,8 @@ public class PhotosContentJob extends JobService {
         <summary>Set the minimum size of non-resumable network traffic this job requires, in bytes.</summary>
         <returns>This builder instance.</returns>
         <remarks>
-          <para>Set the minimum size of non-resumable network traffic this job requires, in bytes. When the upload or download can be easily paused and resumed, use this to set the smallest size that must be transmitted between start and stop events to be considered successful. If the transfer cannot be paused and resumed, then this should be the sum of the values provided to JobInfo.Builder.setEstimatedNetworkBytes(long,long).</para>
-          <para>Apps are encouraged to provide values that are as accurate as possible since JobScheduler will try to run the job at a time when at least the minimum chunk can be transmitted to reduce the amount of repetitive data that's transferred. Jobs that cannot provide reasonable estimates should use the sentinel value JobInfo.NETWORK_BYTES_UNKNOWN.</para>
+          <para>Set the minimum size of non-resumable network traffic this job requires, in bytes. When the upload or download can be easily paused and resumed, use this to set the smallest size that must be transmitted between start and stop events to be considered successful. If the transfer cannot be paused and resumed, then this should be the sum of the values provided to <see cref="M:Android.App.Job.JobInfo.Builder.SetEstimatedNetworkBytes(System.Int64,System.Int64)" />.</para>
+          <para>Apps are encouraged to provide values that are as accurate as possible since JobScheduler will try to run the job at a time when at least the minimum chunk can be transmitted to reduce the amount of repetitive data that's transferred. Jobs that cannot provide reasonable estimates should use the sentinel value <see cref="F:Android.App.Job.JobInfo.NetworkBytesUnknown" />.</para>
           <para>The values provided here only reflect the minimum non-resumable traffic that will be performed by the base job; if you're using JobWorkItem then you also need to define the network traffic used by each work item when constructing them.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setMinimumNetworkChunkBytes(long)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setMinimumNetworkChunkBytes</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -921,10 +921,10 @@ public class PhotosContentJob extends JobService {
         <summary>Set a deadline after which all other functional requested constraints will be ignored.</summary>
         <returns>This builder instance.</returns>
         <remarks>
-          <para>Set a deadline after which all other functional requested constraints will be ignored. After the deadline has passed, the job can run even if other requirements (including a delay set through setMinimumLatency(long)) are not met. JobParameters.isOverrideDeadlineExpired() will return true if the job's deadline has passed. The job's execution may be delayed beyond the set deadline by other factors such as Doze mode and system health signals.</para>
-          <para>Because it doesn't make sense setting this property on a periodic job, doing so will throw an IllegalArgumentException when build() is called.</para>
-          <para>Negative deadlines also don't make sense for a job and are indicative of an error, so starting in Android version Build.VERSION_CODES.VANILLA_ICE_CREAM, setting a negative deadline will result in build() throwing an IllegalArgumentException.</para>
-          <para>Since a job will run once the deadline has passed regardless of the status of other constraints, setting a deadline of 0 (or a delay equal to the deadline) with other constraints makes those constraints meaningless when it comes to execution decisions. Since doing so is indicative of an error in the logic, starting in Android version Build.VERSION_CODES.VANILLA_ICE_CREAM, jobs with extremely short time windows will fail to build. Time windows are defined as the time between a job's minimum latency and its deadline. If the minimum latency is not set, it is assumed to be 0. Work that must happen immediately should use setExpedited(boolean) or setUserInitiated(boolean) in the appropriate manner.</para>
+          <para>After the deadline has passed, the job can run even if other functional requirements, including a delay set through <see cref="M:Android.App.Job.JobInfo.Builder.SetMinimumLatency(System.Int64)" />, are not met. <see cref="P:Android.App.Job.JobParameters.IsOverrideDeadlineExpired" /> indicates whether the deadline has passed. Other factors, such as Doze mode and system health, can delay execution beyond the deadline.</para>
+          <para>A periodic job with a nonzero override deadline causes <see cref="M:Android.App.Job.JobInfo.Builder.Build" /> to throw an exception.</para>
+          <para>On Android 15 and later, for apps targeting Android 15 or later, a negative deadline causes <see cref="M:Android.App.Job.JobInfo.Builder.Build" /> to throw an exception.</para>
+          <para>A deadline of zero, or one equal to the minimum latency, can make other functional constraints ineffective. The time window is the time between the minimum latency and the deadline; the minimum latency is zero if it is not set. On Android 15 and later, for apps targeting Android 15 or later, a short window with functional constraints can cause <see cref="M:Android.App.Job.JobInfo.Builder.Build" /> to throw an exception when the platform enforces a minimum window. For work that must happen immediately, consider <see cref="M:Android.App.Job.JobInfo.Builder.SetExpedited(System.Boolean)" /> or <see cref="M:Android.App.Job.JobInfo.Builder.SetUserInitiated(System.Boolean)" />.</para>
           <para>This API aimed to guarantee execution of the job by the deadline only on Android version Build.VERSION_CODES.LOLLIPOP. That aim and guarantee has not existed since Build.VERSION_CODES.M.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setOverrideDeadline(long)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setOverrideDeadline</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -955,10 +955,10 @@ public class PhotosContentJob extends JobService {
       </Parameters>
       <Docs>
         <param name="intervalMillis">Millisecond interval for which this job will repeat.</param>
-        <summary>Specify that this job should recur with the provided interval, not more than once per period.</summary>
+        <summary>Schedule this job to recur at the specified interval.</summary>
         <returns>This builder instance.</returns>
         <remarks>
-          <para>Specify that this job should recur with the provided interval, not more than once per period. You have no control over when within this interval this job will be executed, only the guarantee that it will be executed at most once within this interval, as long as the constraints are satisfied. If the constraints are not satisfied within this interval, the job will wait until the constraints are satisfied. Setting this function on the builder with setMinimumLatency(long) or setOverrideDeadline(long) will result in an error.</para>
+          <para>The scheduler chooses when the job runs. If the constraints are not satisfied within the interval, the job waits until they are satisfied. A failed run can be retried within the interval. A nonzero minimum latency or override deadline on a periodic job causes <see cref="M:Android.App.Job.JobInfo.Builder.Build" /> to throw an exception.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setPeriodic(long)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setPeriodic</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -992,8 +992,8 @@ public class PhotosContentJob extends JobService {
         <Parameter Name="flexMillis" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="intervalMillis">Millisecond interval for which this job will repeat. A minimum value of JobInfo.getMinPeriodMillis() is enforced.</param>
-        <param name="flexMillis">Millisecond flex for this job. Flex is clamped to be at least JobInfo.getMinFlexMillis() or 5 percent of the period, whichever is higher.</param>
+        <param name="intervalMillis">Millisecond interval for which this job will repeat. A minimum value of <see cref="P:Android.App.Job.JobInfo.MinPeriodMillis" /> is enforced.</param>
+        <param name="flexMillis">Millisecond flex for this job. Flex is clamped to be at least <see cref="P:Android.App.Job.JobInfo.MinFlexMillis" /> or 5 percent of the period, whichever is higher.</param>
         <summary>Specify that this job should recur with the provided interval and flex.</summary>
         <returns>This builder instance.</returns>
         <remarks>
@@ -1068,8 +1068,8 @@ public class PhotosContentJob extends JobService {
         <returns>This builder instance.</returns>
         <remarks>
           <para>Setting this to true indicates that this job is designed to prefetch content that will make a material improvement to the experience of the specific user of this device. For example, fetching top headlines of interest to the current user.</para>
-          <para>Apps targeting Android version Build.VERSION_CODES.TIRAMISU or later are not allowed to have deadlines (set via setOverrideDeadline(long)) on their prefetch jobs.</para>
-          <para>The system may use this signal to relax the network constraints you originally requested, such as allowing a JobInfo.NETWORK_TYPE_UNMETERED job to run over a metered network when there is a surplus of metered data available. The system may also use this signal in combination with end user usage patterns to ensure data is prefetched before the user launches your app.</para>
+          <para>On Android 13 and later, apps targeting Android 13 or later cannot set a nonzero override deadline on a prefetch job.</para>
+          <para>The system may use this signal to relax the network constraints you originally requested, such as allowing a <see cref="F:Android.App.Job.NetworkType.Unmetered" /> job to run over a metered network when there is a surplus of metered data available. The system may also use this signal in combination with end user usage patterns to ensure data is prefetched before the user launches your app.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setPrefetch(boolean)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setPrefetch</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1106,11 +1106,11 @@ public class PhotosContentJob extends JobService {
         <Parameter Name="priority" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="priority">Value is one of the following: JobInfo.PRIORITY_MIN; JobInfo.PRIORITY_LOW; JobInfo.PRIORITY_DEFAULT; JobInfo.PRIORITY_HIGH; JobInfo.PRIORITY_MAX</param>
+        <param name="priority">The integer value of <see cref="F:Android.App.Job.JobPriority.Min" />, <see cref="F:Android.App.Job.JobPriority.Low" />, <see cref="F:Android.App.Job.JobPriority.Default" />, <see cref="F:Android.App.Job.JobPriority.High" />, or <see cref="F:Android.App.Job.JobPriority.Max" />. Cast the enum value to <see langword="int" />.</param>
         <summary>Indicate the priority for this job.</summary>
         <returns>This builder instance.</returns>
         <remarks>
-          <para>Indicate the priority for this job. The priority set here will be used to sort jobs for the calling app and apply slightly different policies based on the priority. The priority will NOT be used as a global sorting value to sort between different app's jobs. Use this to inform the system about which jobs it should try to run before other jobs. Giving the same priority to all of your jobs will result in them all being treated the same. The priorities each have slightly different behaviors, as noted in their relevant javadoc. Starting in Android version Build.VERSION_CODES.UPSIDE_DOWN_CAKE, the priority will only affect sorting order within the job's namespace. NOTE: Setting all of your jobs to high priority will not be beneficial to your app and in fact may hurt its performance in the long run. In order to prevent starvation, repeatedly retried jobs (because of failures) will slowly have their priorities lowered.</para>
+          <para>Indicate the priority for this job. The priority set here will be used to sort jobs for the calling app and apply slightly different policies based on the priority. The priority will NOT be used as a global sorting value to sort between different app's jobs. Use this to inform the system about which jobs it should try to run before other jobs. Giving the same priority to all of your jobs will result in them all being treated the same. The priorities each have slightly different behaviors, as noted in their relevant javadoc. Starting in Android version Build.VERSION_CODES.UPSIDE_DOWN_CAKE, the priority will only affect sorting order within the job's namespace. NOTE: Setting all of your jobs to high priority will not be beneficial to your app and in fact may hurt its performance in the long run. Repeated failures can lower a job's effective priority. Jobs treated as user-initiated are exempt, and expedited jobs are not reduced below high priority.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setPriority(int)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setPriority</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1149,8 +1149,8 @@ public class PhotosContentJob extends JobService {
         <remarks>
           <para>Set detailed description of the kind of network your job requires.</para>
           <para>If your job doesn't need a network connection, you don't need to call this method, as the default is null.</para>
-          <para>Calling this method defines network as a strict requirement for your job. If the network requested is not available your job will never run. See setOverrideDeadline(long) to change this behavior. Calling this method will override any requirements previously defined by setRequiredNetworkType(int); you typically only want to call one of these methods.</para>
-          <para>When your job executes in JobService.onStartJob(JobParameters), be sure to use the specific network returned by JobParameters.getNetwork(), otherwise you'll use the default network which may not meet this constraint. Starting in Android version Build.VERSION_CODES.UPSIDE_DOWN_CAKE, an app must hold the Manifest.permission.ACCESS_NETWORK_STATE permission to schedule a job that requires a network.</para>
+          <para>A non-null request adds a network constraint; null clears it. The scheduler normally waits for a matching network, but an expired <see cref="M:Android.App.Job.JobInfo.Builder.SetOverrideDeadline(System.Int64)" /> can allow the job to run without one. This method replaces any requirement previously set by <see cref="M:Android.App.Job.JobInfo.Builder.SetRequiredNetworkType(Android.App.Job.NetworkType)" />.</para>
+          <para>When the job runs, use the network in <see cref="P:Android.App.Job.JobParameters.Network" />; the default network may not meet the constraint. The property can be null if no network is available. On Android 14 and later, apps targeting Android 14 or later must hold the ACCESS_NETWORK_STATE permission to schedule a job that requires a network.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setRequiredNetwork(android.net.NetworkRequest)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setRequiredNetwork</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1186,15 +1186,14 @@ public class PhotosContentJob extends JobService {
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="networkType">Value is one of the following: <see cref="F:Android.App.Job.NetworkType.None" />; <see cref="F:Android.App.Job.NetworkType.Any" />; <see cref="F:Android.App.Job.NetworkType.Unmetered" />; <see cref="F:Android.App.Job.NetworkType.NotRoaming" />; <see cref="F:Android.App.Job.NetworkType.Cellular" /></param>
+        <param name="networkType">The kind of network required. See <see cref="T:Android.App.Job.NetworkType" /> for the values and their Android version support. On Android 8.0 and 8.1, <see cref="F:Android.App.Job.NetworkType.Metered" /> requires a metered network. On Android 9 through 17, it is an alias for <see cref="F:Android.App.Job.NetworkType.Cellular" />.</param>
         <summary>Set basic description of the kind of network your job requires.</summary>
         <returns>This builder instance.</returns>
         <remarks>
-          <para>Set basic description of the kind of network your job requires. If you need more precise control over network capabilities, see setRequiredNetwork(NetworkRequest).</para>
-          <para>If your job doesn't need a network connection, you don't need to call this method, as the default value is JobInfo.NETWORK_TYPE_NONE.</para>
-          <para>Calling this method defines network as a strict requirement for your job. If the network requested is not available your job will never run. See setOverrideDeadline(long) to change this behavior. Calling this method will override any requirements previously defined by setRequiredNetwork(NetworkRequest); you typically only want to call one of these methods. Starting in Android version Build.VERSION_CODES.UPSIDE_DOWN_CAKE, an app must hold the Manifest.permission.ACCESS_NETWORK_STATE permission to schedule a job that requires a network.</para>
-          <para>Starting in Android version Build.VERSION_CODES.UPSIDE_DOWN_CAKE, JobScheduler may try to shift the execution of jobs requiring JobInfo.NETWORK_TYPE_ANY to when there is access to an un-metered network.</para>
-          <para>When your job executes in JobService.onStartJob(JobParameters), be sure to use the specific network returned by JobParameters.getNetwork(), otherwise you'll use the default network which may not meet this constraint.</para>
+          <para>Set a basic description of the kind of network your job requires. For more precise control over network capabilities, see <see cref="M:Android.App.Job.JobInfo.Builder.SetRequiredNetwork(Android.Net.NetworkRequest)" />.</para>
+          <para>The default is <see cref="F:Android.App.Job.NetworkType.None" />, which clears the network constraint. Other values add a network constraint. The scheduler normally waits for a matching network, but an expired <see cref="M:Android.App.Job.JobInfo.Builder.SetOverrideDeadline(System.Int64)" /> can allow the job to run without one. This method replaces any requirement previously set by <see cref="M:Android.App.Job.JobInfo.Builder.SetRequiredNetwork(Android.Net.NetworkRequest)" />.</para>
+          <para>On Android 14 and later, apps targeting Android 14 or later must hold the ACCESS_NETWORK_STATE permission to schedule a job that requires a network. The scheduler may try to shift jobs requiring <see cref="F:Android.App.Job.NetworkType.Any" /> to a time when an unmetered network is available.</para>
+          <para>When the job runs, use the network in <see cref="P:Android.App.Job.JobParameters.Network" />; the default network may not meet the constraint. The property can be null if no network is available.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setRequiredNetworkType(int)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setRequiredNetworkType</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1231,7 +1230,7 @@ public class PhotosContentJob extends JobService {
         <summary>Specify that to run this job, the device's battery level must not be low.</summary>
         <returns>This builder instance.</returns>
         <remarks>
-          <para>Specify that to run this job, the device's battery level must not be low. This defaults to false. If true, the job will only run when the battery level is not low, which is generally the point where the user is given a "low battery" warning. Setting this to false DOES NOT mean the job will only run when the battery is low.</para>
+          <para>Specify that to run this job, the device's battery level must not be low. This defaults to false. If true, the job normally waits until the battery level is not low, which is generally the point where the user is given a "low battery" warning. Setting this to false does not mean the job will only run when the battery is low. An expired <see cref="M:Android.App.Job.JobInfo.Builder.SetOverrideDeadline(System.Int64)" /> can allow the job to run when this constraint is not met.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setRequiresBatteryNotLow(boolean)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setRequiresBatteryNotLow</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1265,7 +1264,7 @@ public class PhotosContentJob extends JobService {
         <returns>This builder instance.</returns>
         <remarks>
           <para>Specify that to run this job, the device must be charging (or be a non-battery-powered device connected to permanent power, such as Android TV devices). This defaults to false. Setting this to false DOES NOT mean the job will only run when the device is not charging.</para>
-          <para>For purposes of running jobs, a battery-powered device "charging" is not quite the same as simply being connected to power. If the device is so busy that the battery is draining despite a power connection, jobs with this constraint will not run. This can happen during some common use cases such as video chat, particularly if the device is plugged in to USB rather than to wall power.</para>
+          <para>For purposes of running jobs, a battery-powered device "charging" is not quite the same as simply being connected to power. If the device is so busy that the battery is draining despite a power connection, jobs with this constraint normally wait. This can happen during some common use cases such as video chat, particularly if the device is plugged in to USB rather than to wall power. An expired <see cref="M:Android.App.Job.JobInfo.Builder.SetOverrideDeadline(System.Int64)" /> can allow the job to run when this constraint is not met.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setRequiresCharging(boolean)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setRequiresCharging</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1294,13 +1293,13 @@ public class PhotosContentJob extends JobService {
         <Parameter Name="requiresDeviceIdle" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="requiresDeviceIdle">Pass true to prevent the job from running while the device is being used interactively.</param>
-        <summary>When set true, ensure that this job will not run if the device is in active use.</summary>
+        <param name="requiresDeviceIdle">Pass true to request that the job wait until the device is idle.</param>
+        <summary>Set whether the job requires the device to be idle.</summary>
         <returns>This builder instance.</returns>
         <remarks>
-          <para>When set true, ensure that this job will not run if the device is in active use. The default state is false: that is, the job can run even when someone is interacting with the device. Setting this to false DOES NOT mean the job will only run when the device is not idle.</para>
+          <para>When set true, the job normally waits while the device is in active use. The default state is false: that is, the job can run even when someone is interacting with the device. Setting this to false does not mean the job will only run when the device is not idle. An expired <see cref="M:Android.App.Job.JobInfo.Builder.SetOverrideDeadline(System.Int64)" /> can allow the job to run when this constraint is not met.</para>
           <para>This state is a loose definition provided by the system. In general, it means that the device is not currently being used interactively, and has not been in use for some time. As such, it is a good time to perform resource heavy jobs. Bear in mind that battery usage will still be attributed to your application, and surfaced to the user in battery stats.</para>
-          <para>Despite the similar naming, this job constraint is not related to the system's "device idle" or "doze" states. This constraint only determines whether a job is allowed to run while the device is directly in use.</para>
+          <para>Despite the similar naming, this job constraint is not related to the system's "device idle" or "doze" states.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setRequiresDeviceIdle(boolean)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setRequiresDeviceIdle</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1337,7 +1336,7 @@ public class PhotosContentJob extends JobService {
         <summary>Specify that to run this job, the device's available storage must not be low.</summary>
         <returns>This builder instance.</returns>
         <remarks>
-          <para>Specify that to run this job, the device's available storage must not be low. This defaults to false. If true, the job will only run when the device is not in a low storage state, which is generally the point where the user is given a "low storage" warning.</para>
+          <para>Specify that to run this job, the device's available storage must not be low. This defaults to false. If true, the job normally waits until storage is not low, which is generally the point where the user is given a "low storage" warning. An expired <see cref="M:Android.App.Job.JobInfo.Builder.SetOverrideDeadline(System.Int64)" /> can allow the job to run when this constraint is not met.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setRequiresStorageNotLow(boolean)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setRequiresStorageNotLow</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1385,7 +1384,7 @@ public class PhotosContentJob extends JobService {
         <summary>Set a tag that will be used in traces.</summary>
         <returns>This object for method chaining. This value cannot be null.</returns>
         <remarks>
-          <para>Set a tag that will be used in traces. Since this is a trace tag, it must follow the rules set in android.os.Trace.beginSection(String), such as it cannot be more than 127 Unicode code units. Additionally, since leading and trailing whitespace can lead to hard-to-debug issues, they will be trimmed. An empty String (after trimming) is not allowed.</para>
+          <para>Set a tag that will be used in traces. Since this is a trace tag, it must follow the rules set in <see cref="M:Android.OS.Trace.BeginSection(System.String)" />, such as it cannot be more than 127 Unicode code units. Additionally, since leading and trailing whitespace can lead to hard-to-debug issues, they will be trimmed. An empty string (after trimming) is not allowed.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setTraceTag(java.lang.String)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setTraceTag</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1433,7 +1432,7 @@ public class PhotosContentJob extends JobService {
         <returns>This builder instance.</returns>
         <remarks>
           <para>Set optional transient extras.</para>
-          <para>Because setting this property is not compatible with persisted jobs, doing so will throw an IllegalArgumentException when build() is called.</para>
+          <para>A persisted job cannot have nonempty transient extras. In that case, <see cref="M:Android.App.Job.JobInfo.Builder.Build" /> throws an exception. An empty bundle is allowed.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setTransientExtras(android.os.Bundle)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setTransientExtras</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1466,11 +1465,11 @@ public class PhotosContentJob extends JobService {
         <Parameter Name="durationMs" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="durationMs">Delay after initial content change, in milliseconds.</param>
-        <summary>Set the maximum total delay (in milliseconds) that is allowed from the first time a content change is detected until the job is scheduled.</summary>
+        <param name="durationMs">The requested maximum delay after the first content change, in milliseconds. A negative value selects the default.</param>
+        <summary>Set the maximum delay used to batch content changes.</summary>
         <returns>This builder instance.</returns>
         <remarks>
-          <para>Set the maximum total delay (in milliseconds) that is allowed from the first time a content change is detected until the job is scheduled.</para>
+          <para>Set the maximum delay used to batch content changes after the first change. The platform applies a minimum delay. When the trigger is satisfied, other job constraints can still delay execution.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setTriggerContentMaxDelay(long)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setTriggerContentMaxDelay</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1503,11 +1502,11 @@ public class PhotosContentJob extends JobService {
         <Parameter Name="durationMs" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="durationMs">Delay after most recent content change, in milliseconds.</param>
-        <summary>Set the delay (in milliseconds) from when a content change is detected until the job is scheduled.</summary>
+        <param name="durationMs">The requested delay after the most recent content change, in milliseconds. A negative value selects the default.</param>
+        <summary>Set the delay used to batch content changes.</summary>
         <returns>This builder instance.</returns>
         <remarks>
-          <para>Set the delay (in milliseconds) from when a content change is detected until the job is scheduled. If there are more changes during that time, the delay will be reset to start at the time of the most recent change.</para>
+          <para>The delay is reset when another change is detected. The platform applies a minimum delay, and the maximum batching delay or a large number of changes can cause the content trigger to be satisfied sooner. Other job constraints can still delay execution.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setTriggerContentUpdateDelay(long)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setTriggerContentUpdateDelay</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1552,8 +1551,8 @@ public class PhotosContentJob extends JobService {
           <para>This should NOT be used for automatic features.</para>
           <para>All user-initiated jobs must have an associated notification, set via JobService.setNotification(JobParameters,int,Notification,int), and will be shown in the Task Manager when running. These jobs cannot be rescheduled by the app if the user stops the job via system provided affordance (such as the Task Manager). Thus, it is best practice and recommended to provide action buttons in the associated notification to allow the user to stop the job gracefully and allow for rescheduling.</para>
           <para>If the app doesn't hold the Manifest.permission.RUN_USER_INITIATED_JOBS permission when scheduling a user-initiated job, JobScheduler will throw a SecurityException.</para>
-          <para>In Build.VERSION_CODES.UPSIDE_DOWN_CAKE, user-initiated jobs can only be used for network data transfers. As such, they must specify a required network via setRequiredNetwork(NetworkRequest) or setRequiredNetworkType(int).</para>
-          <para>These jobs will not be subject to quotas and will be started immediately once scheduled if all constraints are met and the device system health allows for additional tasks. They are also given JobInfo.PRIORITY_MAX by default, and the priority cannot be changed. Requires Manifest.permission.RUN_USER_INITIATED_JOBS</para>
+          <para>Starting with Android 14, user-initiated jobs must specify a required network for their data transfers, using <see cref="M:Android.App.Job.JobInfo.Builder.SetRequiredNetwork(Android.Net.NetworkRequest)" /> or <see cref="M:Android.App.Job.JobInfo.Builder.SetRequiredNetworkType(Android.App.Job.NetworkType)" />.</para>
+          <para>These jobs are not subject to ordinary job quotas, and the scheduler tries to start them when their constraints and system health permit. They are given <see cref="F:Android.App.Job.JobPriority.Max" /> priority by default, and the priority cannot be changed. Scheduling requires the RUN_USER_INITIATED_JOBS permission.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setUserInitiated(boolean)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setUserInitiated</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

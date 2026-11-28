@@ -283,19 +283,13 @@
       <Docs>
         <summary>Broadcast Action: Wired Headset plugged in or unplugged.</summary>
         <remarks>
-          <para>Broadcast Action: Wired Headset plugged in or unplugged.
-
-            You <i>cannot</i> receive this through components declared
-            in manifests, only by explicitly registering for it with
-            <c>Context#registerReceiver(BroadcastReceiver, IntentFilter)
-            Context.registerReceiver()</c>.</para>
-          <para>The intent will have the following extra values:
-            &lt;ul&gt;
-              &lt;li&gt;&lt;em&gt;state&lt;/em&gt; - 0 for unplugged, 1 for plugged. &lt;/li&gt;
-              &lt;li&gt;&lt;em&gt;name&lt;/em&gt; - Headset type, human readable string &lt;/li&gt;
-              &lt;li&gt;&lt;em&gt;microphone&lt;/em&gt; - 1 if headset has a microphone, 0 otherwise &lt;/li&gt;
-            &lt;/ul&gt;
-            &lt;/ul&gt;</para>
+          <para>Broadcast action for a wired headset being plugged in or unplugged. A manifest-declared receiver cannot receive this broadcast; register a receiver explicitly with <see cref="M:Android.Content.Context.RegisterReceiver(Android.Content.BroadcastReceiver,Android.Content.IntentFilter)" />.</para>
+          <para>The intent contains these extra values:</para>
+          <list type="bullet">
+            <item><term><c>state</c>: 0 for unplugged, 1 for plugged in.</term></item>
+            <item><term><c>name</c>: a human-readable headset type.</term></item>
+            <item><term><c>microphone</c>: 1 if the headset has a microphone, 0 otherwise.</term></item>
+          </list>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/AudioManager#ACTION_HEADSET_PLUG" title="Reference documentation">Java documentation for <code>android.media.AudioManager.ACTION_HEADSET_PLUG</code>.</a>
@@ -335,14 +329,8 @@
       <Docs>
         <summary>Broadcast Action: microphone muting state changed.</summary>
         <remarks>
-          <para>Broadcast Action: microphone muting state changed.
-
-            You <i>cannot</i> receive this through components declared
-            in manifests, only by explicitly registering for it with
-            <c>Context#registerReceiver(BroadcastReceiver, IntentFilter)
-            Context.registerReceiver()</c>.</para>
-          <para>The intent has no extra values, use <c>#isMicrophoneMute</c> to check whether the
-            microphone is muted.</para>
+          <para>Broadcast action for a microphone mute-state change. A manifest-declared receiver cannot receive this broadcast; register a receiver explicitly with <see cref="M:Android.Content.Context.RegisterReceiver(Android.Content.BroadcastReceiver,Android.Content.IntentFilter)" />.</para>
+          <para>The intent has no extra values. Use <see cref="P:Android.Media.AudioManager.MicrophoneMute" /> to check whether the microphone is muted.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/AudioManager#ACTION_MICROPHONE_MUTE_CHANGED" title="Reference documentation">Java documentation for <code>android.media.AudioManager.ACTION_MICROPHONE_MUTE_CHANGED</code>.</a>
@@ -488,14 +476,8 @@
       <Docs>
         <summary>Broadcast Action: speakerphone state changed.</summary>
         <remarks>
-          <para>Broadcast Action: speakerphone state changed.
-
-            You <i>cannot</i> receive this through components declared
-            in manifests, only by explicitly registering for it with
-            <c>Context#registerReceiver(BroadcastReceiver, IntentFilter)
-            Context.registerReceiver()</c>.</para>
-          <para>The intent has no extra values, use <c>#isSpeakerphoneOn</c> to check whether the
-            speakerphone functionality is enabled or not.</para>
+          <para>Broadcast action for a speakerphone-state change. A manifest-declared receiver cannot receive this broadcast; register a receiver explicitly with <see cref="M:Android.Content.Context.RegisterReceiver(Android.Content.BroadcastReceiver,Android.Content.IntentFilter)" />.</para>
+          <para>The intent has no extra values. Use <see cref="P:Android.Media.AudioManager.SpeakerphoneOn" /> to check whether speakerphone functionality is enabled.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/AudioManager#ACTION_SPEAKERPHONE_STATE_CHANGED" title="Reference documentation">Java documentation for <code>android.media.AudioManager.ACTION_SPEAKERPHONE_STATE_CHANGED</code>.</a>
@@ -621,7 +603,7 @@
         <Parameter Name="listener" Type="Android.Media.AudioManager+IOnCommunicationDeviceChangedListener" />
       </Parameters>
       <Docs>
-        <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="executor">The non-null executor that dispatches listener events. Use <see cref="P:Android.Content.Context.MainExecutor" /> to dispatch them on the application's main thread.</param>
         <param name="listener">The listener to register for communication-device change notifications.</param>
         <summary>Adds a listener for being notified of changes to the communication audio device.</summary>
         <remarks>
@@ -666,7 +648,7 @@
         <Parameter Name="listener" Type="Android.Media.AudioManager+IOnModeChangedListener" />
       </Parameters>
       <Docs>
-        <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="executor">The non-null executor that dispatches listener events. Use <see cref="P:Android.Content.Context.MainExecutor" /> to dispatch them on the application's main thread.</param>
         <param name="listener">The listener to register for audio-mode change notifications.</param>
         <summary>Adds a listener to be notified of changes to the audio mode.</summary>
         <remarks>
@@ -711,7 +693,7 @@
         <Parameter Name="listener" Type="Android.Media.AudioManager+IOnPreferredMixerAttributesChangedListener" />
       </Parameters>
       <Docs>
-        <param name="executor">the executor to execute the callback. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="executor">The non-null executor that dispatches listener events. Use <see cref="P:Android.Content.Context.MainExecutor" /> to dispatch them on the application's main thread.</param>
         <param name="listener">the listener to be notified of changes in the preferred mixer attributes. This value cannot be null.</param>
         <summary>Adds a listener for being notified of changes to the preferred mixer attributes.</summary>
         <remarks>
@@ -1828,7 +1810,7 @@
         <returns>true if the calling app can manage assistant audio, false otherwise.</returns>
         <remarks>
           <para>Checks if the calling app can manage assistant audio.</para>
-          <para>To request access, use Settings.ACTION_MANAGE_ASSISTANT_AUDIO</para>
+          <para>To request access, use <see cref="F:Android.Provider.Settings.ActionManageAssistantAudio" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioManager#canManageAssistantAudio()" title="Reference documentation">Android reference for <code>android.media.AudioManager.canManageAssistantAudio</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3361,7 +3343,7 @@
         <remarks>
           <para>Returns a list of direct AudioProfile that are supported for the specified AudioAttributes. This can be empty in case of an error or if no direct playback is possible.</para>
           <para>Direct playback means that the audio stream is not resampled or downmixed by the framework. Checking for direct support can help the app select the representation of audio content that most closely matches the capabilities of the device and peripherals (e.g. A/V receiver) connected to it. Note that the provided stream can still be re-encoded or mixed with other streams, if needed.</para>
-          <para>When using this information to inform your application which audio format to play, query again whenever audio output devices change (see AudioDeviceCallback).</para>
+          <para>When using this information to choose an audio format, query again whenever audio output devices change (see <see cref="T:Android.Media.AudioDeviceCallback" />).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioManager#getDirectProfilesForAttributes(android.media.AudioAttributes,%20int)" title="Reference documentation">Android reference for <code>android.media.AudioManager.getDirectProfilesForAttributes</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4507,7 +4489,7 @@
       </ReturnValue>
       <Docs>
         <summary>Indicates if the device implements a fixed volume policy.</summary>
-        <value>The fixed-volume state reported by the audio service. On Android API 37.2, a remote-query failure is logged and also returns <see langword="false" />.</value>
+        <value>Whether the device uses a fixed-volume policy. On Android 13 (API 33) and later, if the audio-service query raises a remote exception, the failure is logged and this property returns <see langword="false" />.</value>
         <remarks>
           <para>Indicates if the device implements a fixed volume policy.</para>
           <para>Some devices may not have volume control and may operate at a fixed volume,
@@ -4855,7 +4837,7 @@
       <Docs>
         <summary>Use this mode whenever an assistant conversation mode is started.</summary>
         <remarks>
-          <para>Use this mode whenever an assistant conversation mode is started. To check if this mode is allowed to be used by an app, use canManageAssistantAudio().</para>
+          <para>Use this mode whenever an assistant conversation mode is started. To check whether an app can use it, call <see cref="M:Android.Media.AudioManager.CanManageAssistantAudio" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioManager#MODE_ASSISTANT_CONVERSATION" title="Reference documentation">Android reference for <code>android.media.AudioManager.MODE_ASSISTANT_CONVERSATION</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5587,9 +5569,7 @@
       </Parameters>
       <Docs>
         <param name="cb">non-null callback to register</param>
-        <param name="handler">the <c>Handler</c> object for the thread on which to execute
-            the callback. If <c>null</c>, the <c>Handler</c> associated with the main
-            <c>Looper</c> will be used.</param>
+        <param name="handler">The handler for the callback thread. If <see langword="null" />, Android uses the registering thread's looper, or the main looper if that thread has none.</param>
         <summary>Register a callback to be notified of audio playback changes through
             <c>AudioPlaybackCallback</c></summary>
         <remarks>
@@ -5642,9 +5622,7 @@
       </Parameters>
       <Docs>
         <param name="cb">non-null callback to register</param>
-        <param name="handler">the <c>Handler</c> object for the thread on which to execute
-            the callback. If <c>null</c>, the <c>Handler</c> associated with the main
-            <c>Looper</c> will be used.</param>
+        <param name="handler">The handler for the callback thread. If <see langword="null" />, Android uses the registering thread's looper, or the main looper if that thread has none.</param>
         <summary>Register a callback to be notified of audio recording changes through
             <c>AudioRecordingCallback</c></summary>
         <remarks>
@@ -5916,7 +5894,7 @@
         <param name="listener">The previously registered communication-device listener to remove.</param>
         <summary>Removes a previously added listener of changes to the communication audio device.</summary>
         <remarks>
-          <para>Removes a previously added listener of changes to the communication audio device. See setCommunicationDevice(AudioDeviceInfo).</para>
+          <para>Removes a previously added listener of changes to the communication audio device. See <see cref="M:Android.Media.AudioManager.SetCommunicationDevice(Android.Media.AudioDeviceInfo)" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioManager#removeOnCommunicationDeviceChangedListener(android.media.AudioManager.OnCommunicationDeviceChangedListener)" title="Reference documentation">Android reference for <code>android.media.AudioManager.removeOnCommunicationDeviceChangedListener</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5952,7 +5930,7 @@
         <param name="listener">The previously registered audio-mode listener to remove.</param>
         <summary>Removes a previously added listener for changes to audio mode.</summary>
         <remarks>
-          <para>Removes a previously added listener for changes to audio mode. See getMode()</para>
+          <para>Removes a previously added listener for changes to audio mode. See <see cref="P:Android.Media.AudioManager.Mode" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioManager#removeOnModeChangedListener(android.media.AudioManager.OnModeChangedListener)" title="Reference documentation">Android reference for <code>android.media.AudioManager.removeOnModeChangedListener</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5985,7 +5963,7 @@
         <Parameter Name="listener" Type="Android.Media.AudioManager+IOnPreferredMixerAttributesChangedListener" />
       </Parameters>
       <Docs>
-        <param name="listener">the listener to be notified of changes in the preferred mixer attributes, which were added via addOnPreferredMixerAttributesChangedListener(Executor,OnPreferredMixerAttributesChangedListener). This value cannot be null.</param>
+        <param name="listener">The non-null listener previously added by <see cref="M:Android.Media.AudioManager.AddOnPreferredMixerAttributesChangedListener(Java.Util.Concurrent.IExecutor,Android.Media.AudioManager.IOnPreferredMixerAttributesChangedListener)" />.</param>
         <summary>Removes a previously added listener of changes to the preferred mixer attributes.</summary>
         <remarks>
           <para>Removes a previously added listener of changes to the preferred mixer attributes.</para>
@@ -6183,10 +6161,10 @@
             mute the volume and vibrate. Normal mode will be audible and may vibrate
             according to user settings.</para>
           <para>This method has no effect if the device implements a fixed volume policy
-            as indicated by <c>#isVolumeFixed()</c>.</para>
-          <para>From N onward, ringer mode adjustments that would toggle Do Not Disturb are not allowed
+            as indicated by <see cref="P:Android.Media.AudioManager.IsVolumeFixed" />.</para>
+          <para>From Android 7.0 (API 24) onward, ringer mode adjustments that would toggle Do Not Disturb are not allowed
             unless the app has been granted Do Not Disturb Access.
-            See <c>NotificationManager#isNotificationPolicyAccessGranted()</c>.</para>
+            See <see cref="P:Android.App.NotificationManager.IsNotificationPolicyAccessGranted" />.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/AudioManager#setRingerMode(int)" title="Reference documentation">Java documentation for <code>android.media.AudioManager.setRingerMode(int)</code>.</a>
@@ -6547,7 +6525,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="mode">Value is one of the following: ENCODED_SURROUND_OUTPUT_UNKNOWN ENCODED_SURROUND_OUTPUT_AUTO ENCODED_SURROUND_OUTPUT_NEVER ENCODED_SURROUND_OUTPUT_ALWAYS ENCODED_SURROUND_OUTPUT_MANUAL</param>
+        <param name="mode">The surround output mode as an integer value of <see cref="T:Android.Media.EncodedSurroundOutput" />.</param>
         <summary>Sets the surround sound mode.</summary>
         <returns>true if successful, otherwise false</returns>
         <remarks>
@@ -7000,7 +6978,7 @@
         <Parameter Name="enabled" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="audioFormat">Value is one of the following: AudioFormat.ENCODING_AC3 AudioFormat.ENCODING_E_AC3 AudioFormat.ENCODING_DTS AudioFormat.ENCODING_DTS_HD AudioFormat.ENCODING_AAC_LC AudioFormat.ENCODING_DOLBY_TRUEHD AudioFormat.ENCODING_AC4 AudioFormat.ENCODING_AC4_L4 AudioFormat.ENCODING_E_AC3_JOC AudioFormat.ENCODING_DOLBY_MAT AudioFormat.ENCODING_MPEGH_BL_L3 AudioFormat.ENCODING_MPEGH_BL_L4 AudioFormat.ENCODING_MPEGH_LC_L3 AudioFormat.ENCODING_MPEGH_LC_L4 AudioFormat.ENCODING_DTS_UHD_P1 AudioFormat.ENCODING_DRA AudioFormat.ENCODING_DTS_HD_MA AudioFormat.ENCODING_DTS_UHD_P2</param>
+        <param name="audioFormat">A surround-sound encoding as an integer value of <see cref="T:Android.Media.Encoding" />, such as <see cref="F:Android.Media.Encoding.Ac3" /> or <see cref="F:Android.Media.Encoding.Dts" />.</param>
         <param name="enabled">the required surround format state, true for enabled, false for disabled</param>
         <summary>Sets and persists a certain surround format as enabled or not.</summary>
         <returns>true if successful, otherwise false</returns>

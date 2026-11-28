@@ -331,9 +331,7 @@
       <Docs>
         <param name="listener">The <c>AudioRouting.OnRoutingChangedListener</c> interface to receive
             notifications of rerouting events.</param>
-        <param name="handler">Specifies the <c>Handler</c> object for the thread on which to execute
-            the callback. If <c>null</c>, the <c>Handler</c> associated with the main
-            <c>Looper</c> will be used.</param>
+        <param name="handler">The handler for the callback thread. If <see langword="null" />, the recorder's creation-thread looper is used, or the main looper if that thread has no looper.</param>
         <summary>Adds an <c>AudioRouting.OnRoutingChangedListener</c> to receive notifications of
             routing changes on this AudioRecord.</summary>
         <remarks>
@@ -387,9 +385,7 @@
       <Docs>
         <param name="listener">The <c>AudioRouting.OnRoutingChangedListener</c> interface to receive
             notifications of rerouting events.</param>
-        <param name="handler">Specifies the <c>Handler</c> object for the thread on which to execute
-            the callback. If <c>null</c>, the <c>Handler</c> associated with the main
-            <c>Looper</c> will be used.</param>
+        <param name="handler">The handler for the callback thread. If <see langword="null" />, the recorder's creation-thread looper is used, or the main looper if that thread has no looper.</param>
         <summary>Adds an <c>AudioRouting.OnRoutingChangedListener</c> to receive notifications of
             routing changes on this AudioRecord.</summary>
         <remarks>
@@ -1245,8 +1241,8 @@
       <Docs>
         <param name="audioBuffer">the direct buffer to which the recorded audio data is written.
                Data is written to the beginning of the byte buffer. Importantly, this
-               method ignores the <c>java.nio.Buffer#position()</c> and
-               <c>java.nio.Buffer#limit()</c> properties.</param>
+               method ignores <see cref="M:Java.Nio.Buffer.Position" /> and
+               <see cref="M:Java.Nio.Buffer.Limit" />.</param>
         <param name="sizeInBytes">the number of requested bytes. It is recommended but not enforced
                that the number of bytes requested be a multiple of the frame size (sample size in
                bytes multiplied by the channel count).</param>
@@ -1321,8 +1317,8 @@
       <Docs>
         <param name="audioBuffer">the direct buffer to which the recorded audio data is written.
                Data is written to the beginning of the byte buffer. Importantly, this
-               method ignores the <c>java.nio.Buffer#position()</c> and
-               <c>java.nio.Buffer#limit()</c> properties.</param>
+               method ignores <see cref="M:Java.Nio.Buffer.Position" /> and
+               <see cref="M:Java.Nio.Buffer.Limit" />.</param>
         <param name="sizeInBytes">the number of requested bytes. It is recommended but not enforced
                that the number of bytes requested be a multiple of the frame size (sample size in
                bytes multiplied by the channel count).</param>
@@ -2233,11 +2229,11 @@
       </ReturnValue>
       <Docs>
         <summary>Returns an <c>AudioDeviceInfo</c> identifying the current routing of this AudioRecord.</summary>
-        <value>The first resolved input device, or <see langword="null" /> when none is available. Query during active recording.</value>
+        <value>The first resolved input device, or <see langword="null" /> when none is available. Query during active recording; a previous route may be returned after recording stops.</value>
         <remarks>
           <para>Returns an <c>AudioDeviceInfo</c> identifying the current routing of this AudioRecord.
-            Note: The query is only valid if the AudioRecord is currently recording. If it is not,
-            <c>getRoutedDevice()</c> will return null.</para>
+            Note: The query is only valid if the AudioRecord is currently recording.
+            A previous route may be returned after recording stops.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/AudioRecord#getRoutedDevice()" title="Reference documentation">Java documentation for <code>android.media.AudioRecord.getRoutedDevice()</code>.</a>
@@ -2280,12 +2276,12 @@
       <Docs>
         <summary>Returns a List of <c>AudioDeviceInfo</c> identifying the current routing of this
             AudioRecord.</summary>
-        <value>The resolved native input devices, or an empty collection when none is available. Query during active recording.</value>
+        <value>The resolved native input devices, or an empty collection when none is available. Query during active recording; a previous route may be returned after recording stops.</value>
         <remarks>
           <para>Returns a List of <c>AudioDeviceInfo</c> identifying the current routing of this
             AudioRecord.
-            Note: The query is only valid if the AudioRecord is currently recording. If it is not,
-            <c>getRoutedDevices()</c> will return an empty list.</para>
+            Note: The query is only valid if the AudioRecord is currently recording.
+            A previous route may be returned after recording stops.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/AudioRecord#getRoutedDevices()" title="Reference documentation">Java documentation for <code>android.media.AudioRecord.getRoutedDevices()</code>.</a>

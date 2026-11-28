@@ -487,7 +487,7 @@
         <summary>See <see href="https://man7.org/linux/man-pages/man3/dladdr.3.html">dladdr(3)&lt;/&gt;
 
             </see></summary>
-        <returns>null if the underlying native <c>dladdr</c> call fails.</returns>
+        <returns>null if the address is not in a loaded shared object or no matching symbol is found; otherwise, information about the object and symbol.</returns>
         <remarks>
           <para>See <see href="https://man7.org/linux/man-pages/man3/dladdr.3.html">dladdr(3)&lt;/&gt;
 
@@ -572,7 +572,7 @@
       </Parameters>
       <Docs>
         <param name="oldFd">The file descriptor to duplicate.</param>
-        <param name="newFd">The descriptor number to use for the duplicate, replacing that descriptor if it is open.</param>
+        <param name="newFd">The descriptor number to use for the duplicate. If the operation succeeds and this number differs from the number held by <paramref name="oldFd" />, an open descriptor with this number is closed before reuse.</param>
         <summary>See <see href="http://man7.org/linux/man-pages/man2/dup2.2.html">dup2(2)</see>.</summary>
         <returns>A descriptor for the requested descriptor number, referring to the same open file description as <paramref name="oldFd" />.</returns>
         <remarks>
@@ -866,8 +866,8 @@
       </Parameters>
       <Docs>
         <param name="fd">The file descriptor to control.</param>
-        <param name="cmd">The file-control command that accepts an integer argument.</param>
-        <param name="arg">The integer argument required by <paramref name="cmd" />.</param>
+        <param name="cmd">The file-control command, which determines how <paramref name="arg" /> is used.</param>
+        <param name="arg">The integer argument passed to the command. Some commands do not use this argument.</param>
         <summary>See <see href="http://man7.org/linux/man-pages/man2/fcntl.2.html">fcntl(2)</see>.</summary>
         <returns>The command-dependent result of the file-control operation.</returns>
         <remarks>
@@ -1392,7 +1392,7 @@
       <Parameters />
       <Docs>
         <summary>See <see href="http://man7.org/linux/man-pages/man2/getppid.2.html">getppid(2)</see>.</summary>
-        <returns>The process ID of the calling process's parent.</returns>
+        <returns>The process ID of the calling process's parent, or <c>0</c> if the parent is in a different PID namespace.</returns>
         <remarks>
           <para>See <see href="http://man7.org/linux/man-pages/man2/getppid.2.html">getppid(2)</see>.</para>
           <para>
@@ -2047,7 +2047,7 @@
       <Docs>
         <param name="path">The path of the file whose extended attributes are listed.</param>
         <summary>See <see href="http://man7.org/linux/man-pages/man2/listxattr.2.html">listxattr(2)</see></summary>
-        <returns>The names of the file's extended attributes.</returns>
+        <returns>The names of the file's extended attributes. Names that the calling process cannot access may be omitted.</returns>
         <remarks>
           <para>See <see href="http://man7.org/linux/man-pages/man2/listxattr.2.html">listxattr(2)</see></para>
           <para>
@@ -2312,7 +2312,7 @@
       </Parameters>
       <Docs>
         <param name="path">The path of the directory to create.</param>
-        <param name="mode">The requested directory-permission bits, subject to the process's file-creation mask.</param>
+        <param name="mode">The requested directory-permission bits. The process's file-creation mask applies unless the parent directory has a default ACL.</param>
         <summary>See <see href="http://man7.org/linux/man-pages/man2/mkdir.2.html">mkdir(2)</see>.</summary>
         <remarks>
           <para>See <see href="http://man7.org/linux/man-pages/man2/mkdir.2.html">mkdir(2)</see>.</para>
@@ -2355,7 +2355,7 @@
       </Parameters>
       <Docs>
         <param name="path">The path of the named pipe to create.</param>
-        <param name="mode">The requested permission bits, subject to the process's file-creation mask.</param>
+        <param name="mode">The requested permission bits. The process's file-creation mask applies unless the parent directory has a default ACL.</param>
         <summary>See <see href="http://man7.org/linux/man-pages/man3/mkfifo.3.html">mkfifo(3)</see>.</summary>
         <remarks>
           <para>See <see href="http://man7.org/linux/man-pages/man3/mkfifo.3.html">mkfifo(3)</see>.</para>
@@ -2626,7 +2626,7 @@
       <Docs>
         <param name="path">The path of the file to open or create.</param>
         <param name="flags">The access mode and flags that control opening the file.</param>
-        <param name="mode">The permission bits used when a new file is created, subject to the process's file-creation mask.</param>
+        <param name="mode">The permission bits used when a new file is created. The process's file-creation mask applies unless the parent directory has a default ACL.</param>
         <summary>See <see href="http://man7.org/linux/man-pages/man2/open.2.html">open(2)</see>.</summary>
         <returns>A file descriptor for the opened file.</returns>
         <remarks>
@@ -2721,7 +2721,7 @@
         <Parameter Name="timeoutMs" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="fds">The descriptors and requested event masks. Their returned event masks are populated by the operation.</param>
+        <param name="fds">The descriptors and requested event masks. The operation fills the returned event masks up to the first null entry or entry with a null descriptor.</param>
         <param name="timeoutMs">The timeout in milliseconds: <c>0</c> checks immediately, and a negative value waits without a timeout.</param>
         <summary>See <see href="http://man7.org/linux/man-pages/man2/poll.2.html">poll(2)</see>.</summary>
         <returns>The number of descriptors with reported events, or <c>0</c> if the timeout expires.</returns>
@@ -2817,10 +2817,10 @@
       </Parameters>
       <Docs>
         <param name="option">The process-control operation to perform.</param>
-        <param name="arg2">The second argument required by <paramref name="option" />.</param>
-        <param name="arg3">The third argument required by <paramref name="option" />.</param>
-        <param name="arg4">The fourth argument required by <paramref name="option" />.</param>
-        <param name="arg5">The fifth argument required by <paramref name="option" />.</param>
+        <param name="arg2">The second argument, whose use depends on <paramref name="option" />.</param>
+        <param name="arg3">The third argument, whose use depends on <paramref name="option" />.</param>
+        <param name="arg4">The fourth argument, whose use depends on <paramref name="option" />.</param>
+        <param name="arg5">The fifth argument, whose use depends on <paramref name="option" />.</param>
         <summary>See <see href="http://man7.org/linux/man-pages/man2/prctl.2.html">prctl(2)</see>.</summary>
         <returns>The option-dependent result of the process-control operation.</returns>
         <remarks>
@@ -2964,7 +2964,7 @@
       <Docs>
         <param name="fd">The file descriptor to write to.</param>
         <param name="buffer">The source buffer. Its position advances by the number of bytes written.</param>
-        <param name="offset">The requested byte offset in the file; the descriptor's current offset is not changed.</param>
+        <param name="offset">The requested byte offset in the file; the descriptor's current offset is not changed. If the file was opened with <c>O_APPEND</c>, Linux writes at the end of the file instead.</param>
         <summary>See <see href="http://man7.org/linux/man-pages/man2/pwrite.2.html">pwrite(2)</see>.</summary>
         <returns>The number of bytes written, which can be less than the requested count.</returns>
         <remarks>
@@ -3015,7 +3015,7 @@
         <param name="bytes">The source array containing the bytes to write.</param>
         <param name="byteOffset">The starting index in the source array.</param>
         <param name="byteCount">The maximum number of bytes to write.</param>
-        <param name="offset">The requested byte offset in the file; the descriptor's current offset is not changed.</param>
+        <param name="offset">The requested byte offset in the file; the descriptor's current offset is not changed. If the file was opened with <c>O_APPEND</c>, Linux writes at the end of the file instead.</param>
         <summary>See <see href="http://man7.org/linux/man-pages/man2/pwrite.2.html">pwrite(2)</see>.</summary>
         <returns>The number of bytes written, which can be less than the requested count.</returns>
         <remarks>
@@ -3256,7 +3256,7 @@
         <param name="fd">The socket to receive from.</param>
         <param name="buffer">The destination buffer. Data starts at its current position and is limited to its remaining space.</param>
         <param name="flags">The flags that control receiving the message.</param>
-        <param name="srcAddress">Receives the sender's IP address and port, if an address object is supplied.</param>
+        <param name="srcAddress">Receives the sender's IP address and port if an address object is supplied and the receive operation returns an IPv4 or IPv6 sender address.</param>
         <summary>See <see href="http://man7.org/linux/man-pages/man2/recvfrom.2.html">recvfrom(2)</see>.</summary>
         <returns>The message byte count reported by the receive operation.</returns>
         <remarks>
@@ -3309,7 +3309,7 @@
         <param name="byteOffset">The starting index in the destination array.</param>
         <param name="byteCount">The maximum number of bytes to store.</param>
         <param name="flags">The flags that control receiving the message.</param>
-        <param name="srcAddress">Receives the sender's IP address and port, if an address object is supplied.</param>
+        <param name="srcAddress">Receives the sender's IP address and port if an address object is supplied and the receive operation returns an IPv4 or IPv6 sender address.</param>
         <summary>See <see href="http://man7.org/linux/man-pages/man2/recvfrom.2.html">recvfrom(2)</see>.</summary>
         <returns>The message byte count reported by the receive operation.</returns>
         <remarks>
@@ -3597,6 +3597,7 @@
         <returns>The number of bytes transferred, which can be less than the requested count.</returns>
         <remarks>
           <para>See <see href="http://man7.org/linux/man-pages/man2/sendfile.2.html">sendfile(2)</see>.</para>
+          <para>This overload is not available on Android 9 (API level 28) and later. Use the overload that takes <c>Int64Ref</c> instead.</para>
           <para>
                     Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -4628,7 +4629,7 @@
       <Docs>
         <param name="name">The <c>_SC_*</c> selector for the limit or feature to query.</param>
         <summary>See <see href="http://man7.org/linux/man-pages/man3/sysconf.3.html">sysconf(3)</see>.</summary>
-        <returns>The configuration value, or <c>-1</c> when the limit is indeterminate or the queried feature is not supported.</returns>
+        <returns>The configuration value, or <c>-1</c> when the limit is indeterminate or a recognized feature is not supported. On Android 5 through 9, an unrecognized selector also returns <c>-1</c>; on Android 10 and later, it throws an <c>ErrnoException</c>.</returns>
         <remarks>
           <para>See <see href="http://man7.org/linux/man-pages/man3/sysconf.3.html">sysconf(3)</see>.</para>
           <para>
@@ -4821,7 +4822,7 @@
         <Parameter Name="mask" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="mask">The file-permission bits to exclude when files are created.</param>
+        <param name="mask">The file-permission bits to exclude when files are created, unless the parent directory has a default ACL.</param>
         <summary>See <see href="http://man7.org/linux/man-pages/man2/umask.2.html">umask(2)</see>.</summary>
         <returns>The previous file-creation mask.</returns>
         <remarks>
@@ -4948,7 +4949,7 @@
       </Parameters>
       <Docs>
         <param name="pid">The child-process selector: a positive child ID, <c>-1</c> for any child, <c>0</c> for the caller's process group, or a value below <c>-1</c> for process group <c>-pid</c>.</param>
-        <param name="status">Receives the child's status when the return value is positive.</param>
+        <param name="status">Receives the child's status when the return value is positive. If the return value is <c>0</c>, its value is unspecified.</param>
         <param name="options">The flags that select which child state changes to report and whether to wait.</param>
         <summary>See <see href="http://man7.org/linux/man-pages/man2/waitpid.2.html">waitpid(2)</see>.</summary>
         <returns>The child process ID, or <c>0</c> if <c>WNOHANG</c> is set and no child has a state change to report.</returns>

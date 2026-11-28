@@ -247,10 +247,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="streamType">The legacy volume stream category used to build the track's audio attributes.</param>
-        <param name="sampleRateInHz">The requested source sample rate in hertz; an unspecified rate allows a route-dependent rate.</param>
-        <param name="channelConfig">The output-channel configuration passed to the audio-format builder.</param>
-        <param name="audioFormat">The audio-data encoding passed to the audio-format builder.</param>
+        <param name="streamType">The legacy volume stream category for the track.</param>
+        <param name="sampleRateInHz">The requested source sample rate in hertz. On Android 7.0 (API 24) and later, specify 0 to use a route-dependent rate.</param>
+        <param name="channelConfig">The output-channel configuration for the track.</param>
+        <param name="audioFormat">The encoding of the audio data to play.</param>
         <param name="bufferSizeInBytes">The requested buffer size in bytes, checked for a positive value aligned to the calculated frame size.</param>
         <param name="mode">The streaming or static-buffer transfer mode.</param>
         <summary>Class constructor.</summary>
@@ -429,10 +429,10 @@
         <Parameter Name="sessionId" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="streamType">The legacy volume stream category used to build the track's audio attributes.</param>
-        <param name="sampleRateInHz">The requested source sample rate in hertz; an unspecified rate allows a route-dependent rate.</param>
-        <param name="channelConfig">The output-channel configuration passed to the audio-format builder.</param>
-        <param name="audioFormat">The audio-data encoding passed to the audio-format builder.</param>
+        <param name="streamType">The legacy volume stream category for the track.</param>
+        <param name="sampleRateInHz">The requested source sample rate in hertz. On Android 7.0 (API 24) and later, specify 0 to use a route-dependent rate.</param>
+        <param name="channelConfig">The output-channel configuration for the track.</param>
+        <param name="audioFormat">The encoding of the audio data to play.</param>
         <param name="bufferSizeInBytes">The requested buffer size in bytes, checked for a positive value aligned to the calculated frame size.</param>
         <param name="mode">The streaming or static-buffer transfer mode.</param>
         <param name="sessionId">The nonnegative audio-session identifier, or the generate-session identifier to request a new session.</param>
@@ -647,9 +647,7 @@
       <Docs>
         <param name="listener">The <c>AudioRouting.OnRoutingChangedListener</c> interface to receive
             notifications of rerouting events.</param>
-        <param name="handler">Specifies the <c>Handler</c> object for the thread on which to execute
-            the callback. If <c>null</c>, the <c>Handler</c> associated with the main
-            <c>Looper</c> will be used.</param>
+        <param name="handler">The handler for the callback thread. If <see langword="null" />, the track's creation-thread looper is used, or the main looper if that thread has no looper.</param>
         <summary>Adds an <c>AudioRouting.OnRoutingChangedListener</c> to receive notifications of routing
             changes on this AudioTrack.</summary>
         <remarks>
@@ -703,9 +701,7 @@
       <Docs>
         <param name="listener">The <c>AudioRouting.OnRoutingChangedListener</c> interface to receive
             notifications of rerouting events.</param>
-        <param name="handler">Specifies the <c>Handler</c> object for the thread on which to execute
-            the callback. If <c>null</c>, the <c>Handler</c> associated with the main
-            <c>Looper</c> will be used.</param>
+        <param name="handler">The handler for the callback thread. If <see langword="null" />, the track's creation-thread looper is used, or the main looper if that thread has no looper.</param>
         <summary>Adds an <c>AudioRouting.OnRoutingChangedListener</c> to receive notifications of routing
             changes on this AudioTrack.</summary>
         <remarks>
@@ -854,12 +850,12 @@
       <Docs>
         <summary>Returns the Audio Description mix level in dB.</summary>
         <value>the current Audio Description Mix Level in dB.
-                A value of <c>Float.NEGATIVE_INFINITY</c> means
+                A value of <c>float.NegativeInfinity</c> means
                 that the audio description is not mixed or
                 the hardware is not available.
                 This should reflect the <b>true</b> internal device mix level;
                 hence the application might receive any floating value
-                except <c>Float.NaN</c>.</value>
+                except <c>float.NaN</c>.</value>
         <remarks>
           <para>Returns the Audio Description mix level in dB.
             
@@ -2012,11 +2008,11 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>Accuracy mode for <c>#flushWrittenFramesFromPosition(long, int)</c>
+        <summary>Accuracy mode for <see cref="M:Android.Media.AudioTrack.FlushWrittenFramesFromPosition(System.Int64,System.Int32)" />
             to indicate the framework will flush the
             data as close as possible, but not below, to the requested position.</summary>
         <remarks>
-          <para>Accuracy mode for flushWrittenFramesFromPosition(long, int) to indicate the framework will flush the data as close as possible, but not below, to the requested position.</para>
+          <para>Accuracy mode for <see cref="M:Android.Media.AudioTrack.FlushWrittenFramesFromPosition(System.Int64,System.Int32)" /> to indicate the framework will flush the data as close as possible, but not below, to the requested position.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioTrack#FLUSH_FROM_ACCURACY_BEST_EFFORT" title="Reference documentation">Android reference for <code>android.media.AudioTrack.FLUSH_FROM_ACCURACY_BEST_EFFORT</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2055,11 +2051,11 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>Accuracy mode for <c>#flushWrittenFramesFromPosition(long, int)</c>
+        <summary>Accuracy mode for <see cref="M:Android.Media.AudioTrack.FlushWrittenFramesFromPosition(System.Int64,System.Int32)" />
             to indicate the AudioTrack must be
             flushed from the requested position.</summary>
         <remarks>
-          <para>Accuracy mode for flushWrittenFramesFromPosition(long, int) to indicate the AudioTrack must be flushed from the requested position. If it is not possible to flush from the requested position, the AudioTrack must not be flushed.</para>
+          <para>Accuracy mode for <see cref="M:Android.Media.AudioTrack.FlushWrittenFramesFromPosition(System.Int64,System.Int32)" /> to indicate the AudioTrack must be flushed from the requested position. If it is not possible to flush from the requested position, the AudioTrack must not be flushed.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioTrack#FLUSH_FROM_ACCURACY_EXACT" title="Reference documentation">Android reference for <code>android.media.AudioTrack.FLUSH_FROM_ACCURACY_EXACT</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2102,18 +2098,15 @@
       <Docs>
         <param name="positionInFrames">the start point in frames to flush. The value must be between 0 and
                 total written frames.</param>
-        <param name="accuracy">the accuracy requirement when flushing. Use
-                <c>#FLUSH_FROM_ACCURACY_BEST_EFFORT</c> to indicate flush as close as possible to the
-                requested position. Use <c>#FLUSH_FROM_ACCURACY_EXACT</c> to indicate must flush from
-                the requested position.</param>
+        <param name="accuracy">The accuracy requirement. Cast <see cref="F:Android.Media.FlushFromAccuracy.BestEffort" /> to <see cref="T:System.Int32" /> to flush as close as possible to the requested position, or cast <see cref="F:Android.Media.FlushFromAccuracy.Exact" /> to require that position.</param>
         <summary>Flush all data from the given position.</summary>
         <returns>the actual flushed position.</returns>
         <remarks>
           <para>Flush all data from the given position.</para>
-          <para>If this operation returns successfully, data written after a call to this method will be written from the frame position returned by this method. The method getWrittenFramesCount() may be used to find the current frame position.</para>
-          <para>This method is only allowed in offload mode ((i.e. tracks created with Builder.setOffloadedPlayback(boolean) set to true)). Applications can call this function to flush data while it is actively playing.</para>
-          <para>Supporting this method relies on the device's capabilities. Call getFlushWrittenFramesFromPositionSupport(AudioFormat,AudioAttributes) to query how this method is supported with the AudioFormat and AudioAttributes before creating the AudioTrack. If getFlushWrittenFramesFromPositionSupport(AudioFormat, AudioAttributes) returns 0, UnsupportedOperationException will be thrown.</para>
-          <para>When clients request to flush from a certain position, the audio system will return the actual flushed position based on the requested position, the requested flush accuracy, and how much it was able to discard. All data from the actual flushed position will be discarded. When the stream is flushed, the stream end (if set by setOffloadEndOfStream()) will be reset.</para>
+          <para>If this operation returns successfully, data written after a call to this method will be written from the frame position returned by this method. Use <see cref="P:Android.Media.AudioTrack.WrittenFramesCount" /> to find the current frame position.</para>
+          <para>This method is only allowed in offload mode, for tracks created with <see cref="M:Android.Media.AudioTrack.Builder.SetOffloadedPlayback(System.Boolean)" /> set to <see langword="true" />. Applications can call this function to flush data while it is actively playing.</para>
+          <para>Supporting this method relies on the device's capabilities. Call <see cref="M:Android.Media.AudioTrack.GetFlushWrittenFramesFromPositionSupport(Android.Media.AudioFormat,Android.Media.AudioAttributes)" /> to query how this method is supported with the AudioFormat and AudioAttributes before creating the AudioTrack. If that method returns 0, an UnsupportedOperationException will be thrown.</para>
+          <para>When clients request to flush from a certain position, the audio system will return the actual flushed position based on the requested position, the requested flush accuracy, and how much it was able to discard. All data from the actual flushed position will be discarded. When the stream is flushed, the stream end (if set by <see cref="M:Android.Media.AudioTrack.SetOffloadEndOfStream" />) will be reset.</para>
           <para>The client must not write any data before this function returns. Otherwise, the data may be corrupted. When the method returns successfully and the stream is active, the client must write data immediately if little audio data remains, otherwise the playback may underrun.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioTrack#flushWrittenFramesFromPosition(long,%20int)" title="Reference documentation">Android reference for <code>android.media.AudioTrack.flushWrittenFramesFromPosition</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -2153,10 +2146,10 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>Constant flag value to indicate <c>#flushWrittenFramesFromPosition(long, int)</c>
+        <summary>Constant flag value to indicate <see cref="M:Android.Media.AudioTrack.FlushWrittenFramesFromPosition(System.Int64,System.Int32)" />
             is supported.</summary>
         <remarks>
-          <para>Constant flag value to indicate flushWrittenFramesFromPosition(long, int) is supported.</para>
+          <para>Constant flag value to indicate <see cref="M:Android.Media.AudioTrack.FlushWrittenFramesFromPosition(System.Int64,System.Int32)" /> is supported.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioTrack#FLUSH_WRITTEN_FRAMES_SUPPORTED" title="Reference documentation">Android reference for <code>android.media.AudioTrack.FLUSH_WRITTEN_FRAMES_SUPPORTED</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2235,13 +2228,13 @@
         <param name="format">the AudioFormat to create AudioTrack</param>
         <param name="attributes">the AudioAttributes to create AudioTrack</param>
         <summary>Returns a bit mask representing the current feature support for
-            <c>#flushWrittenFramesFromPosition(long, int)</c> for the AudioTrack in offload mode
+            <see cref="M:Android.Media.AudioTrack.FlushWrittenFramesFromPosition(System.Int64,System.Int32)" /> for the AudioTrack in offload mode
             that is created with the given <c>AudioFormat</c> and <c>AudioAttributes</c>.</summary>
-        <returns>a bitmask representing the <c>#flushWrittenFramesFromPosition(long, int)</c>
-                support level. If <c>#flushWrittenFramesFromPosition(long, int)</c> is not supported,
+        <returns>a bitmask representing the <see cref="M:Android.Media.AudioTrack.FlushWrittenFramesFromPosition(System.Int64,System.Int32)" />
+                support level. If that method is not supported,
                 <c>0</c> is returned.</returns>
         <remarks>
-          <para>Returns a bit mask representing the current feature support for flushWrittenFramesFromPosition(long, int) for the AudioTrack in offload mode that is created with the given AudioFormat and AudioAttributes.</para>
+          <para>Returns a bit mask representing the current feature support for <see cref="M:Android.Media.AudioTrack.FlushWrittenFramesFromPosition(System.Int64,System.Int32)" /> for the AudioTrack in offload mode that is created with the given AudioFormat and AudioAttributes.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioTrack#getFlushWrittenFramesFromPositionSupport(android.media.AudioFormat,%20android.media.AudioAttributes)" title="Reference documentation">Android reference for <code>android.media.AudioTrack.getFlushWrittenFramesFromPositionSupport</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3345,7 +3338,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the playback state of the AudioTrack instance.</summary>
-        <value>The public stopped, paused or playing state; internal stopping states are mapped to their corresponding playing or paused state.</value>
+        <value>The public stopped, paused or playing state. On Android 10 (API 29) and later, internal stopping states are mapped to their corresponding playing or paused state.</value>
         <remarks>
           <para>Returns the playback state of the AudioTrack instance.</para>
           <para>
@@ -3775,13 +3768,13 @@
       </ReturnValue>
       <Docs>
         <summary>Returns an <c>AudioDeviceInfo</c> identifying the current routing of this AudioTrack.</summary>
-        <value>The first resolved output device, or <see langword="null" /> when none is available. Query during active playback; multiple output devices can be in use.</value>
+        <value>The first resolved output device, or <see langword="null" /> when none is available. Query during active playback; a previous route may be returned after playback stops. Multiple output devices can be in use.</value>
         <remarks>
           <para>Returns an <c>AudioDeviceInfo</c> identifying the current routing of this AudioTrack.
-            Note: The query is only valid if the AudioTrack is currently playing. If it is not,
-            <c>getRoutedDevice()</c> will return null.
+            Note: The query is only valid if the AudioTrack is currently playing.
+            A previous route may be returned after playback stops.
             Audio may play on multiple devices simultaneously (e.g. an alarm playing on headphones and
-            speaker on a phone), so prefer using <c>#getRoutedDevices</c>.</para>
+            speaker on a phone), so prefer using <see cref="P:Android.Media.AudioTrack.RoutedDevices" />.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/AudioTrack#getRoutedDevice()" title="Reference documentation">Java documentation for <code>android.media.AudioTrack.getRoutedDevice()</code>.</a>
@@ -3824,12 +3817,12 @@
       <Docs>
         <summary>Returns a List of <c>AudioDeviceInfo</c> identifying the current routing of this
             AudioTrack.</summary>
-        <value>The resolved native output devices, or an empty collection when none is available. Query during active playback.</value>
+        <value>The resolved native output devices, or an empty collection when none is available. Query during active playback; a previous route may be returned after playback stops.</value>
         <remarks>
           <para>Returns a List of <c>AudioDeviceInfo</c> identifying the current routing of this
             AudioTrack.
-            Note: The query is only valid if the AudioTrack is currently playing. If it is not,
-            <c>getRoutedDevices()</c> will return an empty list.</para>
+            Note: The query is only valid if the AudioTrack is currently playing.
+            A previous route may be returned after playback stops.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/AudioTrack#getRoutedDevices()" title="Reference documentation">Java documentation for <code>android.media.AudioTrack.getRoutedDevices()</code>.</a>
@@ -3948,9 +3941,9 @@
           <para>Sets the Audio Description mix level in dB.
             
             For AudioTracks incorporating a secondary Audio Description stream
-            (where such contents may be sent through an Encapsulation Mode
-            other than <c>#ENCAPSULATION_MODE_NONE</c>).
-            or internally by a HW channel),
+            (where such contents may be sent through an encapsulation mode
+            other than <see cref="F:Android.Media.AudioTrackEncapsulationMode.None" />
+            or internally by a hardware channel),
             the level of mixing of the Audio Description to the Main Audio stream
             is controlled by this method.
             
@@ -4004,9 +3997,9 @@
                <c>#ERROR_INVALID_OPERATION</c>, <c>#ERROR</c></returns>
         <remarks>
           <para>Sets the send level of the audio track to the attached auxiliary effect
-            <c>#attachAuxEffect(int)</c>.  Effect levels
+            <see cref="M:Android.Media.AudioTrack.AttachAuxEffect(System.Int32)" />.  Effect levels
             are clamped to the closed interval [0.0, max] where
-            max is the value of <c>#getMaxVolume</c>.
+            max is the value of <see cref="P:Android.Media.AudioTrack.MaxVolume" />.
             A value of 0.0 results in no effect, and a value of 1.0 is full send.</para>
           <para>By default the send level is 0.0f, so even if an effect is attached to the player
             this method must be called for the effect to be applied.</para>
@@ -6191,7 +6184,7 @@
         <param name="audioData">The source byte buffer, read from its current position.</param>
         <param name="sizeInBytes">The maximum byte count to write, no larger than the buffer's remaining bytes.</param>
         <param name="writeMode">The synchronous write's blocking mode; it does not control task scheduling.</param>
-        <param name="timestamp">The first decodable frame's presentation timestamp in nanoseconds for hardware A/V synchronization; ignored on a regular track.</param>
+        <param name="timestamp">The first decodable frame's presentation timestamp in nanoseconds for hardware A/V synchronization. It is ignored for a streaming track without hardware A/V synchronization.</param>
         <summary>Starts a task that calls the timestamped streaming byte-buffer write.</summary>
         <returns>A task with the accepted audio-byte count, possibly zero, or a negative write error code. Acceptance does not mean playback has completed.</returns>
         <remarks>
@@ -6353,7 +6346,7 @@
         <value>the number of frames written.</value>
         <remarks>
           <para>Returns the number of audio frames written to a MODE_STREAM AudioTrack.</para>
-          <para>The counter starts from zero and is incremented for every successful write to a MODE_STREAM AudioTrack, and is set to the return value of a successful flushWrittenFramesFromPosition(long, int) call. This counter is not reset when the track is flushed by flush(), stopped by stop(), or paused by pause(). The returned count represents the current frame position for flushWrittenFramesFromPosition(long, int). It does not represent the actual frames rendered.</para>
+          <para>The counter starts from zero and is incremented for every successful write to a MODE_STREAM AudioTrack, and is set to the return value of a successful <see cref="M:Android.Media.AudioTrack.FlushWrittenFramesFromPosition(System.Int64,System.Int32)" /> call. This counter is not reset when the track is flushed by flush(), stopped by stop(), or paused by pause(). The returned count represents the current frame position for that method. It does not represent the actual frames rendered.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioTrack#getWrittenFramesCount()" title="Reference documentation">Android reference for <code>android.media.AudioTrack.getWrittenFramesCount</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

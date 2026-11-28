@@ -109,7 +109,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Controls whether the incoming JNI reference is released and whether the managed peer is registered.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -153,10 +153,10 @@
       <Docs>
         <param name="capability">Capability associated with the shortcut. This value cannot be null.</param>
         <param name="capabilityParams">Optional CapabilityParams associated with given capability. This value may be null.</param>
-        <summary>Associates a shortcut with a capability, and a parameter of that capability.</summary>
+        <summary>Associates a shortcut with a capability and, optionally, a parameter of that capability.</summary>
         <returns>This builder with the capability binding recorded.</returns>
         <remarks>
-          <para>Associates a shortcut with a capability, and a parameter of that capability. Used when the shortcut is an instance of a capability. This method can be called multiple times to add multiple parameters to the same capability.</para>
+          <para>Associates a shortcut with a capability and, optionally, a parameter of that capability. Used when the shortcut is an instance of a capability. This method can be called multiple times to add multiple parameters to the same capability.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/ShortcutInfo.Builder#addCapabilityBinding(android.content.pm.Capability,%20android.content.pm.CapabilityParams)" title="Reference documentation">Android reference for <code>android.content.pm.ShortcutInfo.Builder.addCapabilityBinding</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -415,7 +415,7 @@
         <summary>Sets which surfaces a shortcut will be excluded from.</summary>
         <returns>This builder after the surface-exclusion mask is assigned.</returns>
         <remarks>
-          <para>Sets which surfaces a shortcut will be excluded from. This API is reserved for future extension. Currently, marking a shortcut to be excluded from ShortcutInfo.SURFACE_LAUNCHER will not publish the shortcut, thus the following operations will be a no-op: ShortcutManager.pushDynamicShortcut(android.content.pm.ShortcutInfo), android.content.pm.ShortcutManager.addDynamicShortcuts(List), and android.content.pm.ShortcutManager.setDynamicShortcuts(List).</para>
+          <para>Sets which surfaces a shortcut will be excluded from. This API is reserved for future extension. A shortcut excluded from the launcher is not added as a launcher-visible dynamic shortcut by ShortcutManager.PushDynamicShortcut, ShortcutManager.AddDynamicShortcuts, or ShortcutManager.SetDynamicShortcuts. These operations can still affect other shortcuts: SetDynamicShortcuts replaces the existing dynamic shortcuts, and PushDynamicShortcut can remove a shortcut when the limit is reached.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/ShortcutInfo.Builder#setExcludedFromSurfaces(int)" title="Reference documentation">Android reference for <code>android.content.pm.ShortcutInfo.Builder.setExcludedFromSurfaces</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -492,11 +492,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="icon">The shortcut icon to validate and store.</param>
+        <param name="icon">The non-null shortcut icon to validate and store.</param>
         <summary>Sets an icon of a shortcut.</summary>
         <returns>This builder after the icon is assigned.</returns>
         <remarks>
-          <para>Sets an icon of a shortcut. Icons are not available on ShortcutInfo instances returned by ShortcutManager or LauncherApps. The default launcher app can use LauncherApps.getShortcutIconDrawable(ShortcutInfo,int) or LauncherApps.getShortcutBadgedIconDrawable(ShortcutInfo,int) to fetch shortcut icons. Tints set with Icon.setTint or Icon.setTintList are not supported and will be ignored. Only icons created with Icon.createWithBitmap(Bitmap), Icon.createWithAdaptiveBitmap(Bitmap) and Icon.createWithResource are supported. Other types, such as URI-based icons, are not supported.</para>
+          <para>Sets an icon of a shortcut. Icons are not available on ShortcutInfo instances returned by ShortcutManager or LauncherApps. The default launcher app can use LauncherApps.getShortcutIconDrawable(ShortcutInfo,int) or LauncherApps.getShortcutBadgedIconDrawable(ShortcutInfo,int) to fetch shortcut icons. Tinted icons are not supported; passing one throws an IllegalArgumentException. Bitmap and resource icons are accepted. Adaptive bitmap icons are accepted on Android 8.0 (API 26) and later. URI-based and adaptive-bitmap URI icons are accepted on Android 11 (API 30) and later. Other icon types are not supported.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/ShortcutInfo.Builder#setIcon(android.graphics.drawable.Icon)" title="Reference documentation">Android reference for <code>android.content.pm.ShortcutInfo.Builder.setIcon</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -566,7 +566,7 @@
         <Parameter Name="intents" Type="Android.Content.Intent[]" />
       </Parameters>
       <Docs>
-        <param name="intents">A nonempty launch-intent stack whose entries are non-null and have actions; the last intent is the selected shortcut's destination.</param>
+        <param name="intents">A non-null array of non-null launch intents, each with an action. The last intent is the selected shortcut's destination. Android 7.1 through Android 13 accept an empty array in this setter; Android 14 (API 34) and later reject it. A new shortcut requires at least one intent when it is published.</param>
         <summary>Sets multiple intents instead of a single intent, in order to launch an activity with other activities in back stack.</summary>
         <returns>This builder after copies of the launch intents are stored.</returns>
         <remarks>
@@ -644,7 +644,7 @@
         <summary>Sets the text of a shortcut.</summary>
         <returns>This builder after the long label is assigned.</returns>
         <remarks>
-          <para>Sets the text of a shortcut. This field is intended to be more descriptive than the shortcut title. The launcher shows this instead of the short title when it has enough space. The recommend maximum length is 25 characters.</para>
+          <para>Sets the text of a shortcut. This field is intended to be more descriptive than the shortcut title. The launcher shows this instead of the short title when it has enough space. The recommended maximum length is 25 characters.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/ShortcutInfo.Builder#setLongLabel(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.content.pm.ShortcutInfo.Builder.setLongLabel</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -746,10 +746,10 @@
       </Parameters>
       <Docs>
         <param name="person">The non-null person to store as the shortcut's one-entry person list.</param>
-        <summary>Add a person that is relevant to this shortcut.</summary>
-        <returns>This builder after the person information is stored.</returns>
+        <summary>Sets a person relevant to this shortcut, replacing any previously set people.</summary>
+        <returns>This builder after a copy of the person record, without its icon, is stored.</returns>
         <remarks>
-          <para>Add a person that is relevant to this shortcut. Alternatively, setPersons(Person[]) can be used to add multiple persons to a shortcut. This is an optional field, but the addition of person may cause this shortcut to appear more prominently in the user interface (e.g. ShareSheet). A person should usually contain a uri in order to benefit from the ranking boost. However, even if no uri is provided, it's beneficial to provide people in the shortcut, such that listeners and voice only devices can announce and handle them properly.</para>
+          <para>Sets a person relevant to this shortcut, replacing any previously set people. Alternatively, SetPersons can be used to set multiple people. This is an optional field, but adding a person may cause this shortcut to appear more prominently in the user interface (e.g. ShareSheet). A person should usually contain a uri in order to benefit from the ranking boost. However, even if no uri is provided, it's beneficial to provide people in the shortcut, such that listeners and voice only devices can announce and handle them properly.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/ShortcutInfo.Builder#setPerson(android.app.Person)" title="Reference documentation">Android reference for <code>android.content.pm.ShortcutInfo.Builder.setPerson</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -782,9 +782,9 @@
         <Parameter Name="persons" Type="Android.App.Person[]" />
       </Parameters>
       <Docs>
-        <param name="persons">A nonempty array of non-null people associated with the shortcut.</param>
+        <param name="persons">A non-null array of non-null people associated with the shortcut. Android 10 through Android 13 accept an empty array; Android 14 (API 34) and later reject it.</param>
         <summary>Sets multiple persons instead of a single person.</summary>
-        <returns>This builder after copies of the person records are stored.</returns>
+        <returns>This builder after copies of the person records, without their icons, are stored.</returns>
         <remarks>
           <para>Sets multiple persons instead of a single person.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/ShortcutInfo.Builder#setPersons(android.app.Person[])" title="Reference documentation">Android reference for <code>android.content.pm.ShortcutInfo.Builder.setPersons</code>.</a></format></para>

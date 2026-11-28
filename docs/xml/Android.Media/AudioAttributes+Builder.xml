@@ -150,7 +150,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies how to handle the incoming JNI reference and whether to register the managed peer.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -270,7 +270,7 @@
         <summary>Specifies whether the audio may or may not be captured by other apps or the system.</summary>
         <returns>the same Builder instance. This value cannot be null.</returns>
         <remarks>
-          <para>Specifies whether the audio may or may not be captured by other apps or the system. The default is AudioAttributes.ALLOW_CAPTURE_BY_ALL. There are multiple ways to set this policy: for each track independently, with this method; application-wide at runtime, with AudioManager.setAllowedCapturePolicy(int); application-wide at build time, see allowAudioPlaybackCapture in the application manifest. The most restrictive policy is always applied. See AudioPlaybackCaptureConfiguration for more details on which audio signals can be captured.</para>
+          <para>Specifies whether the audio may or may not be captured by other apps or the system. The default is <see cref="F:Android.Media.CapturePolicies.ByAll" />. There are multiple ways to set this policy: for each track independently, with this method; application-wide at runtime, with <see cref="P:Android.Media.AudioManager.AllowedCapturePolicy" />; application-wide at build time, with <c>allowAudioPlaybackCapture</c> in the application manifest. The most restrictive policy is always applied. See <see cref="T:Android.Media.AudioPlaybackCaptureConfiguration" /> for more details on which audio signals can be captured.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioAttributes.Builder#setAllowedCapturePolicy(int)" title="Reference documentation">Android reference for <code>android.media.AudioAttributes.Builder.setAllowedCapturePolicy</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -310,7 +310,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="contentType">the content type values, one of AudioAttributes.CONTENT_TYPE_MOVIE, AudioAttributes.CONTENT_TYPE_MUSIC, AudioAttributes.CONTENT_TYPE_SONIFICATION, AudioAttributes.CONTENT_TYPE_SPEECH, AudioAttributes.CONTENT_TYPE_UNKNOWN. Value is one of the following: <see cref="F:Android.Media.AudioContentType.Unknown" /> <see cref="F:Android.Media.AudioContentType.Speech" /> <see cref="F:Android.Media.AudioContentType.Music" /> <see cref="F:Android.Media.AudioContentType.Movie" /> <see cref="F:Android.Media.AudioContentType.Sonification" /></param>
+        <param name="contentType">The content type: <see cref="F:Android.Media.AudioContentType.Unknown" />, <see cref="F:Android.Media.AudioContentType.Speech" />, <see cref="F:Android.Media.AudioContentType.Music" />, <see cref="F:Android.Media.AudioContentType.Movie" />, or <see cref="F:Android.Media.AudioContentType.Sonification" />.</param>
         <summary>Sets the attribute describing the content type of the audio signal, such as speech, or music.</summary>
         <returns>the same Builder instance.</returns>
         <remarks>
@@ -354,7 +354,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="flags">a combination of AudioAttributes.FLAG_AUDIBILITY_ENFORCED, AudioAttributes.FLAG_HW_AV_SYNC.</param>
+        <param name="flags">A combination of <see cref="F:Android.Media.AudioFlags.AudibilityEnforced" /> and <see cref="F:Android.Media.AudioFlags.HwAvSync" />.</param>
         <summary>Sets the combination of flags.</summary>
         <returns>the same Builder instance.</returns>
         <remarks>
@@ -395,7 +395,7 @@
         <summary>Specifying if haptic should be muted or not when playing audio-haptic coupled data.</summary>
         <returns>the same Builder instance. This value cannot be null.</returns>
         <remarks>
-          <para>Specifying if haptic should be muted or not when playing audio-haptic coupled data. By default, haptic channels are disabled. This will be ignored if the caller doesn't have the Manifest.permission.VIBRATE permission.</para>
+          <para>Specifying if haptic should be muted or not when playing audio-haptic coupled data. By default, haptic channels are disabled. This will be ignored if the caller doesn't have the <see cref="F:Android.Manifest.Permission.Vibrate" /> permission.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioAttributes.Builder#setHapticChannelsMuted(boolean)" title="Reference documentation">Android reference for <code>android.media.AudioAttributes.Builder.setHapticChannelsMuted</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -472,11 +472,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="streamType">one of AudioManager.STREAM_VOICE_CALL, AudioManager.STREAM_SYSTEM, AudioManager.STREAM_RING, AudioManager.STREAM_MUSIC, AudioManager.STREAM_ALARM, or AudioManager.STREAM_NOTIFICATION.</param>
+        <param name="streamType">A legacy stream type, such as <see cref="F:Android.Media.Stream.VoiceCall" />, <see cref="F:Android.Media.Stream.System" />, <see cref="F:Android.Media.Stream.Ring" />, <see cref="F:Android.Media.Stream.Music" />, <see cref="F:Android.Media.Stream.Alarm" />, or <see cref="F:Android.Media.Stream.Notification" />.</param>
         <summary>Sets attributes as inferred from the legacy stream types.</summary>
         <returns>the same Builder instance.</returns>
         <remarks>
-          <para>Sets attributes as inferred from the legacy stream types. Warning: do not use this method in combination with setting any other attributes such as usage, content type, flags or haptic control, as this method will overwrite (the more accurate) information describing the use case previously set in the Builder. In general, avoid using it and prefer setting usage and content type directly with setUsage(int) and setContentType(int). Use this method when building an AudioAttributes instance to initialize some of the attributes by information derived from a legacy stream type.</para>
+          <para>Sets attributes as inferred from the legacy stream types. Warning: do not use this method in combination with setting any other attributes such as usage, content type, flags or haptic control, as this method will overwrite (the more accurate) information describing the use case previously set in the Builder. In general, avoid using it and prefer setting usage and content type directly with <see cref="M:Android.Media.AudioAttributes.Builder.SetUsage(Android.Media.AudioUsageKind)" /> and <see cref="M:Android.Media.AudioAttributes.Builder.SetContentType(Android.Media.AudioContentType)" />. Use this method when building an AudioAttributes instance to initialize some of the attributes by information derived from a legacy stream type.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioAttributes.Builder#setLegacyStreamType(int)" title="Reference documentation">Android reference for <code>android.media.AudioAttributes.Builder.setLegacyStreamType</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -509,7 +509,7 @@
         <Parameter Name="sb" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="sb">the spatialization behavior. Value is one of the following: AudioAttributes.SPATIALIZATION_BEHAVIOR_AUTO AudioAttributes.SPATIALIZATION_BEHAVIOR_NEVER</param>
+        <param name="sb">The spatialization behavior: <see cref="F:Android.Media.AudioSpatializationBehavior.Auto" /> or <see cref="F:Android.Media.AudioSpatializationBehavior.Never" />, cast to <c>int</c>.</param>
         <summary>Sets the behavior affecting whether spatialization will be used.</summary>
         <returns>the same Builder instance. This value cannot be null.</returns>
         <remarks>

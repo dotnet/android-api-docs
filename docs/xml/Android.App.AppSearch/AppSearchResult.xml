@@ -87,7 +87,8 @@
         <value>The stored error message, or <see langword="null" /> if there is no message.</value>
         <remarks>
           <para>Returns the error message associated with this result.</para>
-          <para>If <c>#isSuccess</c> is <c>true</c>, the error message is always <c>null</c>. The error
+          <para>A result created by <c>NewSuccessfulResult</c> has a <c>null</c> message. A result created by
+            <c>NewFailedResult</c> with <c>RESULT_OK</c> reports success and retains the supplied message. The error
             message may be <c>null</c> even if <c>#isSuccess</c> is <c>false</c>. See the
             documentation of the particular <c>AppSearchSession</c> call producing this <c>AppSearchResult</c> for what is returned by <c>#getErrorMessage</c>.</para>
           <para>
@@ -223,10 +224,10 @@
       <Docs>
         <param name="resultCode">One of the constants documented in <c>AppSearchResult#getResultCode</c>.</param>
         <param name="errorMessage">An optional string describing the reason or nature of the failure.</param>
-        <summary>Creates a new failed <c>AppSearchResult</c>.</summary>
-        <returns>A failure result with the supplied code and message and no result value.</returns>
+        <summary>Creates an <c>AppSearchResult</c> with the supplied result code and message.</summary>
+        <returns>A result with the supplied code and message and no result value. If the code is <c>RESULT_OK</c>, the result reports success.</returns>
         <remarks>
-          <para>Creates a new failed <c>AppSearchResult</c>.</para>
+          <para>Creates an <c>AppSearchResult</c> with the supplied result code and message.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchResult#newFailedResult(int,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchResult.newFailedResult(int, java.lang.String)</code>.</a>

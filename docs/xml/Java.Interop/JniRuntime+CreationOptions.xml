@@ -90,8 +90,8 @@
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets or sets the obsolete class-loader method identifier.</summary>
-        <value>An unused compatibility value. Class lookup uses <c>Class.forName</c> instead.</value>
+        <summary>Gets or sets the class-loader method identifier, which is obsolete in .NET 10 and .NET 11 for Android.</summary>
+        <value>In .NET 9 for Android, a nonzero value supplies the class loader's <c>loadClass</c> method identifier. In .NET 10 and .NET 11 for Android, the base runtime constructor does not use this value. In .NET 11, class lookup uses JNI <c>FindClass</c> and can fall back to <c>Class.forName</c>.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -133,7 +133,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets or sets the JNI environment pointer used to initialize the current thread.</summary>
-        <value>A <c>JNIEnv</c> pointer, or <see cref="F:System.IntPtr.Zero" /> when an invocation pointer is supplied instead.</value>
+        <value>A <c>JNIEnv</c> pointer, or <see cref="F:System.IntPtr.Zero" /> to obtain one from the supplied invocation pointer. Both pointers can be supplied.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -241,8 +241,8 @@
         <ReturnType>Java.Interop.JniRuntime+JniMarshalMemberBuilder</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets or sets the obsolete marshal member builder option.</summary>
-        <value>A legacy builder value retained for compatibility; it is not used by the base runtime constructor.</value>
+        <summary>Gets or sets the marshal member builder option, which is obsolete in .NET 11 for Android.</summary>
+        <value>In .NET 9 and .NET 10 for Android, the builder to use when marshal member building is enabled. In .NET 11 for Android, the base runtime constructor does not use this value.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -332,7 +332,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets or sets the service used to map managed and JNI types.</summary>
-        <value>The type manager to use. Runtime construction requires a non-null manager.</value>
+        <value>The type manager to use. In .NET 9 and .NET 10 for Android, a <see langword="null" /> value selects a new base type manager. In .NET 11 for Android, runtime construction requires a non-null manager.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -358,9 +358,9 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets or sets the obsolete marshal-member-builder switch.</summary>
-        <value>An unused compatibility flag. Marshal member building is no longer supported.</value>
-        <remarks>Setting this property does not enable marshal member building. The runtime's <c>MarshalMemberBuilder</c> getter always throws <see cref="T:System.NotSupportedException" />.</remarks>
+        <summary>Gets or sets the marshal-member-builder switch, which is obsolete in .NET 11 for Android.</summary>
+        <value>In .NET 9 and .NET 10 for Android, the flag controls builder initialization and defaults to <see langword="true" />. In .NET 11 for Android, the base runtime constructor does not use this flag.</value>
+        <remarks>In .NET 9 and .NET 10 for Android, the runtime's <c>MarshalMemberBuilder</c> getter returns the initialized builder or throws <see cref="T:System.NotSupportedException" /> if none is available. In .NET 11 for Android, the getter always throws <see cref="T:System.NotSupportedException" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ValueManager">

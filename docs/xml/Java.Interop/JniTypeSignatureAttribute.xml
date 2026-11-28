@@ -93,8 +93,9 @@
       </ReturnValue>
       <Docs>
         <summary>Gets or sets whether to generate a Java callable wrapper for the managed type.</summary>
-        <value><see langword="true" /> to request a Java callable wrapper; otherwise, <see langword="false" />.</value>
+        <value><see langword="true" /> to allow a Java callable wrapper; <see langword="false" /> to suppress one when this property is explicitly set.</value>
         <remarks>
+          <para>The property defaults to <see langword="false" />. When the property is omitted from the attribute, the Java callable wrapper tooling does not suppress generation. Set the property explicitly to <see langword="false" /> to suppress generation.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -133,7 +134,7 @@
       <Docs>
         <summary>Gets or sets the managed invoker type used for an abstract class or interface.</summary>
         <value>The invoker type, or <see langword="null" /> if no invoker type is specified.</value>
-        <remarks>The reflection type manager reads this value when it resolves an invoker for an abstract class or interface. It does not construct invoker types for generic types.</remarks>
+        <remarks>In .NET 10 for Android, the base type manager can use this value to construct a generic invoker. In .NET 11 for Android, the reflection type manager reads this value when it resolves an invoker for an abstract class or interface, but throws <see cref="T:System.NotSupportedException" /> if the type is generic and this value is not <see langword="null" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="IsKeyword">

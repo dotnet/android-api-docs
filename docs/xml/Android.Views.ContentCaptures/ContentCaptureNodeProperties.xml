@@ -34,9 +34,9 @@
     <remarks>
       <para>Properties of a Node for Content Capture.</para>
       <para>Used to provide changes from a UI node (e.g. a View or a virtual view) to the Content Capture System efficiently. An instance of this class should be reused during view tree traversal to minimize memory allocations.</para>
-      <para>To use this class: Obtain the AutofillId of the node. For virtual views, use ContentCaptureSession.newAutofillId(AutofillId,long); Set the desired properties on an instance of this class (e.g., setText(CharSequence), setBounds(int, int, int, int)); Pass the ID and this properties instance to ContentCaptureSession.notifyNodeAppearedOrChanged(AutofillId,ContentCaptureNodeProperties); Call clear() to reset the properties before reusing the instance for the next node.</para>
-      <para>To track which properties have been modified explicitly this class offers methods like hasBounds(), hasText() that will return true only if the corresponding property was explicitly set. Calling clear() removes all set fields and brings back this class to its initial state to be reused.</para>
-      <para>Calling a getter method when the corresponding property has not been set (i.e. when has*() returns false) will throw an IllegalStateException. Callers should check has*() prior to calling the getter.</para>
+      <para>To use this class: Obtain the AutofillId of the node. For virtual views, use <see cref="M:Android.Views.ContentCaptures.ContentCaptureSession.NewAutofillId(Android.Views.Autofill.AutofillId,System.Int64)" />; set the desired properties on an instance of this class (for example, <see cref="P:Android.Views.ContentCaptures.ContentCaptureNodeProperties.TextFormatted" /> or <see cref="M:Android.Views.ContentCaptures.ContentCaptureNodeProperties.SetBounds(System.Int32,System.Int32,System.Int32,System.Int32)" />); pass the ID and this instance to <see cref="M:Android.Views.ContentCaptures.ContentCaptureSession.NotifyNodeAppearedOrChanged(Android.Views.Autofill.AutofillId,Android.Views.ContentCaptures.ContentCaptureNodeProperties)" />; call <see cref="M:Android.Views.ContentCaptures.ContentCaptureNodeProperties.Clear" /> before reusing the instance for the next node.</para>
+      <para>Properties such as <see cref="P:Android.Views.ContentCaptures.ContentCaptureNodeProperties.HasBounds" /> and <see cref="P:Android.Views.ContentCaptures.ContentCaptureNodeProperties.HasText" /> indicate whether the corresponding property was explicitly set. Calling <see cref="M:Android.Views.ContentCaptures.ContentCaptureNodeProperties.Clear" /> removes all set fields and returns this instance to its initial state.</para>
+      <para>Reading an unset text, content description, or parent ID throws <see cref="T:Java.Lang.IllegalStateException" />. The same applies to <see cref="M:Android.Views.ContentCaptures.ContentCaptureNodeProperties.GetBounds(Android.Graphics.Rect)" /> when <see cref="P:Android.Views.ContentCaptures.ContentCaptureNodeProperties.HasBounds" /> is <see langword="false" /> and the supplied rectangle is not <see langword="null" />. Check the corresponding <c>Has</c> property before reading the value.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/contentcapture/ContentCaptureNodeProperties" title="Reference documentation">Android reference for <code>android.view.contentcapture.ContentCaptureNodeProperties</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -65,7 +65,7 @@
       <Docs>
         <summary>Creates a set of content capture node properties with no properties set.</summary>
         <remarks>
-          <para>Set the required properties before passing this instance to <see cref="M:Android.Views.ContentCaptures.ContentCaptureSession.NotifyNodeAppearedOrChanged(Android.Views.Autofill.AutofillId,Android.Views.ContentCaptures.ContentCaptureNodeProperties)" />. Use <see cref="M:Android.Views.ContentCaptures.ContentCaptureNodeProperties.Clear" /> before reusing the instance for another node.</para>
+          <para>Set the properties to report before passing this instance to <see cref="M:Android.Views.ContentCaptures.ContentCaptureSession.NotifyNodeAppearedOrChanged(Android.Views.Autofill.AutofillId,Android.Views.ContentCaptures.ContentCaptureNodeProperties)" />. Use <see cref="M:Android.Views.ContentCaptures.ContentCaptureNodeProperties.Clear" /> before reusing the instance for another node.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/contentcapture/ContentCaptureNodeProperties">Android content capture node properties</a></format>.</para>
         </remarks>
       </Docs>
@@ -86,7 +86,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies how the runtime handles the JNI reference, including its release and peer registration.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>The runtime calls this constructor to create a managed representation of an existing Java object.</para>
@@ -187,7 +187,6 @@
         <ReturnType>Java.Lang.ICharSequence</ReturnType>
       </ReturnValue>
       <Docs>
-        <param name="contentDescription">The content description to set, or null.</param>
         <summary>Gets the content description of the node. -or- Sets the content description for this node.</summary>
         <value>the content description of the node, or <c>null</c> if explicitly set to
             <c>null</c>.</value>
@@ -263,7 +262,7 @@
       </ReturnValue>
       <Docs>
         <summary>Checks if the bounds have been explicitly set.</summary>
-        <value>true if the bounds were modified, false otherwise.</value>
+        <value><see langword="true" /> if the bounds were explicitly set; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Checks if the bounds have been explicitly set.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/contentcapture/ContentCaptureNodeProperties#hasBounds()" title="Reference documentation">Android reference for <code>android.view.contentcapture.ContentCaptureNodeProperties.hasBounds</code>.</a></format></para>
@@ -296,7 +295,7 @@
       </ReturnValue>
       <Docs>
         <summary>Checks if the content description has been explicitly set.</summary>
-        <value>true if the content description was modified, false otherwise.</value>
+        <value><see langword="true" /> if the content description was explicitly set; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Checks if the content description has been explicitly set.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/contentcapture/ContentCaptureNodeProperties#hasContentDescription()" title="Reference documentation">Android reference for <code>android.view.contentcapture.ContentCaptureNodeProperties.hasContentDescription</code>.</a></format></para>
@@ -329,7 +328,7 @@
       </ReturnValue>
       <Docs>
         <summary>Checks if the parent ID has been explicitly set.</summary>
-        <value>true if the parent ID was modified, false otherwise.</value>
+        <value><see langword="true" /> if the parent ID was explicitly set; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Checks if the parent ID has been explicitly set.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/contentcapture/ContentCaptureNodeProperties#hasParentId()" title="Reference documentation">Android reference for <code>android.view.contentcapture.ContentCaptureNodeProperties.hasParentId</code>.</a></format></para>
@@ -362,7 +361,7 @@
       </ReturnValue>
       <Docs>
         <summary>Checks if the text has been explicitly set.</summary>
-        <value>true if the text was modified, false otherwise.</value>
+        <value><see langword="true" /> if the text was explicitly set; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Checks if the text has been explicitly set.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/contentcapture/ContentCaptureNodeProperties#hasText()" title="Reference documentation">Android reference for <code>android.view.contentcapture.ContentCaptureNodeProperties.hasText</code>.</a></format></para>
@@ -441,7 +440,6 @@
         <ReturnType>Android.Views.Autofill.AutofillId</ReturnType>
       </ReturnValue>
       <Docs>
-        <param name="parentId">The parent ID to set, or null if the node has no parent.</param>
         <summary>Gets the parent ID of the node. -or- Sets the parent ID for this node.</summary>
         <value>The parent ID of the node, or <c>null</c> if explicitly set to <c>null</c>.</value>
         <remarks>
@@ -554,7 +552,6 @@
         <ReturnType>Java.Lang.ICharSequence</ReturnType>
       </ReturnValue>
       <Docs>
-        <param name="text">The text to set, or null to remove current text.</param>
         <summary>Gets the text of the node. -or- Sets the text for this node.</summary>
         <value>the text of the node, or <c>null</c> if explicitly set to <c>null</c>.</value>
         <remarks>

@@ -104,7 +104,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the selected managed Java runtime.</summary>
-        <value>The current runtime: the runtime most recently passed to <c>SetCurrent</c>, or the first runtime constructed while no runtime was current. If no runtime is current, the getter returns the only registered runtime.</value>
+        <value>The current runtime: the runtime most recently passed to <c>SetCurrent</c>, or the first runtime constructed while no runtime was current. If no runtime is current, the getter returns the only registered runtime. It throws <see cref="T:System.NotSupportedException" /> if there are no registered runtimes or more than one.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -149,7 +149,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Releases runtime services, unregisters this runtime, and suppresses finalization.</summary>
+        <summary>Calls the disposal hook with <c>disposing</c> set to <see langword="true" /> and suppresses finalization.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -249,7 +249,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Unregisters the runtime through finalizer-mode disposal.</summary>
+        <summary>Calls the disposal hook with <c>disposing</c> set to <see langword="false" />.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -371,7 +371,7 @@
         <param name="reference">The Java throwable reference to convert.</param>
         <param name="options">Reference transfer options passed to the value manager.</param>
         <summary>Converts a Java throwable reference to a managed exception through the value manager.</summary>
-        <returns>The managed exception returned by the value manager, or <see langword="null" /> for a null Java reference.</returns>
+        <returns>The managed exception returned by the value manager. The reflection-based value manager returns <see langword="null" /> for an invalid reference.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -466,7 +466,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets this runtime's Java VM invocation pointer.</summary>
-        <value>The <c>JavaVM</c> pointer, or <see cref="F:System.IntPtr.Zero" /> after runtime disposal completes.</value>
+        <value>The <c>JavaVM</c> pointer, or <see cref="F:System.IntPtr.Zero" /> after the base disposal method completes.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -513,8 +513,8 @@
         <ReturnType>Java.Interop.JniRuntime+JniMarshalMemberBuilder</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the unsupported legacy marshal member builder.</summary>
-        <value>No value is returned. The getter always throws <see cref="T:System.NotSupportedException" />.</value>
+        <summary>Gets the marshal member builder, which is unsupported in .NET 11 for Android.</summary>
+        <value>In .NET 9 and .NET 10 for Android, the initialized builder. If no builder is available, the getter throws <see cref="T:System.NotSupportedException" />. In .NET 11 for Android, the getter always throws <see cref="T:System.NotSupportedException" />.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -669,7 +669,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the service that maps managed and JNI types.</summary>
-        <value>The type manager supplied during runtime creation.</value>
+        <value>The type manager used by the runtime.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

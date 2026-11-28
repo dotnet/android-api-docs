@@ -591,7 +591,7 @@
       </Parameters>
       <Docs>
         <param name="schemaType">The schema type to set visibility on. This value cannot be null.</param>
-        <param name="visibleToPermissionSets">The Sets of Android permissions that will be required to access the given schema. Value is one of the following: SetSchemaRequest.READ_SMS SetSchemaRequest.READ_CALENDAR SetSchemaRequest.READ_CONTACTS SetSchemaRequest.READ_EXTERNAL_STORAGE SetSchemaRequest.READ_HOME_APP_SEARCH_DATA SetSchemaRequest.READ_ASSISTANT_APP_SEARCH_DATA SetSchemaRequest.PRIVATE_COMPUTE_CORE_UID_ACCESS. This value cannot be null.</param>
+        <param name="visibleToPermissionSets">The alternative sets of Android permission conditions for the given schema. Entries in each inner set are constants such as SetSchemaRequest.READ_SMS, SetSchemaRequest.READ_CALENDAR, SetSchemaRequest.READ_CONTACTS, SetSchemaRequest.READ_EXTERNAL_STORAGE, SetSchemaRequest.READ_HOME_APP_SEARCH_DATA, SetSchemaRequest.READ_ASSISTANT_APP_SEARCH_DATA, and SetSchemaRequest.PRIVATE_COMPUTE_CORE_UID_ACCESS, where supported. This value cannot be null.</param>
         <summary>Sets a set of required Manifest.permission combinations to the given schema type.</summary>
         <returns>This builder instance.</returns>
         <remarks>
@@ -630,11 +630,11 @@
       </Parameters>
       <Docs>
         <param name="schemaType">The schema type to set visibility on. This value cannot be null.</param>
-        <param name="visibleToConfigs">The SchemaVisibilityConfig s hold all requirements that a call must to match to access the schema. This value cannot be null.</param>
-        <summary>Sets the documents from the provided schemaType can be read by the caller if they match the ALL visibility requirements set in SchemaVisibilityConfig.</summary>
+        <param name="visibleToConfigs">The SchemaVisibilityConfig objects that describe the visibility requirements for the schema. This value cannot be null.</param>
+        <summary>Sets the visibility configurations reported for the specified schema type.</summary>
         <returns>This builder instance.</returns>
         <remarks>
-          <para>Sets the documents from the provided schemaType can be read by the caller if they match the ALL visibility requirements set in SchemaVisibilityConfig. The requirements in a SchemaVisibilityConfig is "AND" relationship. A caller must match ALL requirements to access the schema. For example, a caller must hold required permissions AND it is a specified package. The querier could have access if they match ALL requirements in ANY of the given SchemaVisibilityConfig s For example, if the Set contains {{PackageA and Permission1}, {PackageB and Permission2}}. A querier from packageA could read if they holds Permission1. A querier from packageA could NOT read if they only holds Permission2 instead of Permission1. A querier from packageB could read if they holds Permission2. A querier from packageC could never read.</para>
+          <para>Sets the visibility configurations reported for the specified schema type. To qualify through these configurations, a caller must meet all configured requirements in at least one configuration, such as holding a required permission and being an allowed package. An empty configuration does not grant access, and enterprise searches can have additional requirements. For example, if the set contains {{PackageA and Permission1}, {PackageB and Permission2}}, a caller from PackageA meets the first configuration's package and permission requirements with Permission1 but not with Permission2 alone. A caller from PackageB meets the second configuration's requirements with Permission2. A caller from PackageC meets neither configuration's package requirement.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appsearch/GetSchemaResponse.Builder#setSchemaTypeVisibleToConfigs(java.lang.String,%20java.util.Set&lt;android.app.appsearch.SchemaVisibilityConfig&gt;)" title="Reference documentation">Android reference for <code>android.app.appsearch.GetSchemaResponse.Builder.setSchemaTypeVisibleToConfigs</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

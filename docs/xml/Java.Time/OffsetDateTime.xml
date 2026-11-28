@@ -163,7 +163,7 @@
         <summary>Combines this date-time with a time-zone to create a ZonedDateTime ensuring that the result has the same instant.</summary>
         <returns>the zoned date-time formed from this date-time, not null</returns>
         <remarks>
-          <para>Combines this date-time with a time-zone to create a ZonedDateTime ensuring that the result has the same instant. This returns a ZonedDateTime formed from this date-time and the specified time-zone. This conversion will ignore the visible local date-time and use the underlying instant instead. This avoids any problems with local time-line gaps or overlaps. The result might have different values for fields such as hour, minute an even day. To attempt to retain the values of the fields, use atZoneSimilarLocal(ZoneId). To use the offset as the zone ID, use toZonedDateTime().</para>
+          <para>Combines this date-time with a time-zone to create a ZonedDateTime ensuring that the result has the same instant. This returns a ZonedDateTime formed from this date-time and the specified time-zone. This conversion will ignore the visible local date-time and use the underlying instant instead. This avoids any problems with local time-line gaps or overlaps. The result might have different values for fields such as hour, minute and even day. To attempt to retain the values of the fields, use atZoneSimilarLocal(ZoneId). To use the offset as the zone ID, use toZonedDateTime().</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetDateTime.html#atZoneSameInstant(java.time.ZoneId)" title="Reference documentation">Java reference for <code>java.time.OffsetDateTime.atZoneSameInstant</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -232,9 +232,18 @@
       <Docs>
         <param name="other">the other date-time to compare to, not null</param>
         <summary>Compares this date-time to another date-time.</summary>
-        <returns>the comparator value, that is the comparison with the other 's instant, if they are not equal; and if equal to the other 's instant, the comparison of the other 's local date-time</returns>
+        <returns>A negative value, zero, or a positive value according to the ordering described in the remarks.</returns>
         <remarks>
-          <para>Compares this date-time to another date-time. The comparison is based on the instant then on the local date-time. It is "consistent with equals", as defined by Comparable. For example, the following is the comparator order: 2008-12-03T10:30+01:00 2008-12-03T11:00+01:00 2008-12-03T12:00+02:00 2008-12-03T11:30+01:00 2008-12-03T12:00+01:00 2008-12-03T12:30+01:00 Values #2 and #3 represent the same instant on the time-line. When two values represent the same instant, the local date-time is compared to distinguish them. This step is needed to make the ordering consistent with equals().</para>
+          <para>Compares this date-time to another date-time. The comparison is based on the instant then on the local date-time. It is "consistent with equals", as defined by Comparable. For example, the following is the comparator order:</para>
+          <list type="number">
+            <item><term>2008-12-03T10:30+01:00</term></item>
+            <item><term>2008-12-03T11:00+01:00</term></item>
+            <item><term>2008-12-03T12:00+02:00</term></item>
+            <item><term>2008-12-03T11:30+01:00</term></item>
+            <item><term>2008-12-03T12:00+01:00</term></item>
+            <item><term>2008-12-03T12:30+01:00</term></item>
+          </list>
+          <para>Values #2 and #3 represent the same instant on the time-line. When two values represent the same instant, the local date-time is compared to distinguish them. This step is needed to make the ordering consistent with equals().</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetDateTime.html#compareTo(java.time.OffsetDateTime)" title="Reference documentation">Java reference for <code>java.time.OffsetDateTime.compareTo</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -686,7 +695,40 @@
         <summary>Checks if the specified field is supported.</summary>
         <returns>true if the field is supported on this date-time, false if not</returns>
         <remarks>
-          <para>Checks if the specified field is supported. This checks if this date-time can be queried for the specified field. If false, then calling the range, get and with(TemporalField, long) methods will throw an exception. If the field is a ChronoField then the query is implemented here. The supported fields are: NANO_OF_SECOND NANO_OF_DAY MICRO_OF_SECOND MICRO_OF_DAY MILLI_OF_SECOND MILLI_OF_DAY SECOND_OF_MINUTE SECOND_OF_DAY MINUTE_OF_HOUR MINUTE_OF_DAY HOUR_OF_AMPM CLOCK_HOUR_OF_AMPM HOUR_OF_DAY CLOCK_HOUR_OF_DAY AMPM_OF_DAY DAY_OF_WEEK ALIGNED_DAY_OF_WEEK_IN_MONTH ALIGNED_DAY_OF_WEEK_IN_YEAR DAY_OF_MONTH DAY_OF_YEAR EPOCH_DAY ALIGNED_WEEK_OF_MONTH ALIGNED_WEEK_OF_YEAR MONTH_OF_YEAR PROLEPTIC_MONTH YEAR_OF_ERA YEAR ERA INSTANT_SECONDS OFFSET_SECONDS All other ChronoField instances will return false. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.isSupportedBy(TemporalAccessor) passing this as the argument. Whether the field is supported is determined by the field.</para>
+          <para>Checks if the specified field is supported. This checks if this date-time can be queried for the specified field. If false, then calling the range, get and with(TemporalField, long) methods will throw an exception. If the field is a ChronoField then the query is implemented here. The supported fields are:</para>
+          <list type="bullet">
+            <item><term>NANO_OF_SECOND</term></item>
+            <item><term>NANO_OF_DAY</term></item>
+            <item><term>MICRO_OF_SECOND</term></item>
+            <item><term>MICRO_OF_DAY</term></item>
+            <item><term>MILLI_OF_SECOND</term></item>
+            <item><term>MILLI_OF_DAY</term></item>
+            <item><term>SECOND_OF_MINUTE</term></item>
+            <item><term>SECOND_OF_DAY</term></item>
+            <item><term>MINUTE_OF_HOUR</term></item>
+            <item><term>MINUTE_OF_DAY</term></item>
+            <item><term>HOUR_OF_AMPM</term></item>
+            <item><term>CLOCK_HOUR_OF_AMPM</term></item>
+            <item><term>HOUR_OF_DAY</term></item>
+            <item><term>CLOCK_HOUR_OF_DAY</term></item>
+            <item><term>AMPM_OF_DAY</term></item>
+            <item><term>DAY_OF_WEEK</term></item>
+            <item><term>ALIGNED_DAY_OF_WEEK_IN_MONTH</term></item>
+            <item><term>ALIGNED_DAY_OF_WEEK_IN_YEAR</term></item>
+            <item><term>DAY_OF_MONTH</term></item>
+            <item><term>DAY_OF_YEAR</term></item>
+            <item><term>EPOCH_DAY</term></item>
+            <item><term>ALIGNED_WEEK_OF_MONTH</term></item>
+            <item><term>ALIGNED_WEEK_OF_YEAR</term></item>
+            <item><term>MONTH_OF_YEAR</term></item>
+            <item><term>PROLEPTIC_MONTH</term></item>
+            <item><term>YEAR_OF_ERA</term></item>
+            <item><term>YEAR</term></item>
+            <item><term>ERA</term></item>
+            <item><term>INSTANT_SECONDS</term></item>
+            <item><term>OFFSET_SECONDS</term></item>
+          </list>
+          <para>All other ChronoField instances will return false. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.isSupportedBy(TemporalAccessor) passing this as the argument. Whether the field is supported is determined by the field.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetDateTime.html#isSupported(java.time.temporal.TemporalField)" title="Reference documentation">Java reference for <code>java.time.OffsetDateTime.isSupported</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -724,7 +766,26 @@
         <param name="unit">the unit to check, null returns false</param>
         <summary>Checks if the specified unit is supported.</summary>
         <returns>true if the unit can be added/subtracted, false if not</returns>
-        <remarks><para>Checks if the specified unit is supported. This checks if the specified unit can be added to, or subtracted from, this date-time. If false, then calling the plus(long, TemporalUnit) and minus methods will throw an exception. If the unit is a ChronoUnit then the query is implemented here. The supported units are: NANOS; MICROS; MILLIS; SECONDS; MINUTES; HOURS; HALF_DAYS; DAYS; WEEKS; MONTHS; YEARS; DECADES; CENTURIES; MILLENNIA; ERAS All other ChronoUnit instances will return false. If the unit is not a ChronoUnit, then the result of this method is obtained by invoking TemporalUnit.isSupportedBy(Temporal) passing this as the argument. Whether the unit is supported is determined by the unit.</para>
+        <remarks>
+          <para>Checks if the specified unit is supported. This checks if the specified unit can be added to, or subtracted from, this date-time. If false, then calling the plus(long, TemporalUnit) and minus methods will throw an exception. If the unit is a ChronoUnit then the query is implemented here. The supported units are:</para>
+          <list type="bullet">
+            <item><term>NANOS</term></item>
+            <item><term>MICROS</term></item>
+            <item><term>MILLIS</term></item>
+            <item><term>SECONDS</term></item>
+            <item><term>MINUTES</term></item>
+            <item><term>HOURS</term></item>
+            <item><term>HALF_DAYS</term></item>
+            <item><term>DAYS</term></item>
+            <item><term>WEEKS</term></item>
+            <item><term>MONTHS</term></item>
+            <item><term>YEARS</term></item>
+            <item><term>DECADES</term></item>
+            <item><term>CENTURIES</term></item>
+            <item><term>MILLENNIA</term></item>
+            <item><term>ERAS</term></item>
+          </list>
+          <para>All other ChronoUnit instances will return false. If the unit is not a ChronoUnit, then the result of this method is obtained by invoking TemporalUnit.isSupportedBy(Temporal) passing this as the argument. Whether the unit is supported is determined by the unit.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetDateTime.html#isSupported(java.time.temporal.TemporalUnit)" title="Reference documentation">Java reference for <code>java.time.OffsetDateTime.isSupported</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -962,7 +1023,7 @@
         <param name="unit">the unit of the amount to subtract, not null</param>
         <summary>Returns a copy of this date-time with the specified amount subtracted.</summary>
         <returns>an OffsetDateTime based on this date-time with the specified amount subtracted, not null</returns>
-        <remarks><para>Returns a copy of this date-time with the specified amount subtracted. This returns an OffsetDateTime, based on this one, with the amount in terms of the unit subtracted. If it is not possible to subtract the amount, because the unit is not supported or for some other reason, an exception is thrown. This method is equivalent to plus(long, TemporalUnit) with the amount negated. See that method for a full description of how addition, and thus subtraction, works. This instance is immutable and unaffected by this method call.</para>
+        <remarks><para>Returns a copy of this date-time with the specified amount subtracted. This returns an OffsetDateTime, based on this one, with the amount in terms of the unit subtracted. If it is not possible to subtract the amount, because the unit is not supported or for some other reason, an exception is thrown. Unless the amount is <see cref="F:System.Int64.MinValue" />, this method calls plus(long, TemporalUnit) with the amount negated. For <see cref="F:System.Int64.MinValue" />, it calls plus with <see cref="F:System.Int64.MaxValue" />, then calls plus with one on the result. See the addition method for how the unit is handled. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetDateTime.html#minus(long,java.time.temporal.TemporalUnit)" title="Reference documentation">Java reference for <code>java.time.OffsetDateTime.minus</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1105,7 +1166,13 @@
         <summary>Returns a copy of this OffsetDateTime with the specified number of months subtracted.</summary>
         <returns>an OffsetDateTime based on this date-time with the months subtracted, not null</returns>
         <remarks>
-          <para>Returns a copy of this OffsetDateTime with the specified number of months subtracted. This method subtracts the specified amount from the months field in three steps: Subtract the input months from the month-of-year field Check if the resulting date would be invalid Adjust the day-of-month to the last valid day if necessary For example, 2007-03-31 minus one month would result in the invalid date 2007-02-31. Instead of returning an invalid result, the last valid day of the month, 2007-02-28, is selected instead. This instance is immutable and unaffected by this method call.</para>
+          <para>Returns a copy of this OffsetDateTime with the specified number of months subtracted. This method subtracts the specified amount from the months field in three steps:</para>
+          <list type="number">
+            <item><term>Subtract the input months from the month-of-year field</term></item>
+            <item><term>Check if the resulting date would be invalid</term></item>
+            <item><term>Adjust the day-of-month to the last valid day if necessary</term></item>
+          </list>
+          <para>For example, 2007-03-31 minus one month would result in the invalid date 2007-02-31. Instead of returning an invalid result, the last valid day of the month, 2007-02-28, is selected instead. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetDateTime.html#minusMonths(long)" title="Reference documentation">Java reference for <code>java.time.OffsetDateTime.minusMonths</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1248,7 +1315,13 @@
         <summary>Returns a copy of this OffsetDateTime with the specified number of years subtracted.</summary>
         <returns>an OffsetDateTime based on this date-time with the years subtracted, not null</returns>
         <remarks>
-          <para>Returns a copy of this OffsetDateTime with the specified number of years subtracted. This method subtracts the specified amount from the years field in three steps: Subtract the input years from the year field Check if the resulting date would be invalid Adjust the day-of-month to the last valid day if necessary For example, 2008-02-29 (leap year) minus one year would result in the invalid date 2007-02-29 (standard year). Instead of returning an invalid result, the last valid day of the month, 2007-02-28, is selected instead. This instance is immutable and unaffected by this method call.</para>
+          <para>Returns a copy of this OffsetDateTime with the specified number of years subtracted. This method subtracts the specified amount from the years field in three steps:</para>
+          <list type="number">
+            <item><term>Subtract the input years from the year field</term></item>
+            <item><term>Check if the resulting date would be invalid</term></item>
+            <item><term>Adjust the day-of-month to the last valid day if necessary</term></item>
+          </list>
+          <para>For example, 2008-02-29 (leap year) minus one year would result in the invalid date 2007-02-29 (standard year). Instead of returning an invalid result, the last valid day of the month, 2007-02-28, is selected instead. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetDateTime.html#minusYears(long)" title="Reference documentation">Java reference for <code>java.time.OffsetDateTime.minusYears</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1921,7 +1994,7 @@
         <summary>Returns a copy of this date-time with the specified amount added.</summary>
         <returns>an OffsetDateTime based on this date-time with the specified amount added, not null</returns>
         <remarks>
-          <para>Returns a copy of this date-time with the specified amount added. This returns an OffsetDateTime, based on this one, with the amount in terms of the unit added. If it is not possible to add the amount, because the unit is not supported or for some other reason, an exception is thrown. If the unit is a ChronoUnit then the addition is implemented by LocalDateTime.plus(long, TemporalUnit). The offset is not part of the calculation and will be unchanged in the result. If the unit is not a ChronoUnit, then the result of this method is obtained by invoking TemporalUnit.addTo(Temporal, long) passing this as the argument. In this case, the unit determines whether and how to perform the addition. This instance is immutable and unaffected by this method call.</para>
+          <para>Returns a copy of this date-time with the specified amount added. This returns an OffsetDateTime, based on this one, with the amount in terms of the unit added. If it is not possible to add the amount, because the unit is not supported or for some other reason, an exception is thrown. For a ChronoUnit, the addition is implemented by <see cref="M:Java.Time.LocalDateTime.Plus(System.Int64,Java.Time.Temporal.ITemporalUnit)" />. See that method for the Android HALF_DAYS behavior. The offset is not part of the calculation and will be unchanged in the result. If the unit is not a ChronoUnit, then the result of this method is obtained by invoking TemporalUnit.addTo(Temporal, long) passing this as the argument. In this case, the unit determines whether and how to perform the addition. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetDateTime.html#plus(long,java.time.temporal.TemporalUnit)" title="Reference documentation">Java reference for <code>java.time.OffsetDateTime.plus</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -2064,7 +2137,13 @@
         <summary>Returns a copy of this OffsetDateTime with the specified number of months added.</summary>
         <returns>an OffsetDateTime based on this date-time with the months added, not null</returns>
         <remarks>
-          <para>Returns a copy of this OffsetDateTime with the specified number of months added. This method adds the specified amount to the months field in three steps: Add the input months to the month-of-year field Check if the resulting date would be invalid Adjust the day-of-month to the last valid day if necessary For example, 2007-03-31 plus one month would result in the invalid date 2007-04-31. Instead of returning an invalid result, the last valid day of the month, 2007-04-30, is selected instead. This instance is immutable and unaffected by this method call.</para>
+          <para>Returns a copy of this OffsetDateTime with the specified number of months added. This method adds the specified amount to the months field in three steps:</para>
+          <list type="number">
+            <item><term>Add the input months to the month-of-year field</term></item>
+            <item><term>Check if the resulting date would be invalid</term></item>
+            <item><term>Adjust the day-of-month to the last valid day if necessary</term></item>
+          </list>
+          <para>For example, 2007-03-31 plus one month would result in the invalid date 2007-04-31. Instead of returning an invalid result, the last valid day of the month, 2007-04-30, is selected instead. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetDateTime.html#plusMonths(long)" title="Reference documentation">Java reference for <code>java.time.OffsetDateTime.plusMonths</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -2207,7 +2286,13 @@
         <summary>Returns a copy of this OffsetDateTime with the specified number of years added.</summary>
         <returns>an OffsetDateTime based on this date-time with the years added, not null</returns>
         <remarks>
-          <para>Returns a copy of this OffsetDateTime with the specified number of years added. This method adds the specified amount to the years field in three steps: Add the input years to the year field Check if the resulting date would be invalid Adjust the day-of-month to the last valid day if necessary For example, 2008-02-29 (leap year) plus one year would result in the invalid date 2009-02-29 (standard year). Instead of returning an invalid result, the last valid day of the month, 2009-02-28, is selected instead. This instance is immutable and unaffected by this method call.</para>
+          <para>Returns a copy of this OffsetDateTime with the specified number of years added. This method adds the specified amount to the years field in three steps:</para>
+          <list type="number">
+            <item><term>Add the input years to the year field</term></item>
+            <item><term>Check if the resulting date would be invalid</term></item>
+            <item><term>Adjust the day-of-month to the last valid day if necessary</term></item>
+          </list>
+          <para>For example, 2008-02-29 (leap year) plus one year would result in the invalid date 2009-02-29 (standard year). Instead of returning an invalid result, the last valid day of the month, 2009-02-28, is selected instead. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetDateTime.html#plusYears(long)" title="Reference documentation">Java reference for <code>java.time.OffsetDateTime.plusYears</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -2249,7 +2334,7 @@
         <param name="query">the query to invoke, not null</param>
         <summary>Queries this date-time using the specified query.</summary>
         <returns>the query result, null may be returned (defined by the query)</returns>
-        <remarks><para>Queries this date-time using the specified query. This queries this date-time using the specified query strategy object. The TemporalQuery object defines the logic to be used to obtain the result. Read the documentation of the query to understand what the result of this method will be. The result of this method is obtained by invoking the TemporalQuery.queryFrom(TemporalAccessor) method on the specified query passing this as the argument.</para>
+        <remarks><para>Queries this date-time using the specified query. This queries this date-time using the specified query strategy object. The TemporalQuery object defines the logic to be used to obtain the result. Read the documentation of the query to understand what the result of this method will be. Depending on the query, the result may be obtained directly or by invoking TemporalQuery.queryFrom(TemporalAccessor) on the query with this as the argument.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetDateTime.html#query(java.time.temporal.TemporalQuery)" title="Reference documentation">Java reference for <code>java.time.OffsetDateTime.query</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -2750,7 +2835,7 @@
         <param name="unit">the unit to measure the amount in, not null</param>
         <summary>Calculates the amount of time until another date-time in terms of the specified unit.</summary>
         <returns>the amount of time between this date-time and the end date-time</returns>
-        <remarks><para>Calculates the amount of time until another date-time in terms of the specified unit. This calculates the amount of time between two OffsetDateTime objects in terms of a single TemporalUnit. The start and end points are this and the specified date-time. The result can be negative if the end is before the start. For example, the amount in days between two date-times can be calculated using startDateTime.until(endDateTime, DAYS). The Temporal passed to this method is converted to an OffsetDateTime using from(TemporalAccessor). For a ChronoUnit, if the offsets differ, the end is normally converted to the start's offset. If that conversion exceeds the supported date range, some Android versions throw a DateTimeException. Others try converting the start to the end's offset, which can also exceed the supported range. For other units, the converted end is passed to the unit without this offset normalization. The calculation returns a whole number, representing the number of complete units between the two date-times. For example, the amount in months between 2012-06-15T00:00Z and 2012-08-14T23:59Z will only be one month as it is one minute short of two months. There are two equivalent ways of using this method. The first is to invoke this method. The second is to use TemporalUnit.between(Temporal, Temporal):</para>
+        <remarks><para>Calculates the amount of time until another date-time in terms of the specified unit. The Temporal passed to this method is converted to an OffsetDateTime using from(TemporalAccessor). For a ChronoUnit, if the offsets differ, the end is normally converted to the start's offset. If that conversion exceeds the supported date range, Android releases 8.0 through 13 throw a DateTimeException. In Android releases 14 through 17 and the SDK 37.2 source, the method instead tries to convert the start to the end's offset, which can also exceed the supported range. For other units, the converted end is passed to the unit without this offset normalization. For a supported ChronoUnit, the calculation returns the number of complete units between the date-times. For example, the amount in months between 2012-06-15T00:00Z and 2012-08-14T23:59Z is one month. For a supported ChronoUnit, these calls are equivalent:</para>
 <code lang="text/java">   // these two lines are equivalent
    amount = start.until(end, MONTHS);
    amount = MONTHS.between(start, end);</code>
@@ -2799,7 +2884,7 @@
 <code lang="text/java">  result = offsetDateTime.with(date);
   result = offsetDateTime.with(time);
   result = offsetDateTime.with(offset);</code>
-<para>The result of this method is obtained by invoking the TemporalAdjuster.adjustInto(Temporal) method on the specified adjuster passing this as the argument. This instance is immutable and unaffected by this method call.</para>
+<para>For a LocalDate, LocalTime, LocalDateTime, Instant, ZoneOffset or OffsetDateTime adjuster, the method handles the value directly. For other adjusters, it calls TemporalAdjuster.adjustInto(Temporal) with this date-time. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetDateTime.html#with(java.time.temporal.TemporalAdjuster)" title="Reference documentation">Java reference for <code>java.time.OffsetDateTime.with</code>.</a></format></para>
         </remarks>
       </Docs>

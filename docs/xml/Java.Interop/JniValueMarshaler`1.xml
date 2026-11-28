@@ -112,9 +112,9 @@
       </Parameters>
       <Docs>
         <param name="value">The typed managed argument.</param>
-        <param name="synchronize">Flags forwarded to the typed object-reference state creator.</param>
-        <summary>Creates typed argument state through <c>CreateGenericObjectReferenceArgumentState</c>.</summary>
-        <returns>The state returned by the typed object-reference state creator.</returns>
+        <param name="synchronize">Copy-direction flags. The base implementation forwards them to the typed object-reference state creator.</param>
+        <summary>Creates typed argument state. The base implementation delegates to <c>CreateGenericObjectReferenceArgumentState</c>.</summary>
+        <returns>The argument state. In the base implementation, this is the state returned by the typed object-reference state creator.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -255,10 +255,10 @@
       </Parameters>
       <Docs>
         <param name="reference">The source JNI reference.</param>
-        <param name="options">Source-reference transfer options forwarded to <c>CreateGenericValue</c>.</param>
-        <param name="targetType">The requested target type, or <c>typeof(T)</c> when <see langword="null" />.</param>
-        <summary>Converts a JNI reference through the typed conversion implementation.</summary>
-        <returns>The <c>CreateGenericValue</c> result exposed as an object.</returns>
+        <param name="options">Source-reference transfer options. The generic base implementation forwards them to <c>CreateGenericValue</c>.</param>
+        <param name="targetType">The requested target type. The generic base implementation uses <c>typeof(T)</c> when this is <see langword="null" />.</param>
+        <summary>Converts a JNI reference to a managed value. The generic base implementation calls <c>CreateGenericValue</c>.</summary>
+        <returns>The managed value. In the generic base implementation, this is the <c>CreateGenericValue</c> result exposed as an object.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -283,10 +283,10 @@
         <Parameter Name="synchronize" Type="System.Reflection.ParameterAttributes" />
       </Parameters>
       <Docs>
-        <param name="value">The original value, cast directly to <typeparamref name="T" />.</param>
-        <param name="state">The state passed by reference to typed cleanup.</param>
-        <param name="synchronize">Flags forwarded to <c>DestroyGenericArgumentState</c>.</param>
-        <summary>Casts the original value to <typeparamref name="T" /> and invokes typed state cleanup.</summary>
+        <param name="value">The original value. The generic base implementation casts it to <typeparamref name="T" />.</param>
+        <param name="state">The state to clean up. The generic base implementation passes it by reference to typed cleanup.</param>
+        <param name="synchronize">Copy-direction flags. The generic base implementation forwards them to <c>DestroyGenericArgumentState</c>.</param>
+        <summary>Cleans up argument state. The generic base implementation casts the value to <typeparamref name="T" /> and invokes typed cleanup.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

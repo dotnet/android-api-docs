@@ -341,7 +341,7 @@
       </Parameters>
       <Docs>
         <param name="textStyle">the text style to use, not null</param>
-        <param name="preferredZones">the set of preferred zone IDs, not null</param>
+        <param name="preferredZones">The preferred zone IDs, or <see langword="null" /> to use no preferred zones.</param>
         <summary>Appends the generic time-zone name, such as 'Pacific Time', to the formatter.</summary>
         <returns>this, for chaining, not null</returns>
         <remarks>Preferred zones are used when a time-zone name is ambiguous.</remarks>
@@ -558,7 +558,7 @@
         <summary>Appends a localized pattern to the formatter using the requested template.</summary>
         <returns>this, for chaining, not null</returns>
         <remarks>
-          <para>Appends a localized pattern to the formatter using the requested template. This appends a localized section to the builder, suitable for outputting a date, time or date-time combination. The format of the localized section is lazily looked up based on three items: the requestedTemplate specified to this method; the Locale of the DateTimeFormatter; the Chronology of the DateTimeFormatter unless overridden. During formatting, the chronology is obtained from the temporal object being formatted, which may have been overridden by DateTimeFormatter.withChronology(Chronology). During parsing, if a chronology has already been parsed, then it is used. Otherwise the default from DateTimeFormatter.withChronology(Chronology) is used, with IsoChronology as the fallback.</para>
+          <para>The localized pattern is looked up when needed using the requested template, the formatter's locale, and the effective chronology. The localized section can format a date, a time, or a date-time. During formatting, the chronology comes from the temporal object, or ISO if it has no chronology; a formatter override set by <see cref="M:Java.Time.Format.DateTimeFormatter.WithChronology(Java.Time.Chrono.IChronology)" /> takes precedence. During parsing, an already parsed chronology is used; otherwise the formatter's chronology is used, or ISO if it has none.</para>
           <para>The requested template is a series of typical pattern symbols in canonical order from the largest date or time unit to the smallest, which can be expressed with the following regular expression:</para>
           <code lang="text/java">     "G{0,5}" +        // Era
      "y*" +            // Year
@@ -1129,12 +1129,12 @@
       </Parameters>
       <Docs>
         <param name="field">the field to append, not null</param>
-        <param name="width">the width of the reduced value, from one to ten</param>
-        <param name="maxWidth">the maximum width of the reduced value, from width to ten</param>
-        <param name="baseValue">the base value for the field</param>
+        <param name="width">The width of the reduced value, from one to nine.</param>
+        <param name="maxWidth">The maximum width of the reduced value, from <paramref name="width" /> to nine.</param>
+        <param name="baseValue">The base value, within the field's valid range.</param>
         <summary>Appends the reduced value of a date-time field to the formatter.</summary>
         <returns>this, for chaining, not null</returns>
-        <remarks>The base value defines the first value in the range of reduced values.</remarks>
+        <remarks>The base value defines the first value in the range of reduced values. Its sum with 10 raised to <paramref name="maxWidth" /> must not exceed 2,147,483,647.</remarks>
       </Docs>
     </Member>
     <Member MemberName="AppendZoneId">
@@ -1387,7 +1387,7 @@
         <summary>Returns the formatting pattern for the requested template for a locale and chronology.</summary>
         <returns>the locale and Chronology specific formatting pattern</returns>
         <remarks>
-          <para>Returns the formatting pattern for the requested template for a locale and chronology. The locale and chronology are used to lookup the locale specific format for the requested template. If the locale contains the "rg" (region override) Unicode extensions, the formatting pattern is overridden with the one appropriate for the region. Refer to appendLocalized(String) for the detail of requestedTemplate argument.</para>
+          <para>The locale and chronology are used to look up the format for the requested template. See <see cref="M:Java.Time.Format.DateTimeFormatterBuilder.AppendLocalized(System.String)" /> for details of the template.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/format/DateTimeFormatterBuilder.html#getLocalizedDateTimePattern(java.lang.String,java.time.chrono.Chronology,java.util.Locale)" title="Reference documentation">Java reference for <code>java.time.format.DateTimeFormatterBuilder.getLocalizedDateTimePattern</code>.</a></format></para>
         </remarks>
       </Docs>
