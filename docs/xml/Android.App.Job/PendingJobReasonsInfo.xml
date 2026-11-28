@@ -89,7 +89,7 @@
       </Parameters>
       <Docs>
         <param name="timestampMillis">The time associated with the reasons, in milliseconds since the Unix epoch.</param>
-        <param name="reasons">This array cannot be null. Each element is one of the following: JobScheduler.PENDING_JOB_REASON_UNDEFINED; JobScheduler.PENDING_JOB_REASON_APP; JobScheduler.PENDING_JOB_REASON_APP_STANDBY; JobScheduler.PENDING_JOB_REASON_BACKGROUND_RESTRICTION; JobScheduler.PENDING_JOB_REASON_CONSTRAINT_BATTERY_NOT_LOW; JobScheduler.PENDING_JOB_REASON_CONSTRAINT_CHARGING; JobScheduler.PENDING_JOB_REASON_CONSTRAINT_CONNECTIVITY; JobScheduler.PENDING_JOB_REASON_CONSTRAINT_CONTENT_TRIGGER; JobScheduler.PENDING_JOB_REASON_CONSTRAINT_DEVICE_IDLE; JobScheduler.PENDING_JOB_REASON_CONSTRAINT_MINIMUM_LATENCY; JobScheduler.PENDING_JOB_REASON_CONSTRAINT_PREFETCH; JobScheduler.PENDING_JOB_REASON_CONSTRAINT_STORAGE_NOT_LOW; JobScheduler.PENDING_JOB_REASON_DEVICE_STATE; JobScheduler.PENDING_JOB_REASON_EXECUTING; JobScheduler.PENDING_JOB_REASON_INVALID_JOB_ID; JobScheduler.PENDING_JOB_REASON_JOB_SCHEDULER_OPTIMIZATION; JobScheduler.PENDING_JOB_REASON_QUOTA; JobScheduler.PENDING_JOB_REASON_USER; JobScheduler.PENDING_JOB_REASON_CONSTRAINT_DEADLINE</param>
+        <param name="reasons">The pending-job reason codes for this entry. The API contract requires a non-null array. See <see cref="T:Android.App.Job.PendingJobReason" /> for codes known to this binding; Android may define additional codes. Android 16 and 17 do not validate the array or its elements.</param>
         <summary>Creates a pending-job history entry with the supplied timestamp and reason codes.</summary>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/PendingJobReasonsInfo#PendingJobReasonsInfo(long,%20int[])" title="Reference documentation">Android reference for <code>android.app.job.PendingJobReasonsInfo.PendingJobReasonsInfo</code>.</a></format></para>
@@ -121,10 +121,10 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>A creator that generates instances of android.app.job.PendingJobReasonsInfo from a Parcel.</summary>
-        <value>A creator that generates instances of android.app.job.PendingJobReasonsInfo from a Parcel.</value>
+        <summary>A creator that reads <see cref="T:Android.App.Job.PendingJobReasonsInfo" /> instances from a parcel.</summary>
+        <value>A creator that reads <see cref="T:Android.App.Job.PendingJobReasonsInfo" /> instances from a parcel.</value>
         <remarks>
-          <para>A creator that generates instances of android.app.job.PendingJobReasonsInfo from a Parcel.</para>
+          <para>The creator reads <see cref="T:Android.App.Job.PendingJobReasonsInfo" /> instances from a parcel.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/PendingJobReasonsInfo#CREATOR" title="Reference documentation">Android reference for <code>android.app.job.PendingJobReasonsInfo.CREATOR</code>.</a></format></para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/Parcelable.Creator" title="Reference documentation">Android reference for <code>android.os.Parcelable.Creator</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -160,7 +160,7 @@
       <Parameters />
       <Docs>
         <summary>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation.</summary>
-        <returns>a bitmask indicating the set of special object types marshaled by this Parcelable object instance. Value is either 0 or CONTENTS_FILE_DESCRIPTOR</returns>
+        <returns>A bitmask for special object types. The Android 16 and 17 platform implementations return 0.</returns>
         <remarks>
           <para>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation. For example, if the object will include a file descriptor in the output of writeToParcel(Parcel,int), the return value of this method must include the CONTENTS_FILE_DESCRIPTOR bit.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/PendingJobReasonsInfo#describeContents()" title="Reference documentation">Android reference for <code>android.app.job.PendingJobReasonsInfo.describeContents</code>.</a></format></para>
@@ -195,7 +195,7 @@
       <Docs>
         <summary>Returns a set of <c>android.app.job.JobScheduler.PendingJobReason reasons</c> representing
             why the job may not have executed at the associated timestamp.</summary>
-        <returns>This array cannot be null. Each element is one of the following: JobScheduler.PENDING_JOB_REASON_UNDEFINED; JobScheduler.PENDING_JOB_REASON_APP; JobScheduler.PENDING_JOB_REASON_APP_STANDBY; JobScheduler.PENDING_JOB_REASON_BACKGROUND_RESTRICTION; JobScheduler.PENDING_JOB_REASON_CONSTRAINT_BATTERY_NOT_LOW; JobScheduler.PENDING_JOB_REASON_CONSTRAINT_CHARGING; JobScheduler.PENDING_JOB_REASON_CONSTRAINT_CONNECTIVITY; JobScheduler.PENDING_JOB_REASON_CONSTRAINT_CONTENT_TRIGGER; JobScheduler.PENDING_JOB_REASON_CONSTRAINT_DEVICE_IDLE; JobScheduler.PENDING_JOB_REASON_CONSTRAINT_MINIMUM_LATENCY; JobScheduler.PENDING_JOB_REASON_CONSTRAINT_PREFETCH; JobScheduler.PENDING_JOB_REASON_CONSTRAINT_STORAGE_NOT_LOW; JobScheduler.PENDING_JOB_REASON_DEVICE_STATE; JobScheduler.PENDING_JOB_REASON_EXECUTING; JobScheduler.PENDING_JOB_REASON_INVALID_JOB_ID; JobScheduler.PENDING_JOB_REASON_JOB_SCHEDULER_OPTIMIZATION; JobScheduler.PENDING_JOB_REASON_QUOTA; JobScheduler.PENDING_JOB_REASON_USER; JobScheduler.PENDING_JOB_REASON_CONSTRAINT_DEADLINE</returns>
+        <returns>The pending-job reason codes at this timestamp. The API contract specifies a non-null array, but Android 16 and 17 can return null if the instance was constructed with null reasons. See <see cref="T:Android.App.Job.PendingJobReason" /> for codes known to this binding; Android may define additional codes.</returns>
         <remarks>
           <para>Returns a set of <c>android.app.job.JobScheduler.PendingJobReason reasons</c> representing
             why the job may not have executed at the associated timestamp.</para>
@@ -416,7 +416,7 @@
       </Parameters>
       <Docs>
         <param name="dest">The Parcel in which the object should be written.</param>
-        <param name="flags">Additional flags about how the object should be written. May be 0 or Parcelable.PARCELABLE_WRITE_RETURN_VALUE. Value is either 0 or a combination of the following: <see cref="F:Android.OS.ParcelableWriteFlags.ReturnValue" /></param>
+        <param name="flags">Additional parcel-write flags: <see cref="F:Android.OS.ParcelableWriteFlags.None" /> or <see cref="F:Android.OS.ParcelableWriteFlags.ReturnValue" />. The Android 16 and 17 platform implementations ignore this parameter.</param>
         <summary>Flatten this object into a Parcel.</summary>
         <remarks>
           <para>Flatten this object into a Parcel.</para>

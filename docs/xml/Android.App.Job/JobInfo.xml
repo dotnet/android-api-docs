@@ -194,6 +194,7 @@
           <para>Category indicating the job is for performing app updates by a registered app store.</para>
           <para>This category can only be used by registered app stores (apps holding the Manifest.permission.INSTALL_PACKAGES_AS_REGISTERED_APP_STORE permission) and will throw a SecurityException otherwise.</para>
           <para>This is a hint to the system. The system may choose relaxed throttling and quota policies for the jobs marked with this category to make sure the app updates are completed in a timely manner. This may include exemption from app standby buckets, but it is not guaranteed.</para>
+          <para>When the registered-app-store feature is enabled, this category cannot be combined with a persisted, prefetch, or user-initiated job. <see cref="M:Android.App.Job.JobInfo.Builder.Build" /> throws an exception for these combinations.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo#CATEGORY_APP_UPDATES" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.CATEGORY_APP_UPDATES</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -356,7 +357,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the parcel factory for <see cref="T:Android.App.Job.JobInfo" /> instances.</summary>
-        <value>A creator that generates instances of android.app.job.JobInfo from a Parcel.</value>
+        <value>A creator that generates <see cref="T:Android.App.Job.JobInfo" /> instances from a parcel.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -468,9 +469,9 @@
       <Docs>
         <summary>Describe the kinds of special objects contained in this Parcelable's
  marshalled representation.</summary>
-        <returns>a bitmask indicating the set of special object types marshaled by this Parcelable object instance. Value is either 0 or CONTENTS_FILE_DESCRIPTOR</returns>
+        <returns>A bitmask for special object types. On Android 5 through 17, the platform implementation returns 0.</returns>
         <remarks>
-          <para>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation. For example, if the object will include a file descriptor in the output of writeToParcel(Parcel,int), the return value of this method must include the CONTENTS_FILE_DESCRIPTOR bit.</para>
+          <para>The parcelable contract requires the <see cref="F:Android.OS.IParcelable.ContentsFileDescriptor" /> bit when the marshaled data contains a file descriptor. On Android 8 through 17, the platform implementation returns 0 even when it writes a file descriptor.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo#describeContents()" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.describeContents</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -872,16 +873,11 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary><b>Note:</b> Beginning with
-            <c>android.os.Build.VERSION_CODES#BAKLAVA</c>, this flag will be ignored and no longer
-            function effectively, regardless of the calling app's target SDK version.</summary>
+        <summary>Gets whether the important-while-foreground flag is set for this job.</summary>
         <value>Whether the important-while-foreground flag is set. On Android 16 and later, this is always <see langword="false" /> because the flag is ignored.</value>
         <remarks>
-          <para><b>Note:</b> Beginning with
-            <c>android.os.Build.VERSION_CODES#BAKLAVA</c>, this flag will be ignored and no longer
-            function effectively, regardless of the calling app's target SDK version.
-            Calling this method will always return <c>false</c>.</para>
-          <para>This member is deprecated. Use <c>#isExpedited()</c> instead.</para>
+          <para>On Android 16 and later, the flag is ignored and this property always returns <see langword="false" />, regardless of the app's target SDK version.</para>
+          <para>This member is deprecated. Use <see cref="P:Android.App.Job.JobInfo.IsExpedited" /> instead.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/job/JobInfo#isImportantWhileForeground()" title="Reference documentation">Java documentation for <code>android.app.job.JobInfo.isImportantWhileForeground()</code>.</a>
@@ -1441,7 +1437,7 @@
       <Docs>
         <summary>Set for a job that does not recur periodically, to specify a delay after which the job
             will be eligible for execution.</summary>
-        <value>The configured minimum delay in milliseconds before the job is eligible to run, with negative values reported as zero.</value>
+        <value>The configured minimum delay in milliseconds before the job is normally eligible to run, with negative values reported as zero. An expired override deadline can bypass this delay.</value>
         <remarks>
           <para>Set for a job that does not recur periodically, to specify a delay after which the job
             will be eligible for execution. This value is not set if the job recurs periodically.</para>
@@ -1615,7 +1611,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the scheduling priority stored in this job's configuration.</summary>
-        <value>Value is one of the following: PRIORITY_MIN; PRIORITY_LOW; PRIORITY_DEFAULT; PRIORITY_HIGH; PRIORITY_MAX</value>
+        <value>The integer value of <see cref="F:Android.App.Job.JobPriority.Min" />, <see cref="F:Android.App.Job.JobPriority.Low" />, <see cref="F:Android.App.Job.JobPriority.Default" />, <see cref="F:Android.App.Job.JobPriority.High" />, or <see cref="F:Android.App.Job.JobPriority.Max" />.</value>
         <remarks>
           <para>
             <format type="text/html">
