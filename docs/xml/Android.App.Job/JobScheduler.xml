@@ -31,39 +31,36 @@
     <remarks>
       <para>This is an API for scheduling various types of jobs against the framework that will be executed
             in your application's own process.</para>
-      <para>See <c>android.app.job.JobInfo</c> for more description of the types of jobs that can be run
+      <para>See <see cref="T:Android.App.Job.JobInfo" /> for more description of the types of jobs that can be run
             and how to construct them. You will construct these JobInfo objects and pass them to the
-            JobScheduler with <c>#schedule(JobInfo)</c>. When the criteria declared are met, the
-            system will execute this job on your application's <c>android.app.job.JobService</c>.
+            JobScheduler with <see cref="M:Android.App.Job.JobScheduler.Schedule(Android.App.Job.JobInfo)" />. When the requested criteria are met, the
+            system can execute the job on your application's <see cref="T:Android.App.Job.JobService" />.
+            An expired override deadline can bypass requested functional constraints, but does not guarantee execution.
             You identify the service component that implements the logic for your job when you
             construct the JobInfo using
-            <c>android.app.job.JobInfo.Builder#Builder(int,android.content.ComponentName)</c>.</para>
+            <see cref="M:Android.App.Job.JobInfo.Builder.#ctor(System.Int32,Android.Content.ComponentName)" />.</para>
       <para>The framework will be intelligent about when it executes jobs, and attempt to batch
             and defer them as much as possible. Typically, if you don't specify a deadline on a job, it
-            can be run at any moment depending on the current state of the JobScheduler's internal queue.</para>
+            can run after its constraints are met, depending on the current state of the JobScheduler's internal queue.</para>
       <para>Starting in Android version <c>android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE</c>,
             JobScheduler may try to optimize job execution by shifting execution to times with more available
             system resources in order to lower user impact. Factors in system health include sufficient
             battery, idle, charging, and access to an un-metered network. Jobs will initially be treated as
             if they have all these requirements, but as their deadlines approach, restrictions will become
             less strict. Requested requirements will not be affected by this change.</para>
-      <para>
-        <c>android.app.job.JobInfo.Builder#setRequiresBatteryNotLow(boolean)</c>
-        <c>android.app.job.JobInfo.Builder#setRequiresDeviceIdle(boolean)</c>
-        <c>android.app.job.JobInfo.Builder#setRequiresCharging(boolean)</c>
-        <c>android.app.job.JobInfo.Builder#setRequiredNetworkType(int)</c>
-      </para>
+      <para>To request these constraints explicitly, use
+        <see cref="M:Android.App.Job.JobInfo.Builder.SetRequiresBatteryNotLow(System.Boolean)" />,
+        <see cref="M:Android.App.Job.JobInfo.Builder.SetRequiresDeviceIdle(System.Boolean)" />,
+        <see cref="M:Android.App.Job.JobInfo.Builder.SetRequiresCharging(System.Boolean)" />, or
+        <see cref="M:Android.App.Job.JobInfo.Builder.SetRequiredNetworkType(Android.App.Job.NetworkType)" />.</para>
       <para>While a job is running, the system holds a wakelock on behalf of your app.  For this reason,
             you do not need to take any action to guarantee that the device stays awake for the
             duration of the job.</para>
-      <para>You do not
-            instantiate this class directly; instead, retrieve it through
-            <c>android.content.Context#getSystemService
-            Context.getSystemService(Context.JOB_SCHEDULER_SERVICE)</c>.</para>
-      <para>Prior to Android version <c>android.os.Build.VERSION_CODES#S</c>, jobs could only have
-            a maximum of 100 jobs scheduled at a time. Starting with Android version
-            <c>android.os.Build.VERSION_CODES#S</c>, that limit has been increased to 150.
-            Expedited jobs also count towards the limit.</para>
+      <para>You do not instantiate this class directly; instead, retrieve it through
+            <see cref="M:Android.Content.Context.GetSystemService(System.String)" /> using
+            <see cref="F:Android.Content.Context.JobSchedulerService" />.</para>
+      <para>On Android 7 through 11, the scheduler applies a per-app threshold of 100 scheduled jobs.
+            Starting with Android 12, the threshold is 150 jobs. Expedited jobs count toward this threshold.</para>
       <para>In Android version <c>android.os.Build.VERSION_CODES#LOLLIPOP</c>, jobs had a maximum
             execution time of one minute. Starting with Android version
             <c>android.os.Build.VERSION_CODES#M</c> and ending with Android version
@@ -156,9 +153,9 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the jobs scheduled by this application in this scheduler's namespace.</summary>
-        <value>a list of all of the app's scheduled jobs. This includes jobs that are currently started as well as those that are still waiting to run. This value cannot be null.</value>
+        <value>A list of the app's jobs in this scheduler's namespace, including jobs that are running and jobs waiting to run. This value cannot be null.</value>
         <remarks>
-          <para>Retrieve all jobs that have been scheduled by the calling application.</para>
+          <para>Retrieve the jobs scheduled by the calling application in this scheduler's namespace.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobScheduler#getAllPendingJobs()" title="Reference documentation">Android reference for <code>android.app.job.JobScheduler.getAllPendingJobs</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -373,17 +370,16 @@
             <c>android.app.job.JobInfo.Builder JobInfo.Builder</c> for more detail on the sorts of jobs
             you can schedule.</param>
         <param name="work">New work to enqueue.  This will be available later when the job starts running.</param>
-        <summary>Similar to <c>#schedule</c>, but allows you to enqueue work for a new <i>or existing</i>
+        <summary>Similar to <see cref="M:Android.App.Job.JobScheduler.Schedule(Android.App.Job.JobInfo)" />, but allows you to enqueue work for a new <i>or existing</i>
             job.</summary>
         <returns>the result of the enqueue request.</returns>
         <remarks>
-          <para>Similar to <c>#schedule</c>, but allows you to enqueue work for a new <i>or existing</i>
-            job.  If a job with the same ID is already scheduled, it will be replaced with the
-            new <c>JobInfo</c>, but any previously enqueued work will remain and be dispatched the
-            next time it runs.  If a job with the same ID is already running, the new work will be
-            enqueued for it without stopping the job.</para>
+          <para>Enqueue work for a new or existing job. If a job with the same ID is already scheduled
+            in this scheduler's namespace, a changed <c>JobInfo</c> replaces it, but previously
+            enqueued work remains and is dispatched the next time it runs. If the job is running
+            and the scheduler considers its <c>JobInfo</c> unchanged, the new work is enqueued without stopping it.</para>
           <para>The work you enqueue is later retrieved through
-            <c>JobParameters#dequeueWork() JobParameters.dequeueWork</c>.  Be sure to see there
+            <see cref="M:Android.App.Job.JobParameters.DequeueWork" />.  Be sure to see there
             about how to process work; the act of enqueueing work changes how you should handle the
             overall lifecycle of an executing job.</para>
           <para>It is strongly encouraged that you use the same <c>JobInfo</c> for all work you
@@ -393,14 +389,13 @@
             in execution.  In particular, this can result in any currently running job that is processing
             previous work to be stopped and restarted with the new JobInfo.</para>
           <para>It is recommended that you avoid using
-            <c>JobInfo.Builder#setExtras(PersistableBundle)</c> or
-            <c>JobInfo.Builder#setTransientExtras(Bundle)</c> with a JobInfo you are using to
+            <see cref="M:Android.App.Job.JobInfo.Builder.SetExtras(Android.OS.PersistableBundle)" /> or
+            <see cref="M:Android.App.Job.JobInfo.Builder.SetTransientExtras(Android.OS.Bundle)" /> with a JobInfo you are using to
             enqueue work.  The system will try to compare these extras with the previous JobInfo,
             but there are situations where it may get this wrong and count the JobInfo as changing.
             (That said, you should be relatively safe with a simple set of consistent data in these
-            fields.)  You should never use <c>JobInfo.Builder#setClipData(ClipData, int)</c> with
-            work you are enqueuing, since currently this will always be treated as a different JobInfo,
-            even if the ClipData contents are exactly the same.</para>
+            fields.) Avoid supplying a non-null clip with <see cref="M:Android.App.Job.JobInfo.Builder.SetClipData(Android.Content.ClipData,Android.Content.ActivityFlags)" />.
+            Different clip objects can make the scheduler treat the JobInfo as changed even if their contents are the same.</para>
           <para><b>Note:</b> Scheduling a job can have a high cost, even if it's
             rescheduling the same job and the job didn't execute, especially on platform versions before
             version <c>android.os.Build.VERSION_CODES#Q</c>. As such, the system may throttle calls to
@@ -565,7 +560,7 @@
       <Docs>
         <param name="jobId">The identifier of the job to inspect in this scheduler's namespace.</param>
         <summary>Returns a reason why the job is pending and not currently executing.</summary>
-        <returns>Value is one of the following: <see cref="F:Android.App.Job.PendingJobReason.Undefined" />; <see cref="F:Android.App.Job.PendingJobReason.App" />; <see cref="F:Android.App.Job.PendingJobReason.AppStandby" />; <see cref="F:Android.App.Job.PendingJobReason.BackgroundRestriction" />; <see cref="F:Android.App.Job.PendingJobReason.ConstraintBatteryNotLow" />; <see cref="F:Android.App.Job.PendingJobReason.ConstraintCharging" />; <see cref="F:Android.App.Job.PendingJobReason.ConstraintConnectivity" />; <see cref="F:Android.App.Job.PendingJobReason.ConstraintContentTrigger" />; <see cref="F:Android.App.Job.PendingJobReason.ConstraintDeviceIdle" />; <see cref="F:Android.App.Job.PendingJobReason.ConstraintMinimumLatency" />; <see cref="F:Android.App.Job.PendingJobReason.ConstraintPrefetch" />; <see cref="F:Android.App.Job.PendingJobReason.ConstraintStorageNotLow" />; <see cref="F:Android.App.Job.PendingJobReason.DeviceState" />; <see cref="F:Android.App.Job.PendingJobReason.Executing" />; <see cref="F:Android.App.Job.PendingJobReason.InvalidJobId" />; <see cref="F:Android.App.Job.PendingJobReason.JobSchedulerOptimization" />; <see cref="F:Android.App.Job.PendingJobReason.Quota" />; <see cref="F:Android.App.Job.PendingJobReason.User" />; <see cref="F:Android.App.Job.PendingJobReason.ConstraintDeadline" /></returns>
+        <returns>Known values include <see cref="F:Android.App.Job.PendingJobReason.Undefined" />; <see cref="F:Android.App.Job.PendingJobReason.App" />; <see cref="F:Android.App.Job.PendingJobReason.AppStandby" />; <see cref="F:Android.App.Job.PendingJobReason.BackgroundRestriction" />; <see cref="F:Android.App.Job.PendingJobReason.ConstraintBatteryNotLow" />; <see cref="F:Android.App.Job.PendingJobReason.ConstraintCharging" />; <see cref="F:Android.App.Job.PendingJobReason.ConstraintConnectivity" />; <see cref="F:Android.App.Job.PendingJobReason.ConstraintContentTrigger" />; <see cref="F:Android.App.Job.PendingJobReason.ConstraintDeviceIdle" />; <see cref="F:Android.App.Job.PendingJobReason.ConstraintMinimumLatency" />; <see cref="F:Android.App.Job.PendingJobReason.ConstraintPrefetch" />; <see cref="F:Android.App.Job.PendingJobReason.ConstraintStorageNotLow" />; <see cref="F:Android.App.Job.PendingJobReason.DeviceState" />; <see cref="F:Android.App.Job.PendingJobReason.Executing" />; <see cref="F:Android.App.Job.PendingJobReason.InvalidJobId" />; <see cref="F:Android.App.Job.PendingJobReason.JobSchedulerOptimization" />; <see cref="F:Android.App.Job.PendingJobReason.Quota" />; <see cref="F:Android.App.Job.PendingJobReason.User" />; <see cref="F:Android.App.Job.PendingJobReason.ConstraintDeadline" />. Newer Android versions can add reasons.</returns>
         <remarks>
           <para>Returns a reason why the job is pending and not currently executing. If there are multiple
             reasons why a job may be pending, this will only return one of them.</para>
@@ -612,7 +607,7 @@
         <param name="jobId">The identifier of the job to inspect in this scheduler's namespace.</param>
         <summary>Returns potential reasons why the job with the given <c>jobId</c> may be pending
             and not currently executing.</summary>
-        <returns>This array cannot be null. Each element is one of the following: PENDING_JOB_REASON_UNDEFINED; PENDING_JOB_REASON_APP; PENDING_JOB_REASON_APP_STANDBY; PENDING_JOB_REASON_BACKGROUND_RESTRICTION; PENDING_JOB_REASON_CONSTRAINT_BATTERY_NOT_LOW; PENDING_JOB_REASON_CONSTRAINT_CHARGING; PENDING_JOB_REASON_CONSTRAINT_CONNECTIVITY; PENDING_JOB_REASON_CONSTRAINT_CONTENT_TRIGGER; PENDING_JOB_REASON_CONSTRAINT_DEVICE_IDLE; PENDING_JOB_REASON_CONSTRAINT_MINIMUM_LATENCY; PENDING_JOB_REASON_CONSTRAINT_PREFETCH; PENDING_JOB_REASON_CONSTRAINT_STORAGE_NOT_LOW; PENDING_JOB_REASON_DEVICE_STATE; PENDING_JOB_REASON_EXECUTING; PENDING_JOB_REASON_INVALID_JOB_ID; PENDING_JOB_REASON_JOB_SCHEDULER_OPTIMIZATION; PENDING_JOB_REASON_QUOTA; PENDING_JOB_REASON_USER; PENDING_JOB_REASON_CONSTRAINT_DEADLINE</returns>
+        <returns>A non-null array of integer reason codes. Known values correspond to members of <see cref="T:Android.App.Job.PendingJobReason" />; newer Android versions can add reasons.</returns>
         <remarks>
           <para>Returns potential reasons why the job with the given <c>jobId</c> may be pending
             and not currently executing.
@@ -724,11 +719,11 @@
             execution over its lifetime.</summary>
         <returns>A map of pending reasons to the total duration the job was pending for that reason.</returns>
         <remarks>
-          <para>For the given jobId, returns an aggregated view of why the job has been pending execution over its lifetime. The returned map is composed of PENDING_JOB_REASON_* constants mapped to a duration representing the total time the job has been pending for that reason.</para>
+          <para>For the given jobId, returns an aggregated view of why the job has been pending execution over its lifetime. The returned map associates integer values from <see cref="T:Android.App.Job.PendingJobReason" /> with a duration representing the total time the job has been pending for that reason.</para>
           <para>Note that the sum of these durations will often exceed the total duration the job was waiting, since a job could be pending due to multiple reasons simultaneously.</para>
           <para>These pending job reasons represent either explicitly set constraints on the job or implicit constraints imposed by the system due to various reasons. The results can be used to debug which constraints contribute the most to why a given job has been pending execution.</para>
           <para>If the returned map is empty, it could indicate that the job was executed immediately and never had to wait for any constraints to be met.</para>
-          <para>To get a more detailed and historical view of why a job was pending at a certain time, use getPendingJobReasonsHistory(int) instead.</para>
+          <para>To get a more detailed and historical view of why a job was pending at a certain time, use <see cref="M:Android.App.Job.JobScheduler.GetPendingJobReasonsHistory(System.Int32)" /> instead.</para>
           <para>Note: The pending job reason stats are not persisted across device reboots. The stats are also cleared when the job successfully completes or is canceled. Apps should query this information when they observe a scheduled job is not executing as expected to understand the reasons for the delay.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobScheduler#getPendingJobReasonStats(int)" title="Reference documentation">Android reference for <code>android.app.job.JobScheduler.getPendingJobReasonStats</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1839,7 +1834,7 @@
         <returns>the result of the schedule request.</returns>
         <remarks>
           <para>Schedule a job to be executed.  Will replace any currently scheduled job with the same
-            ID with the new information in the <c>JobInfo</c>.  If a job with the given ID is currently
+            ID in this scheduler's namespace with the new information in the <c>JobInfo</c>.  If that job is currently
             running, it will be stopped.</para>
           <para><b>Note:</b> Scheduling a job can have a high cost, even if it's
             rescheduling the same job and the job didn't execute, especially on platform versions before

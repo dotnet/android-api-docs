@@ -113,7 +113,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Controls how the incoming JNI reference is handled and whether the managed peer is registered with the runtime.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -554,9 +554,9 @@
       </Parameters>
       <Docs>
         <param name="params">The parameters identifying the running job whose transfer estimate is being updated.</param>
-        <param name="item">The work item whose estimate is being updated, or <see langword="null" /> to update the estimate for the job itself.</param>
-        <param name="downloadBytes">Value is a non-negative number of bytes.</param>
-        <param name="uploadBytes">Value is a non-negative number of bytes.</param>
+        <param name="item">The work item associated with the report, or <see langword="null" /> for a job-level report. On Android 14 through 17, the platform records the update for the job without distinguishing the item.</param>
+        <param name="downloadBytes">The non-negative estimated download size in bytes. On Android 14 through 17, the platform treats <see cref="F:Android.App.Job.JobInfo.NetworkBytesUnknown" /> as unknown.</param>
+        <param name="uploadBytes">The non-negative estimated upload size in bytes. On Android 14 through 17, the platform treats <see cref="F:Android.App.Job.JobInfo.NetworkBytesUnknown" /> as unknown.</param>
         <summary>Call in to engine to report data transfer progress.</summary>
         <remarks>
           <para>Call in to engine to report data transfer progress.</para>
@@ -611,9 +611,9 @@
       </Parameters>
       <Docs>
         <param name="params">The parameters identifying the running job whose transferred bytes are being reported.</param>
-        <param name="item">The work item whose transferred bytes are being reported, or <see langword="null" /> to report them for the job itself.</param>
-        <param name="downloadBytes">Value is a non-negative number of bytes.</param>
-        <param name="uploadBytes">Value is a non-negative number of bytes.</param>
+        <param name="item">The work item associated with the report, or <see langword="null" /> for a job-level report. On Android 14 through 17, the platform records the update for the job without distinguishing the item.</param>
+        <param name="downloadBytes">The non-negative number of bytes downloaded. On Android 14 through 17, the platform treats <see cref="F:Android.App.Job.JobInfo.NetworkBytesUnknown" /> as unknown.</param>
+        <param name="uploadBytes">The non-negative number of bytes uploaded. On Android 14 through 17, the platform treats <see cref="F:Android.App.Job.JobInfo.NetworkBytesUnknown" /> as unknown.</param>
         <summary>Call in to engine to report data transfer progress.</summary>
         <remarks>
           <para>Call in to engine to report data transfer progress.</para>
