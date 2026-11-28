@@ -288,7 +288,7 @@
         <summary>Gets the number of seconds from the Java epoch of 1970-01-01T00:00:00Z.</summary>
         <value>the seconds from the epoch of 1970-01-01T00:00:00Z</value>
         <remarks>
-          <para>Gets the number of seconds from the Java epoch of 1970-01-01T00:00:00Z. The epoch second count is a simple incrementing count of seconds where second 0 is 1970-01-01T00:00:00Z. The nanosecond part is returned by getNano().</para>
+          <para>Gets the number of seconds from the Java epoch of 1970-01-01T00:00:00Z. The epoch second count is a simple incrementing count of seconds where second 0 is 1970-01-01T00:00:00Z. The nanosecond part is returned by <see cref="P:Java.Time.Instant.Nano" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#getEpochSecond()" title="Reference documentation">Android reference for <code>java.time.Instant.getEpochSecond</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -366,10 +366,10 @@
         <summary>Gets the value of the specified field from this instant as an int.</summary>
         <returns>the value for the field</returns>
         <remarks>
-          <para>Gets the value of the specified field from this instant as an int. This queries this instant for the value of the specified field. The returned value will always be within the valid range of values for the field. If it is not possible to return the value, because the field is not supported or for some other reason, an exception is thrown. If the field is a ChronoField then the query is implemented here. The supported fields will return valid values based on this instant, except INSTANT_SECONDS, whose range is too large to fit in an int and which throws a DateTimeException. On some Android versions, the exception is an UnsupportedTemporalTypeException. All other ChronoField instances will throw an UnsupportedTemporalTypeException. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.getFrom(TemporalAccessor) passing this as the argument. Whether the value can be obtained, and what the value represents, is determined by the field.</para>
+          <para>Gets the value of the specified field from this instant as an int. This queries this instant for the value of the specified field. The returned value will always be within the valid range of values for the field. If it is not possible to return the value, because the field is not supported or for some other reason, an exception is thrown. If the field is a ChronoField then the query is implemented here. The supported fields return valid values based on this instant. On Android 8 through 12, <c>Get</c> always throws a DateTimeException for <c>INSTANT_SECONDS</c>, even when the epoch-second value fits in an <c>int</c>, because the field's complete range does not fit in an <c>int</c>. Use <c>GetLong</c> to retrieve the value. Android 13 through 17 throw an UnsupportedTemporalTypeException from <c>Get</c> when <c>INSTANT_SECONDS</c> is requested. All other ChronoField instances throw an UnsupportedTemporalTypeException. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.getFrom(TemporalAccessor) passing this as the argument. Whether the value can be obtained, and what the value represents, is determined by the field.</para>
           <para>Throws: ArithmeticException if numeric overflow occurs</para>
           <para>Throws: DateTimeException if a value for the field cannot be obtained or the value is outside the range of valid values for the field</para>
-          <para>Throws: UnsupportedTemporalTypeException if the field is not supported, or if INSTANT_SECONDS is requested on some Android versions</para>
+          <para>Throws: UnsupportedTemporalTypeException if the field is not supported, including INSTANT_SECONDS on Android 13 through 17</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#get(java.time.temporal.TemporalField)" title="Reference documentation">Android reference for <code>java.time.Instant.get</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -528,7 +528,14 @@
         <summary>Checks if the specified field is supported.</summary>
         <returns>true if the field is supported on this instant, false if not</returns>
         <remarks>
-          <para>Checks if the specified field is supported. This checks if this instant can be queried for the specified field. If false, then calling the range, get and with(TemporalField,long) methods will throw an exception. If the field is a ChronoField then the query is implemented here. The supported fields are: NANO_OF_SECOND MICRO_OF_SECOND MILLI_OF_SECOND INSTANT_SECONDS All other ChronoField instances will return false. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.isSupportedBy(TemporalAccessor) passing this as the argument. Whether the field is supported is determined by the field.</para>
+          <para>Checks if the specified field is supported. This checks if this instant can be queried for the specified field. If false, then calling the range, get and with(TemporalField,long) methods will throw an exception. If the field is a ChronoField then the query is implemented here. The supported fields are:</para>
+          <list type="bullet">
+            <item><term>NANO_OF_SECOND</term></item>
+            <item><term>MICRO_OF_SECOND</term></item>
+            <item><term>MILLI_OF_SECOND</term></item>
+            <item><term>INSTANT_SECONDS</term></item>
+          </list>
+          <para>All other ChronoField instances will return false. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.isSupportedBy(TemporalAccessor) passing this as the argument. Whether the field is supported is determined by the field.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#isSupported(java.time.temporal.TemporalField)" title="Reference documentation">Android reference for <code>java.time.Instant.isSupported</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -568,7 +575,18 @@
         <summary>Checks if the specified unit is supported.</summary>
         <returns>true if the unit is supported on this instant, false if not</returns>
         <remarks>
-          <para>Checks if the specified unit is supported. This checks if the specified unit can be added to, or subtracted from, this date-time. If false, then calling the plus(long,TemporalUnit) and minus methods will throw an exception. If the unit is a ChronoUnit then the query is implemented here. The supported units are: NANOS MICROS MILLIS SECONDS MINUTES HOURS HALF_DAYS DAYS All other ChronoUnit instances will return false. If the unit is not a ChronoUnit, then the result of this method is obtained by invoking TemporalUnit.isSupportedBy(Temporal) passing this as the argument. Whether the unit is supported is determined by the unit.</para>
+          <para>Checks if the specified unit is supported. This checks if the specified unit can be added to, or subtracted from, this date-time. If false, then calling the plus(long,TemporalUnit) and minus methods will throw an exception. If the unit is a ChronoUnit then the query is implemented here. The supported units are:</para>
+          <list type="bullet">
+            <item><term>NANOS</term></item>
+            <item><term>MICROS</term></item>
+            <item><term>MILLIS</term></item>
+            <item><term>SECONDS</term></item>
+            <item><term>MINUTES</term></item>
+            <item><term>HOURS</term></item>
+            <item><term>HALF_DAYS</term></item>
+            <item><term>DAYS</term></item>
+          </list>
+          <para>All other ChronoUnit instances will return false. If the unit is not a ChronoUnit, then the result of this method is obtained by invoking TemporalUnit.isSupportedBy(Temporal) passing this as the argument. Whether the unit is supported is determined by the unit.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#isSupported(java.time.temporal.TemporalUnit)" title="Reference documentation">Android reference for <code>java.time.Instant.isSupported</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -966,7 +984,7 @@
         <summary>Gets the number of nanoseconds, later along the time-line, from the start of the second.</summary>
         <value>the nanoseconds within the second, always positive, never exceeds 999,999,999</value>
         <remarks>
-          <para>Gets the number of nanoseconds, later along the time-line, from the start of the second. The nanosecond-of-second value measures the total number of nanoseconds from the second returned by getEpochSecond().</para>
+          <para>Gets the number of nanoseconds, later along the time-line, from the start of the second. The nanosecond-of-second value measures the total number of nanoseconds from the second returned by <see cref="P:Java.Time.Instant.EpochSecond" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#getNano()" title="Reference documentation">Android reference for <code>java.time.Instant.getNano</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1190,7 +1208,7 @@
         <summary>Obtains an instance of Instant from a text string such as 2007-12-03T10:15:30.00Z.</summary>
         <returns>the parsed instant, not null</returns>
         <remarks>
-          <para>Obtains an instance of Instant from a text string such as 2007-12-03T10:15:30.00Z. The string must represent a valid instant in UTC and is parsed using DateTimeFormatter.ISO_INSTANT.</para>
+          <para>Obtains an instance of Instant from a text string such as 2007-12-03T10:15:30.00Z. The text is parsed using DateTimeFormatter.ISO_INSTANT. Android 8 through 13 require the UTC designator Z or z. Android 14 through API 37.2 also accept numeric offsets.</para>
           <para>Throws: DateTimeParseException if the text cannot be parsed</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#parse(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>java.time.Instant.parse</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1224,7 +1242,7 @@
         <summary>Obtains an instance of Instant from a text string such as 2007-12-03T10:15:30.00Z.</summary>
         <returns>the parsed instant, not null</returns>
         <remarks>
-          <para>Obtains an instance of Instant from a text string such as 2007-12-03T10:15:30.00Z. The string must represent a valid instant in UTC and is parsed using DateTimeFormatter.ISO_INSTANT.</para>
+          <para>Obtains an instance of Instant from a text string such as 2007-12-03T10:15:30.00Z. The text is parsed using DateTimeFormatter.ISO_INSTANT. Android 8 through 13 require the UTC designator Z or z. Android 14 through API 37.2 also accept numeric offsets.</para>
           <para>Throws: DateTimeParseException if the text cannot be parsed</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#parse(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>java.time.Instant.parse</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1306,7 +1324,18 @@
         <summary>Returns a copy of this instant with the specified amount added.</summary>
         <returns>an Instant based on this instant with the specified amount added, not null</returns>
         <remarks>
-          <para>Returns a copy of this instant with the specified amount added. This returns an Instant, based on this one, with the amount in terms of the unit added. If it is not possible to add the amount, because the unit is not supported or for some other reason, an exception is thrown. If the unit is a ChronoUnit then the addition is implemented here. The supported units behave as follows: NANOS - Returns an Instant with the specified number of nanoseconds added. This is equivalent to plusNanos(long). MICROS - Returns an Instant with the specified number of microseconds added. This is equivalent to plusNanos(long) with the amount multiplied by 1,000. MILLIS - Returns an Instant with the specified number of milliseconds added. This is equivalent to plusNanos(long) with the amount multiplied by 1,000,000. SECONDS - Returns an Instant with the specified number of seconds added. This is equivalent to plusSeconds(long). MINUTES - Returns an Instant with the specified number of minutes added. This is equivalent to plusSeconds(long) with the amount multiplied by 60. HOURS - Returns an Instant with the specified number of hours added. This is equivalent to plusSeconds(long) with the amount multiplied by 3,600. HALF_DAYS - Returns an Instant with the specified number of half-days added. This is equivalent to plusSeconds(long) with the amount multiplied by 43,200 (12 hours). DAYS - Returns an Instant with the specified number of days added. This is equivalent to plusSeconds(long) with the amount multiplied by 86,400 (24 hours). All other ChronoUnit instances will throw an UnsupportedTemporalTypeException. If the unit is not a ChronoUnit, then the result of this method is obtained by invoking TemporalUnit.addTo(Temporal, long) passing this as the argument. In this case, the unit determines whether and how to perform the addition. This instance is immutable and unaffected by this method call.</para>
+          <para>Returns a copy of this instant with the specified amount added. This returns an Instant, based on this one, with the amount in terms of the unit added. If it is not possible to add the amount, because the unit is not supported or for some other reason, an exception is thrown. If the unit is a ChronoUnit then the addition is implemented here. The supported units behave as follows:</para>
+          <list type="bullet">
+            <item><term>NANOS - Returns an Instant with the specified number of nanoseconds added. This is equivalent to plusNanos(long).</term></item>
+            <item><term>MICROS - Returns an Instant with the specified number of microseconds added. Each microsecond is 1,000 nanoseconds.</term></item>
+            <item><term>MILLIS - Returns an Instant with the specified number of milliseconds added. Each millisecond is 1,000,000 nanoseconds.</term></item>
+            <item><term>SECONDS - Returns an Instant with the specified number of seconds added. This is equivalent to plusSeconds(long).</term></item>
+            <item><term>MINUTES - Returns an Instant with the specified number of minutes added. This is equivalent to plusSeconds(long) with the amount multiplied by 60.</term></item>
+            <item><term>HOURS - Returns an Instant with the specified number of hours added. This is equivalent to plusSeconds(long) with the amount multiplied by 3,600.</term></item>
+            <item><term>HALF_DAYS - Returns an Instant with the specified number of half-days added. This is equivalent to plusSeconds(long) with the amount multiplied by 43,200 (12 hours).</term></item>
+            <item><term>DAYS - Returns an Instant with the specified number of days added. This is equivalent to plusSeconds(long) with the amount multiplied by 86,400 (24 hours).</term></item>
+          </list>
+          <para>All other ChronoUnit instances will throw an UnsupportedTemporalTypeException. If the unit is not a ChronoUnit, then the result of this method is obtained by invoking TemporalUnit.addTo(Temporal, long) passing this as the argument. In this case, the unit determines whether and how to perform the addition. This instance is immutable and unaffected by this method call.</para>
           <para>Throws: ArithmeticException if numeric overflow occurs</para>
           <para>Throws: DateTimeException if the addition cannot be made</para>
           <para>Throws: UnsupportedTemporalTypeException if the unit is not supported</para>
@@ -1470,7 +1499,7 @@
         <summary>Queries this instant using the specified query.</summary>
         <returns>the query result, null may be returned (defined by the query)</returns>
         <remarks>
-          <para>Queries this instant using the specified query. This queries this instant using the specified query strategy object. The TemporalQuery object defines the logic to be used to obtain the result. Read the documentation of the query to understand what the result of this method will be. The result of this method is obtained by invoking the TemporalQuery.queryFrom(TemporalAccessor) method on the specified query passing this as the argument.</para>
+          <para>Queries this instant using the specified query. This queries this instant using the specified query strategy object. The TemporalQuery object defines the logic to be used to obtain the result. Read the documentation of the query to understand what the result of this method will be. Depending on the query, the result may be obtained directly or by invoking TemporalQuery.queryFrom(TemporalAccessor) on the query with this as the argument.</para>
           <para>Throws: ArithmeticException if numeric overflow occurs (defined by the query)</para>
           <para>Throws: DateTimeException if unable to query (defined by the query)</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#query(java.time.temporal.TemporalQuery&lt;R&gt;)" title="Reference documentation">Android reference for <code>java.time.Instant.query</code>.</a></format></para>
@@ -1656,7 +1685,7 @@
         <summary>Returns a copy of this Instant truncated to the specified unit.</summary>
         <returns>an Instant based on this instant with the time truncated, not null</returns>
         <remarks>
-          <para>Returns a copy of this Instant truncated to the specified unit. Truncation aligns the instant to a multiple of the unit within a standard day in UTC. For example, truncating a non-negative instant with the MINUTES unit rounds down to the nearest minute, setting the seconds and nanoseconds to zero. On some Android versions, truncating a negative instant can round toward the epoch instead. The unit must have a duration that divides into the length of a standard day without remainder. This includes all supplied time units on ChronoUnit and DAYS. Other ChronoUnit values throw an exception. This instance is immutable and unaffected by this method call.</para>
+          <para>Returns a copy of this Instant truncated to the specified unit. Truncation aligns the instant to a multiple of the unit within a standard day in UTC. For example, truncating a non-negative instant with the MINUTES unit rounds down to the nearest minute, setting the seconds and nanoseconds to zero. Android 8 through 12 use integer division, which can truncate a negative instant toward the epoch. Android 13 through 17 use floor division, which rounds down to the previous unit boundary. The unit must have a duration that divides into the length of a standard day without remainder. This includes all supplied time units on ChronoUnit and DAYS. Other ChronoUnit values throw an exception. This instance is immutable and unaffected by this method call.</para>
           <para>Throws: DateTimeException if the unit is invalid for truncation</para>
           <para>Throws: UnsupportedTemporalTypeException if the unit is not supported</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#truncatedTo(java.time.temporal.TemporalUnit)" title="Reference documentation">Android reference for <code>java.time.Instant.truncatedTo</code>.</a></format></para>
@@ -1739,7 +1768,7 @@
         <summary>Calculates the amount of time until another instant in terms of the specified unit.</summary>
         <returns>the amount of time between this instant and the end instant</returns>
         <remarks>
-          <para>Calculates the amount of time until another instant in terms of the specified unit. This calculates the amount of time between two Instant objects in terms of a single TemporalUnit. The start and end points are this and the specified instant. The result can be negative if the end is before the start. The calculation returns a whole number, representing the number of complete units between the two instants. The Temporal passed to this method is converted to an Instant using from(TemporalAccessor). For example, the amount in seconds between two instants can be calculated using startInstant.until(endInstant, SECONDS). There are two equivalent ways of using this method. The first is to invoke this method. The second is to use TemporalUnit.between(Temporal,Temporal):</para>
+          <para>Calculates the amount of time until another instant in terms of the specified unit. This calculates the amount of time between two Instant objects in terms of a single TemporalUnit. The start and end points are this and the specified instant. The result can be negative if the end is before the start. The calculation returns a whole number. For built-in units other than milliseconds, it represents the number of complete units between the instants. From Android 8 through API 37.1, the millisecond result is the difference between the epoch-millisecond values of the two instants, which can differ from the number of complete milliseconds. The API 37.2 implementation calculates the number of complete milliseconds. The Temporal passed to this method is converted to an Instant using from(TemporalAccessor). For example, the amount in seconds between two instants can be calculated using startInstant.until(endInstant, SECONDS). For a ChronoUnit, these calls are equivalent:</para>
 <code lang="text/java">   // these two lines are equivalent
    amount = start.until(end, SECONDS);
    amount = SECONDS.between(start, end);</code>
@@ -1827,7 +1856,14 @@
         <summary>Returns a copy of this instant with the specified field set to a new value.</summary>
         <returns>an Instant based on this with the specified field set, not null</returns>
         <remarks>
-          <para>Returns a copy of this instant with the specified field set to a new value. This returns an Instant, based on this one, with the value for the specified field changed. If it is not possible to set the value, because the field is not supported or for some other reason, an exception is thrown. If the field is a ChronoField then the adjustment is implemented here. The supported fields behave as follows: NANO_OF_SECOND - Returns an Instant with the specified nano-of-second. The epoch-second will be unchanged. MICRO_OF_SECOND - Returns an Instant with the nano-of-second replaced by the specified micro-of-second multiplied by 1,000. The epoch-second will be unchanged. MILLI_OF_SECOND - Returns an Instant with the nano-of-second replaced by the specified milli-of-second multiplied by 1,000,000. The epoch-second will be unchanged. INSTANT_SECONDS - Returns an Instant with the specified epoch-second. The nano-of-second will be unchanged. In all cases, if the new value is outside the valid range of values for the field then a DateTimeException will be thrown. All other ChronoField instances will throw an UnsupportedTemporalTypeException. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.adjustInto(Temporal, long) passing this as the argument. In this case, the field determines whether and how to adjust the instant. This instance is immutable and unaffected by this method call.</para>
+          <para>Returns a copy of this instant with the specified field set to a new value. This returns an Instant, based on this one, with the value for the specified field changed. If it is not possible to set the value, because the field is not supported or for some other reason, an exception is thrown. If the field is a ChronoField then the adjustment is implemented here. The supported fields behave as follows:</para>
+          <list type="bullet">
+            <item><term>NANO_OF_SECOND - Returns an Instant with the specified nano-of-second. The epoch-second will be unchanged.</term></item>
+            <item><term>MICRO_OF_SECOND - Returns an Instant with the nano-of-second replaced by the specified micro-of-second multiplied by 1,000. The epoch-second will be unchanged.</term></item>
+            <item><term>MILLI_OF_SECOND - Returns an Instant with the nano-of-second replaced by the specified milli-of-second multiplied by 1,000,000. The epoch-second will be unchanged.</term></item>
+            <item><term>INSTANT_SECONDS - Returns an Instant with the specified epoch-second. The nano-of-second will be unchanged.</term></item>
+          </list>
+          <para>If the new value is outside the valid range for a ChronoField, a DateTimeException is thrown. For an unsupported ChronoField with a valid value, an UnsupportedTemporalTypeException is thrown. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.adjustInto(Temporal, long) passing this as the argument. In this case, the field determines whether and how to adjust the instant. This instance is immutable and unaffected by this method call.</para>
           <para>Throws: ArithmeticException if numeric overflow occurs</para>
           <para>Throws: DateTimeException if the field cannot be set</para>
           <para>Throws: UnsupportedTemporalTypeException if the field is not supported</para>
