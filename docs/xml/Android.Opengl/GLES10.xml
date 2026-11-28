@@ -1724,7 +1724,7 @@
       </Parameters>
       <Docs>
         <param name="n">The nonnegative number of texture names to delete.</param>
-        <param name="textures">A non-null input direct, native-order buffer at its current position, with room for n unsigned texture-name bit patterns. JNI compares bytes with n rather than integer entries; array-backed cleanup is unsafe.</param>
+        <param name="textures">A non-null input native-order buffer (direct or accessible array-backed) at its current position, with room for n unsigned texture-name bit patterns. JNI compares bytes with n rather than integer entries; the array-backed path releases the position-adjusted pointer. Use a direct buffer to avoid this release path.</param>
         <summary>Deletes named texture objects; zero and unused names are ignored.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -2849,7 +2849,7 @@
       </Parameters>
       <Docs>
         <param name="pname">The supported fog property selector.</param>
-        <param name="params">A non-null direct, native-order input buffer, starting at its current position, with room for four floating-point color components or one scalar fog parameter. Array-backed cleanup is unsafe. The JNI minimum-size test compares bytes with scalar counts. GL_FOG_MODE uses a symbolic token rather than a scaled numeric fog value.</param>
+        <param name="params">A non-null native-order input buffer (direct or accessible array-backed), starting at its current position, with room for four floating-point color components or one scalar fog parameter. The array-backed path releases the position-adjusted pointer. The JNI minimum-size test compares bytes with scalar counts. GL_FOG_MODE uses a symbolic token rather than a scaled numeric fog value. Use a direct buffer to avoid this release path.</param>
         <summary>Sets fog state from a parameter vector.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -3034,7 +3034,7 @@
       </Parameters>
       <Docs>
         <param name="pname">The supported fog property selector.</param>
-        <param name="params">A non-null direct, native-order input buffer, starting at its current position, with room for four signed 16.16 color components or one scalar fog parameter. Array-backed cleanup is unsafe. The JNI minimum-size test compares bytes with scalar counts. GL_FOG_MODE uses a symbolic token rather than a scaled numeric fog value.</param>
+        <param name="params">A non-null native-order input buffer (direct or accessible array-backed), starting at its current position, with room for four signed 16.16 color components or one scalar fog parameter. The array-backed path releases the position-adjusted pointer. The JNI minimum-size test compares bytes with scalar counts. GL_FOG_MODE uses a symbolic token rather than a scaled numeric fog value. Use a direct buffer to avoid this release path.</param>
         <summary>Sets fog state from a parameter vector.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -3271,7 +3271,7 @@
       </Parameters>
       <Docs>
         <param name="n">The nonnegative number of texture names to generate.</param>
-        <param name="textures">A non-null output direct, native-order buffer at its current position, with room for n unsigned texture-name bit patterns. JNI compares bytes with n rather than integer entries; array-backed cleanup is unsafe.</param>
+        <param name="textures">A non-null output native-order buffer (direct or accessible array-backed) at its current position, with room for n unsigned texture-name bit patterns. JNI compares bytes with n rather than integer entries; the array-backed path releases the position-adjusted pointer. Use a direct buffer to avoid this release path.</param>
         <summary>Reserves unused texture names; binding a name creates its texture object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -3396,7 +3396,7 @@
       </Parameters>
       <Docs>
         <param name="pname">The supported GL state selector, which determines the required number of output integers.</param>
-        <param name="params">A non-null direct, native-order output buffer at its current position with room for every integer returned for pname. The JNI count table is incomplete; for example, GL_MAX_VIEWPORT_DIMS needs two entries even when the table checks only one. This generic helper checks integer entries, not bytes, but array-backed cleanup is unsafe.</param>
+        <param name="params">A non-null native-order output buffer (direct or accessible array-backed) at its current position with room for every integer returned for pname. The JNI count table is incomplete; for example, GL_MAX_VIEWPORT_DIMS needs two entries even when the table checks only one. This generic helper checks integer entries, not bytes, but the array-backed path releases the position-adjusted pointer. Use a direct buffer to avoid this release path.</param>
         <summary>Gets the selected GL state using GL's integer state-conversion rules.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -4126,7 +4126,7 @@
       <Docs>
         <param name="light">The supported GL_LIGHT0-based light token.</param>
         <param name="pname">The supported light-source property selector.</param>
-        <param name="params">A non-null direct, native-order input buffer, starting at its current position, with room for four floating-point color or position components, three direction components, or one scalar. Array-backed cleanup is unsafe. The JNI minimum-size test compares bytes with scalar counts. GL_POSITION requires four entries even though the JNI size table checks only one.</param>
+        <param name="params">A non-null native-order input buffer (direct or accessible array-backed), starting at its current position, with room for four floating-point color or position components, three direction components, or one scalar. The array-backed path releases the position-adjusted pointer. The JNI minimum-size test compares bytes with scalar counts. GL_POSITION requires four entries even though the JNI size table checks only one. Use a direct buffer to avoid this release path.</param>
         <summary>Sets a light-source property from floating-point values.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -4285,7 +4285,7 @@
       </Parameters>
       <Docs>
         <param name="pname">GL_LIGHT_MODEL_AMBIENT or GL_LIGHT_MODEL_TWO_SIDE.</param>
-        <param name="params">A non-null direct, native-order input buffer, starting at its current position, with room for four floating-point ambient-color components or one two-sided-lighting boolean. Array-backed cleanup is unsafe. The JNI minimum-size test compares bytes with scalar counts.</param>
+        <param name="params">A non-null native-order input buffer (direct or accessible array-backed), starting at its current position, with room for four floating-point ambient-color components or one two-sided-lighting boolean. The array-backed path releases the position-adjusted pointer. The JNI minimum-size test compares bytes with scalar counts. Use a direct buffer to avoid this release path.</param>
         <summary>Sets the lighting model's ambient color or two-sided mode.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -4414,7 +4414,7 @@
       </Parameters>
       <Docs>
         <param name="pname">GL_LIGHT_MODEL_AMBIENT or GL_LIGHT_MODEL_TWO_SIDE.</param>
-        <param name="params">A non-null direct, native-order input buffer, starting at its current position, with room for four signed 16.16 ambient-color components or one two-sided-lighting boolean. Array-backed cleanup is unsafe. The JNI minimum-size test compares bytes with scalar counts.</param>
+        <param name="params">A non-null native-order input buffer (direct or accessible array-backed), starting at its current position, with room for four signed 16.16 ambient-color components or one two-sided-lighting boolean. The array-backed path releases the position-adjusted pointer. The JNI minimum-size test compares bytes with scalar counts. Use a direct buffer to avoid this release path.</param>
         <summary>Sets the lighting model's ambient color or two-sided mode.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -4519,7 +4519,7 @@
       <Docs>
         <param name="light">The supported GL_LIGHT0-based light token.</param>
         <param name="pname">The supported light-source property selector.</param>
-        <param name="params">A non-null direct, native-order input buffer, starting at its current position, with room for four signed 16.16 color or position components, three direction components, or one scalar. Array-backed cleanup is unsafe. The JNI minimum-size test compares bytes with scalar counts. GL_POSITION requires four entries even though the JNI size table checks only one.</param>
+        <param name="params">A non-null native-order input buffer (direct or accessible array-backed), starting at its current position, with room for four signed 16.16 color or position components, three direction components, or one scalar. The array-backed path releases the position-adjusted pointer. The JNI minimum-size test compares bytes with scalar counts. GL_POSITION requires four entries even though the JNI size table checks only one. Use a direct buffer to avoid this release path.</param>
         <summary>Sets a light-source property from signed 16.16 values.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -4929,7 +4929,7 @@
         <Parameter Name="m" Type="Java.Nio.FloatBuffer" />
       </Parameters>
       <Docs>
-        <param name="m">A non-null direct, native-order input buffer, starting at its current position, with room for 16 floating-point matrix entries in column-major order. Array-backed cleanup is unsafe. Capacity is not checked.</param>
+        <param name="m">A non-null native-order input buffer (direct or accessible array-backed), starting at its current position, with room for 16 floating-point matrix entries in column-major order. The array-backed path releases the position-adjusted pointer. Capacity is not checked. Use a direct buffer to avoid this release path.</param>
         <summary>Replaces the current matrix with a floating-point matrix.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -4993,7 +4993,7 @@
         <Parameter Name="m" Type="Java.Nio.IntBuffer" />
       </Parameters>
       <Docs>
-        <param name="m">A non-null direct, native-order input buffer, starting at its current position, with room for 16 signed 16.16 matrix entries in column-major order. Array-backed cleanup is unsafe. Capacity is not checked.</param>
+        <param name="m">A non-null native-order input buffer (direct or accessible array-backed), starting at its current position, with room for 16 signed 16.16 matrix entries in column-major order. The array-backed path releases the position-adjusted pointer. Capacity is not checked. Use a direct buffer to avoid this release path.</param>
         <summary>Replaces the current matrix with a signed 16.16 matrix.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -5183,7 +5183,7 @@
       <Docs>
         <param name="face">GL_FRONT_AND_BACK.</param>
         <param name="pname">The supported color-reflectance, emission, or shininess selector.</param>
-        <param name="params">A non-null direct, native-order input buffer, starting at its current position, with room for four floating-point color components or one floating-point shininess exponent. Array-backed cleanup is unsafe. The JNI minimum-size test compares bytes with scalar counts.</param>
+        <param name="params">A non-null native-order input buffer (direct or accessible array-backed), starting at its current position, with room for four floating-point color components or one floating-point shininess exponent. The array-backed path releases the position-adjusted pointer. The JNI minimum-size test compares bytes with scalar counts. Use a direct buffer to avoid this release path.</param>
         <summary>Sets the shared front/back material from floating-point values.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -5290,7 +5290,7 @@
       <Docs>
         <param name="face">GL_FRONT_AND_BACK.</param>
         <param name="pname">The supported color-reflectance, emission, or shininess selector.</param>
-        <param name="params">A non-null direct, native-order input buffer, starting at its current position, with room for four signed 16.16 color components or one signed 16.16 shininess exponent. Array-backed cleanup is unsafe. The JNI minimum-size test compares bytes with scalar counts.</param>
+        <param name="params">A non-null native-order input buffer (direct or accessible array-backed), starting at its current position, with room for four signed 16.16 color components or one signed 16.16 shininess exponent. The array-backed path releases the position-adjusted pointer. The JNI minimum-size test compares bytes with scalar counts. Use a direct buffer to avoid this release path.</param>
         <summary>Sets the shared front/back material from signed 16.16 values.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -5803,7 +5803,7 @@
         <Parameter Name="m" Type="Java.Nio.FloatBuffer" />
       </Parameters>
       <Docs>
-        <param name="m">A non-null direct, native-order input buffer, starting at its current position, with room for 16 floating-point matrix entries in column-major order. Array-backed cleanup is unsafe. Capacity is not checked.</param>
+        <param name="m">A non-null native-order input buffer (direct or accessible array-backed), starting at its current position, with room for 16 floating-point matrix entries in column-major order. The array-backed path releases the position-adjusted pointer. Capacity is not checked. Use a direct buffer to avoid this release path.</param>
         <summary>Postmultiplies the current matrix by a floating-point matrix.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -5867,7 +5867,7 @@
         <Parameter Name="m" Type="Java.Nio.IntBuffer" />
       </Parameters>
       <Docs>
-        <param name="m">A non-null direct, native-order input buffer, starting at its current position, with room for 16 signed 16.16 matrix entries in column-major order. Array-backed cleanup is unsafe. Capacity is not checked.</param>
+        <param name="m">A non-null native-order input buffer (direct or accessible array-backed), starting at its current position, with room for 16 signed 16.16 matrix entries in column-major order. The array-backed path releases the position-adjusted pointer. Capacity is not checked. Use a direct buffer to avoid this release path.</param>
         <summary>Postmultiplies the current matrix by a signed 16.16 matrix.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -8899,7 +8899,7 @@
       <Docs>
         <param name="target">The supported texture-environment or point-sprite target.</param>
         <param name="pname">The selected target's environment property.</param>
-        <param name="params">A non-null direct, native-order input buffer, starting at its current position, with room for four floating-point GL_TEXTURE_ENV_COLOR components or one other parameter. Array-backed cleanup is unsafe. The JNI minimum-size test compares bytes with scalar counts. Enum tokens are unscaled; other single values are booleans or numeric scales.</param>
+        <param name="params">A non-null native-order input buffer (direct or accessible array-backed), starting at its current position, with room for four floating-point GL_TEXTURE_ENV_COLOR components or one other parameter. The array-backed path releases the position-adjusted pointer. The JNI minimum-size test compares bytes with scalar counts. Enum tokens are unscaled; other single values are booleans or numeric scales. Use a direct buffer to avoid this release path.</param>
         <summary>Sets texture-environment state on the active server texture unit.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -9006,7 +9006,7 @@
       <Docs>
         <param name="target">The supported texture-environment or point-sprite target.</param>
         <param name="pname">The selected target's environment property.</param>
-        <param name="params">A non-null direct, native-order input buffer, starting at its current position, with room for four signed 16.16 GL_TEXTURE_ENV_COLOR components or one other parameter. Array-backed cleanup is unsafe. The JNI minimum-size test compares bytes with scalar counts. Enum tokens are unscaled; other single values are booleans or numeric scales.</param>
+        <param name="params">A non-null native-order input buffer (direct or accessible array-backed), starting at its current position, with room for four signed 16.16 GL_TEXTURE_ENV_COLOR components or one other parameter. The array-backed path releases the position-adjusted pointer. The JNI minimum-size test compares bytes with scalar counts. Enum tokens are unscaled; other single values are booleans or numeric scales. Use a direct buffer to avoid this release path.</param>
         <summary>Sets texture-environment state on the active server texture unit.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
