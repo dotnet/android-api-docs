@@ -138,9 +138,9 @@
       <Docs>
         <param name="other">the other date-time to compare to, not null</param>
         <summary>Compares this date-time to another date-time, including the chronology.</summary>
-        <returns>the comparator value, that is the comparison of this with the other values for the instant, the local date-time, the zone ID, and the chronology, in order, returning the first non-zero result, and otherwise returning zero</returns>
+        <returns>the first nonzero comparison of the instant, local date-time, zone ID, and chronology, in that order; otherwise zero. The local date-time comparison can itself compare chronologies.</returns>
         <remarks>
-          <para>Compares this date-time to another date-time, including the chronology. The comparison is based first on the instant, then on the local date-time, then on the zone ID, then on the chronology. It is "consistent with equals", as defined by Comparable. If all the date-time objects being compared are in the same chronology, then the additional chronology stage is not required. This default implementation performs the comparison defined above.</para>
+          <para>Compares this date-time to another date-time, including the chronology. The comparison is based first on the instant, then on the local date-time, then on the zone ID, then on the chronology. The default local date-time comparison compares local dates first; that comparison can use the chronology before local times are compared. It is "consistent with equals", as defined by Comparable. If all the date-time objects being compared are in the same chronology, then the additional chronology stage is not required. This default implementation performs the comparison defined above.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/chrono/ChronoZonedDateTime.html#compareTo(java.time.chrono.ChronoZonedDateTime)" title="Reference documentation">Java reference for <code>java.time.chrono.ChronoZonedDateTime.compareTo</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -436,9 +436,9 @@
       <Docs>
         <param name="field">the field to check, null returns false</param>
         <summary>Checks if the specified field is supported.</summary>
-        <returns>true if the field can be queried, false if not</returns>
+        <returns>true if the implementation reports that the field is supported; otherwise false</returns>
         <remarks>
-          <para>Checks if the specified field is supported. This checks if the specified field can be queried on this date-time. If false, then calling the range, get and with(TemporalField, long) methods will throw an exception. The set of supported fields is defined by the chronology and normally includes all ChronoField fields. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.isSupportedBy(TemporalAccessor) passing this as the argument. Whether the field is supported is determined by the field.</para>
+          <para>Checks if the specified field is supported by this date-time. If false, then calling the range, get and with(TemporalField, long) methods will throw an exception. The set of supported fields is defined by the chronology and normally includes all ChronoField fields. A standard Japanese chronology zoned date-time can report <see cref="P:Java.Time.Temporal.ChronoField.AlignedWeekOfMonth" /> as supported even though reading that field throws. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.isSupportedBy(TemporalAccessor) passing this as the argument. Whether the field is supported is determined by the field.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/chrono/ChronoZonedDateTime.html#isSupported(java.time.temporal.TemporalField)" title="Reference documentation">Java reference for <code>java.time.chrono.ChronoZonedDateTime.isSupported</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -516,8 +516,8 @@
         <summary>Returns an object of the same type as this object with an amount subtracted.</summary>
         <returns>an object of the same type with the specified adjustment made, not null</returns>
         <remarks>
-          <para>Returns an object of the same type as this object with an amount subtracted. This adjusts this temporal, subtracting according to the rules of the specified amount. The amount is typically a Period but may be any other type implementing the TemporalAmount interface, such as Duration.</para>
-          <code lang="text/java">  date = date.minus(period);               // subtract a Period instance
+          <para>Returns an object of the same type as this object with an amount subtracted. This adjusts this temporal, subtracting according to the rules of the specified amount. The amount is typically a period compatible with the chronology but may be another compatible TemporalAmount, such as Duration.</para>
+          <code lang="text/java">  date = date.minus(period);               // subtract a chronology-compatible period
   date = date.minus(duration);             // subtract a Duration instance
   date = date.minus(workingDays(6));       // example user-written workingDays method</code>
           <para>Note that calling plus followed by minus is not guaranteed to return the same date-time.</para>
@@ -600,8 +600,8 @@
         <summary>Returns an object of the same type as this object with an amount added.</summary>
         <returns>an object of the same type with the specified adjustment made, not null</returns>
         <remarks>
-          <para>Returns an object of the same type as this object with an amount added. This adjusts this temporal, adding according to the rules of the specified amount. The amount is typically a Period but may be any other type implementing the TemporalAmount interface, such as Duration.</para>
-          <code lang="text/java">  date = date.plus(period);                // add a Period instance
+          <para>Returns an object of the same type as this object with an amount added. This adjusts this temporal, adding according to the rules of the specified amount. The amount is typically a period compatible with the chronology but may be another compatible TemporalAmount, such as Duration.</para>
+          <code lang="text/java">  date = date.plus(period);                // add a chronology-compatible period
   date = date.plus(duration);              // add a Duration instance
   date = date.plus(workingDays(6));        // example user-written workingDays method</code>
           <para>Note that calling plus followed by minus is not guaranteed to return the same date-time.</para>
@@ -768,7 +768,7 @@
         <summary>Queries this date-time using the specified query.</summary>
         <returns>the query result, null may be returned (defined by the query)</returns>
         <remarks>
-          <para>Queries this date-time using the specified query. This queries this date-time using the specified query strategy object. The TemporalQuery object defines the logic to be used to obtain the result. Read the documentation of the query to understand what the result of this method will be. The result of this method is obtained by invoking the TemporalQuery.queryFrom(TemporalAccessor) method on the specified query passing this as the argument.</para>
+          <para>Queries this date-time using the specified query. The TemporalQuery object defines the logic to be used to obtain the result. Read the documentation of the query to understand what the result of this method will be. The default implementation handles the standard zone, zone ID, offset, local time, chronology, and precision queries directly. For other queries, it invokes <see cref="M:Java.Time.Temporal.ITemporalQuery.QueryFrom(Java.Time.Temporal.ITemporalAccessor)" /> with this date-time.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/chrono/ChronoZonedDateTime.html#query(java.time.temporal.TemporalQuery)" title="Reference documentation">Java reference for <code>java.time.chrono.ChronoZonedDateTime.query</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1164,12 +1164,13 @@
         <Parameter Name="newValue" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="field">the field to set in the result, not null</param>
-        <param name="newValue">the new value of the field in the result</param>
-        <summary>Returns an object of the same type as this object with the specified field altered.</summary>
-        <returns>an object of the same type with the specified field set, not null</returns>
+        <param name="field">the field to adjust, not null</param>
+        <param name="newValue">the requested value of the field</param>
+        <summary>Returns an object of the same type based on a requested field value.</summary>
+        <returns>an adjusted object of the same type, not null</returns>
         <remarks>
-          <para>Returns an object of the same type as this object with the specified field altered. This returns a new object based on this one with the value for the specified field changed. For example, on a LocalDate, this could be used to set the year, month or day-of-month. The returned object will have the same observable type as this object. In some cases, changing a field is not fully defined. For example, if the target object is a date representing the 31st January, then changing the month to February would be unclear. In cases like this, the field is responsible for resolving the result. Typically it will choose the previous valid date, which would be the last valid day of February in this example.</para>
+          <para>Returns an object of the same type based on a requested field value. For example, on a LocalDate, this could be used to set the year, month or day-of-month. The returned object will have the same observable type as this object. In some cases, changing a field is not fully defined. For example, if the target object is a date representing the 31st January, then changing the month to February would be unclear. In cases like this, the temporal implementation or the field resolves the result. The result is typically the previous valid date, which would be the last valid day of February in this example.</para>
+          <para>Setting <see cref="P:Java.Time.Temporal.ChronoField.OffsetSeconds" /> may not set the result's offset to the requested value. An ISO zoned date-time keeps its current offset if the requested offset is within the allowed range but not valid for its local date-time in that zone. For an offset within the allowed range, the standard non-ISO implementation instead forms an instant using the requested offset and resolves that instant in the existing zone, which can change the local date-time.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/chrono/ChronoZonedDateTime.html#with(java.time.temporal.TemporalField,long)" title="Reference documentation">Java reference for <code>java.time.chrono.ChronoZonedDateTime.with</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1271,7 +1272,7 @@
         <summary>Returns a copy of this date-time with a different time-zone, retaining the instant.</summary>
         <returns>a ChronoZonedDateTime based on this date-time with the requested zone, not null</returns>
         <remarks>
-          <para>Returns a copy of this date-time with a different time-zone, retaining the instant. This method changes the time-zone and retains the instant. This normally results in a change to the local date-time. This method is based on retaining the same instant, thus gaps and overlaps in the local time-line have no effect on the result. To change the offset while keeping the local time, use withZoneSameLocal(ZoneId).</para>
+          <para>Returns a copy of this date-time with a different time-zone, retaining the instant. This method changes the time-zone and retains the instant. This normally results in a change to the local date-time. This method is based on retaining the same instant, thus gaps and overlaps in the local time-line have no effect on the result. To change the zone while retaining the local time when possible, use <see cref="M:Java.Time.Chrono.IChronoZonedDateTime.WithZoneSameLocal(Java.Time.ZoneId)" />.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/chrono/ChronoZonedDateTime.html#withZoneSameInstant(java.time.ZoneId)" title="Reference documentation">Java reference for <code>java.time.chrono.ChronoZonedDateTime.withZoneSameInstant</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1307,7 +1308,7 @@
         <summary>Returns a copy of this date-time with a different time-zone, retaining the local date-time if possible.</summary>
         <returns>a ChronoZonedDateTime based on this date-time with the requested zone, not null</returns>
         <remarks>
-          <para>Returns a copy of this date-time with a different time-zone, retaining the local date-time if possible. This method changes the time-zone and retains the local date-time. The local date-time is only changed if it is invalid for the new zone. To change the zone and adjust the local date-time, use withZoneSameInstant(ZoneId). This instance is immutable and unaffected by this method call.</para>
+          <para>Returns a copy of this date-time with a different time-zone, retaining the local date-time if possible. This method changes the time-zone and retains the local date-time. The local date-time is only changed if it is invalid for the new zone. To change the zone while retaining the instant, use <see cref="M:Java.Time.Chrono.IChronoZonedDateTime.WithZoneSameInstant(Java.Time.ZoneId)" />. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/chrono/ChronoZonedDateTime.html#withZoneSameLocal(java.time.ZoneId)" title="Reference documentation">Java reference for <code>java.time.chrono.ChronoZonedDateTime.withZoneSameLocal</code>.</a></format></para>
         </remarks>
       </Docs>

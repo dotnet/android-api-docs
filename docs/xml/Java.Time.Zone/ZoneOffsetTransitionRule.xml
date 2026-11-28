@@ -190,7 +190,7 @@
         <summary>Gets the day-of-week of the transition.</summary>
         <value>the day-of-week that the transition occurs, null if the rule defines an exact date</value>
         <remarks>
-          <para>Gets the day-of-week of the transition. If the rule defines an exact date then this returns null. If the rule defines a week where the cutover might occur, then this method returns the day-of-week that the month-day will be adjusted to. If the day is positive then the adjustment is later. If the day is negative then the adjustment is earlier.</para>
+          <para>Gets the day-of-week of the transition. If the rule defines an exact date then this returns null. Otherwise, the month-day is adjusted to this day-of-week. If <see cref="P:Java.Time.Zone.ZoneOffsetTransitionRule.DayOfMonthIndicator" /> is positive, the adjusted date is on or after the month-day. If it is negative, the adjusted date is on or before the month-day.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneOffsetTransitionRule.html#getDayOfWeek()" title="Reference documentation">Java reference for <code>java.time.zone.ZoneOffsetTransitionRule.getDayOfWeek</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -368,10 +368,10 @@
         <ReturnType>Java.Time.LocalTime</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the local time of day of the transition which must be checked with isMidnightEndOfDay().</summary>
+        <summary>Gets the local time of day of the transition. Check <see cref="P:Java.Time.Zone.ZoneOffsetTransitionRule.IsMidnightEndOfDay" /> to determine whether midnight is at the end of the day.</summary>
         <value>the local time of day of the transition, not null</value>
         <remarks>
-          <para>Gets the local time of day of the transition which must be checked with isMidnightEndOfDay(). The time is converted into an instant using the time definition.</para>
+          <para>Gets the local time of day of the transition. Check <see cref="P:Java.Time.Zone.ZoneOffsetTransitionRule.IsMidnightEndOfDay" /> to determine whether midnight is at the end of the day. The time is converted into an instant using the time definition.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneOffsetTransitionRule.html#getLocalTime()" title="Reference documentation">Java reference for <code>java.time.zone.ZoneOffsetTransitionRule.getLocalTime</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -403,7 +403,7 @@
         <summary>Gets the month of the transition.</summary>
         <value>the month of the transition, not null</value>
         <remarks>
-          <para>Gets the month of the transition. If the rule defines an exact date then the month is the month of that date. If the rule defines a week where the transition might occur, then the month if the month of either the earliest or latest possible date of the cutover.</para>
+          <para>Gets the month of the transition. If the rule defines an exact date then the month is the month of that date. If the rule defines a week where the transition might occur, then the month is that of either the earliest or latest possible date of the cutover.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneOffsetTransitionRule.html#getMonth()" title="Reference documentation">Java reference for <code>java.time.zone.ZoneOffsetTransitionRule.getMonth</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -443,12 +443,12 @@
         <Parameter Name="offsetAfter" Type="Java.Time.ZoneOffset" />
       </Parameters>
       <Docs>
-        <param name="month">the month of the month-day of the first day of the cutover week, not null</param>
+        <param name="month">The month used with <paramref name="dayOfMonthIndicator" /> to calculate the transition date, not null.</param>
         <param name="dayOfMonthIndicator">the day of the month-day of the cutover week, positive if the week is that day or later, negative if the week is that day or earlier, counting from the last day of the month, from -28 to 31 excluding 0</param>
         <param name="dayOfWeek">the required day-of-week, null if the month-day should not be changed</param>
         <param name="time">The transition time of day, interpreted using <paramref name="timeDefinition" />: UTC for <see cref="P:Java.Time.Zone.ZoneOffsetTransitionRule.TimeDefinition.Utc" />, <paramref name="standardOffset" /> for <see cref="P:Java.Time.Zone.ZoneOffsetTransitionRule.TimeDefinition.Standard" />, or <paramref name="offsetBefore" /> for <see cref="P:Java.Time.Zone.ZoneOffsetTransitionRule.TimeDefinition.Wall" />. Must not be <see langword="null" /> and must have zero nanoseconds. If <paramref name="timeEndOfDay" /> is <see langword="true" />, the time must be midnight and represents the start of the day after the rule's date.</param>
         <param name="timeEndOfDay">whether the time is midnight at the end of day</param>
-        <param name="timeDefinition">how to interpret the cutover</param>
+        <param name="timeDefinition">How to interpret the cutover, not null.</param>
         <param name="standardOffset">the standard offset in force at the cutover, not null</param>
         <param name="offsetBefore">the offset before the cutover, not null</param>
         <param name="offsetAfter">the offset after the cutover, not null</param>
