@@ -105,11 +105,11 @@
       </Parameters>
       <Docs>
         <param name="executor">The executor to run the callback on. It is strongly recommended that this executor post to a different thread, as the calling thread is highly sensitive to being blocked. This value cannot be null.</param>
-        <param name="frameCommitCallback">The callback to invoke when the frame content has been drawn. Will be invoked on the given Executor. This value cannot be null.</param>
+        <param name="frameCommitCallback">The callback to invoke on the given executor for the rendering request. This value cannot be null.</param>
         <summary>Adds a frame commit callback.</summary>
         <returns>this instance. This value cannot be null.</returns>
         <remarks>
-          <para>Adds a frame commit callback. This callback will be invoked when the current rendering content has been rendered into a frame and submitted to the swap chain. The frame may not currently be visible on the display when this is invoked, but it has been submitted. This callback is useful in combination with PixelCopy to capture the current rendered content of the UI reliably.</para>
+          <para>When a frame is submitted to the swap chain, the callback runs before the frame is necessarily visible on the display. The callback can be used with PixelCopy to capture rendered UI content. On Android 11 and later, it can also run when there is nothing to draw, so it does not by itself prove that a new frame was submitted.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/HardwareRenderer.FrameRenderRequest#setFrameCommitCallback(java.util.concurrent.Executor,%20java.lang.Runnable)" title="Reference documentation">Android reference for <code>android.graphics.HardwareRenderer.FrameRenderRequest.setFrameCommitCallback</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -146,7 +146,7 @@
         <summary>Sets the vsync time that represents the start point of this frame.</summary>
         <returns>this instance. This value cannot be null.</returns>
         <remarks>
-          <para>Sets the vsync time that represents the start point of this frame. Typically this comes from Choreographer.FrameCallback. Other compatible time sources include System.nanoTime(), however if the result is being displayed on-screen then using Choreographer is strongly recommended to ensure smooth animations. If the clock source is not from a CLOCK_MONOTONIC source then any animations driven directly by RenderThread will not be synchronized properly with the current frame.</para>
+          <para>Sets the vsync time that represents the start point of this frame. Typically this comes from <see cref="T:Android.Views.Choreographer.IFrameCallback" />. Other compatible time sources include <see cref="M:Java.Lang.JavaSystem.NanoTime" />. If the result is displayed on screen, use a Choreographer callback for smooth animations. If the clock source is not CLOCK_MONOTONIC, animations driven directly by the render thread will not be synchronized properly with the current frame.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/HardwareRenderer.FrameRenderRequest#setVsyncTime(long)" title="Reference documentation">Android reference for <code>android.graphics.HardwareRenderer.FrameRenderRequest.setVsyncTime</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -179,11 +179,11 @@
         <Parameter Name="shouldWait" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="shouldWait">If true the next call to syncAndDraw() will block until completion.</param>
-        <summary>Sets whether or not syncAndDraw() should block until the frame has been presented.</summary>
+        <param name="shouldWait">If <see langword="true" />, request that the next call to <see cref="M:Android.Graphics.HardwareRenderer.FrameRenderRequest.SyncAndDraw" /> wait for frame submission.</param>
+        <summary>Sets whether to wait for frame submission.</summary>
         <returns>this instance. This value cannot be null.</returns>
         <remarks>
-          <para>Sets whether or not syncAndDraw() should block until the frame has been presented. If this is true and syncAndDraw() does not return HardwareRenderer.SYNC_FRAME_DROPPED or an error then when syncAndDraw() has returned the frame has been submitted to the Surface. The default and typically recommended value is false, as blocking for present will prevent pipelining from happening, reducing overall throughput. This is useful for situations such as SurfaceHolder.Callback2.surfaceRedrawNeeded(SurfaceHolder) where it is desired to block until a frame has been presented to ensure first-frame consistency with other Surfaces.</para>
+          <para>If this is <see langword="true" /> and <see cref="M:Android.Graphics.HardwareRenderer.FrameRenderRequest.SyncAndDraw" /> does not return <see cref="F:Android.Graphics.Sync.FrameDropped" /> or an error, the frame has been submitted to the surface when the call returns. This does not guarantee that the frame is visible on the display. The default and typically recommended value is <see langword="false" />, because waiting prevents pipelining and reduces throughput. Waiting can be useful in <see cref="M:Android.Views.ISurfaceHolderCallback2.SurfaceRedrawNeeded(Android.Views.ISurfaceHolder)" /> to ensure first-frame consistency with other surfaces.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/HardwareRenderer.FrameRenderRequest#setWaitForPresent(boolean)" title="Reference documentation">Android reference for <code>android.graphics.HardwareRenderer.FrameRenderRequest.setWaitForPresent</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

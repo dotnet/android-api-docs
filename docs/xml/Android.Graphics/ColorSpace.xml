@@ -62,7 +62,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies whether and how to release the incoming JNI reference, and whether to register the managed peer.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -154,7 +154,7 @@
       <Docs>
         <param name="colorSpace">The color space to chromatically adapt</param>
         <param name="whitePoint">The new white point</param>
-        <param name="adaptation">The adaptation matrix. This value cannot be null.</param>
+        <param name="adaptation">The chromatic adaptation method to use. This value cannot be null.</param>
         <summary>Performs the chromatic adaptation of a color space from its native
             white point to the specified white point.</summary>
         <returns>A <c>ColorSpace</c> instance with the same name, primaries,
@@ -678,6 +678,7 @@
           <para>Returns an instance of ColorSpace identified by the specified name. The list of names provided in the Named enum gives access to a variety of common RGB color spaces.</para>
           <para>This method always returns the same instance for a given name.</para>
           <para>This method is thread-safe.</para>
+          <para>On Android 15 through Android 17, if the named color space is not enabled, this method returns sRGB instead.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ColorSpace#get(android.graphics.ColorSpace.Named)" title="Reference documentation">Android reference for <code>android.graphics.ColorSpace.get</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
@@ -1467,7 +1468,7 @@
         <summary>Returns whether this color space is a wide-gamut color space.</summary>
         <value>True if this color space is a wide-gamut color space, false otherwise</value>
         <remarks>
-          <para>Returns whether this color space is a wide-gamut color space. An RGB color space is wide-gamut if its gamut entirely contains the sRGB gamut and if the area of its gamut is 90% of greater than the area of the NTSC gamut.</para>
+          <para>Returns whether this color space is a wide-gamut color space. An RGB color space is wide-gamut if its gamut contains the sRGB gamut and its area is greater than 90% of the NTSC 1953 gamut, or if its component range extends below 0 and above 1.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ColorSpace#isWideGamut()" title="Reference documentation">Android reference for <code>android.graphics.ColorSpace.isWideGamut</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

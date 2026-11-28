@@ -226,7 +226,7 @@
         <param name="colorSpace">to assign to the bitmap</param>
         <summary>Returns the color space associated with this bitmap. -or- Modifies the bitmap to have the specified <c>ColorSpace</c>, without
             affecting the underlying allocation backing the bitmap.</summary>
-        <value>The color space associated with the pixels, or <see langword="null" /> when unknown.</value>
+        <value>The color space associated with the pixels, or <see langword="null" /> if the bitmap has no color space or its color space is unknown.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns the color space associated with this bitmap. If the color
@@ -704,7 +704,7 @@
         <param name="height">The height of the bitmap to create. The picture's height is scaled to match if necessary.</param>
         <param name="config">The configuration of the created bitmap. This value cannot be <see langword="null" />.</param>
         <summary>Creates a bitmap from the recorded drawing commands in the specified picture.</summary>
-        <returns>An immutable bitmap with the configuration specified by <paramref name="config" />. This value cannot be <see langword="null" />.</returns>
+        <returns>An immutable bitmap with the configuration specified by <paramref name="config" />, or <see langword="null" /> if a hardware-backed intermediate cannot be copied to that configuration.</returns>
         <remarks>
           <para>The bitmap is immutable and has the specified width and height. If either dimension differs from the picture's corresponding dimension, the picture is scaled to fit.</para>
           <para>
@@ -801,11 +801,11 @@
         <param name="width">The width of the bitmap.</param>
         <param name="height">The height of the bitmap.</param>
         <param name="config">The bitmap configuration to create. This value cannot be <see langword="null" />.</param>
-        <param name="hasAlpha">For <see cref="P:Android.Graphics.Bitmap.Config.Argb8888" />, <see cref="P:Android.Graphics.Bitmap.Config.RgbaF16" />, or <see cref="P:Android.Graphics.Bitmap.Config.Rgba1010102" />, specifies whether to mark the bitmap as opaque. When marked opaque, the bitmap is cleared to black instead of transparent.</param>
+        <param name="hasAlpha">For <see cref="P:Android.Graphics.Bitmap.Config.Argb8888" />, <see cref="P:Android.Graphics.Bitmap.Config.RgbaF16" />, or <see cref="P:Android.Graphics.Bitmap.Config.Rgba1010102" />, specifies whether to mark the bitmap as opaque. Opaque Argb8888 and RgbaF16 bitmaps are initialized to black instead of transparent.</param>
         <summary>Returns a mutable bitmap with the specified width and height.</summary>
         <returns>A bitmap. This value cannot be <see langword="null" />.</returns>
         <remarks>
-          <para>The initial density is as returned by <see cref="P:Android.Graphics.Bitmap.Density" />. The newly created bitmap is in the sRGB color space.</para>
+          <para>The initial density is as returned by <see cref="P:Android.Graphics.Bitmap.Density" />. The default color space is sRGB. For <see cref="P:Android.Graphics.Bitmap.Config.RgbaF16" />, Android 8 through 9 use linear extended sRGB; starting with Android 10, the bitmap reports extended sRGB. Starting with Android 10, <see cref="P:Android.Graphics.Bitmap.Config.Alpha8" /> bitmaps have no color space.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/graphics/Bitmap#createBitmap(int,%20int,%20android.graphics.Bitmap.Config,%20boolean)" title="Reference documentation">Java documentation for <code>android.graphics.Bitmap.createBitmap(int, int, android.graphics.Bitmap.Config, boolean)</code>.</a>
@@ -972,11 +972,11 @@
         <param name="width">The width of the bitmap.</param>
         <param name="height">The height of the bitmap.</param>
         <param name="config">The bitmap configuration to create. This value cannot be <see langword="null" />.</param>
-        <param name="hasAlpha">For <see cref="P:Android.Graphics.Bitmap.Config.Argb8888" />, <see cref="P:Android.Graphics.Bitmap.Config.RgbaF16" />, or <see cref="P:Android.Graphics.Bitmap.Config.Rgba1010102" />, specifies whether to mark the bitmap as opaque. When marked opaque, the bitmap is cleared to black instead of transparent.</param>
+        <param name="hasAlpha">For <see cref="P:Android.Graphics.Bitmap.Config.Argb8888" />, <see cref="P:Android.Graphics.Bitmap.Config.RgbaF16" />, or <see cref="P:Android.Graphics.Bitmap.Config.Rgba1010102" />, specifies whether to mark the bitmap as opaque. Opaque Argb8888 and RgbaF16 bitmaps are initialized to black instead of transparent.</param>
         <summary>Returns a mutable bitmap with the specified width and height.</summary>
         <returns>A bitmap. This value cannot be <see langword="null" />.</returns>
         <remarks>
-          <para>The initial density is determined by <paramref name="display" />.</para>
+          <para>If <paramref name="display" /> is not <see langword="null" />, its density sets the initial bitmap density. Otherwise, the default bitmap density is used.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/graphics/Bitmap#createBitmap(android.util.DisplayMetrics,%20int,%20int,%20android.graphics.Bitmap.Config,%20boolean)" title="Reference documentation">Java documentation for <code>android.graphics.Bitmap.createBitmap(android.util.DisplayMetrics, int, int, android.graphics.Bitmap.Config, boolean)</code>.</a>
@@ -1080,8 +1080,8 @@
         <param name="width">The width of the bitmap.</param>
         <param name="height">The height of the bitmap.</param>
         <param name="config">The bitmap configuration to create. This value cannot be <see langword="null" />.</param>
-        <param name="hasAlpha">For <see cref="P:Android.Graphics.Bitmap.Config.Argb8888" />, <see cref="P:Android.Graphics.Bitmap.Config.RgbaF16" />, or <see cref="P:Android.Graphics.Bitmap.Config.Rgba1010102" />, specifies whether to mark the bitmap as opaque. When marked opaque, the bitmap is cleared to black instead of transparent.</param>
-        <param name="colorSpace">The color space of the bitmap. If <paramref name="config" /> is <see cref="P:Android.Graphics.Bitmap.Config.RgbaF16" /> and sRGB or Linear sRGB is supplied, the corresponding extended-range variant is assumed. This value cannot be <see langword="null" />.</param>
+        <param name="hasAlpha">For <see cref="P:Android.Graphics.Bitmap.Config.Argb8888" />, <see cref="P:Android.Graphics.Bitmap.Config.RgbaF16" />, or <see cref="P:Android.Graphics.Bitmap.Config.Rgba1010102" />, specifies whether to mark the bitmap as opaque. Opaque Argb8888 and RgbaF16 bitmaps are initialized to black instead of transparent.</param>
+        <param name="colorSpace">The color space of the bitmap. On Android 8 through 9, this value cannot be <see langword="null" />. Starting with Android 10, it can be <see langword="null" /> when <paramref name="config" /> is <see cref="P:Android.Graphics.Bitmap.Config.Alpha8" />. For <see cref="P:Android.Graphics.Bitmap.Config.RgbaF16" />, Android 8 through 9 use linear extended sRGB. Starting with Android 10, sRGB and linear sRGB use their respective extended-range variants.</param>
         <summary>Returns a mutable bitmap with the specified width and height.</summary>
         <returns>A bitmap. This value cannot be <see langword="null" />.</returns>
         <remarks>
@@ -1097,7 +1097,7 @@
                      and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
-        <exception cref="T:Java.Lang.IllegalArgumentException">If <paramref name="width" /> or <paramref name="height" /> is less than or equal to zero; <paramref name="config" /> is <see cref="P:Android.Graphics.Bitmap.Config.Hardware" />; <paramref name="colorSpace" /> is not RGB; its transfer function is not an ICC parametric curve; or <paramref name="colorSpace" /> is <see langword="null" />.</exception>
+        <exception cref="T:Java.Lang.IllegalArgumentException">If <paramref name="width" /> or <paramref name="height" /> is less than or equal to zero; <paramref name="config" /> is <see cref="P:Android.Graphics.Bitmap.Config.Hardware" />; or <paramref name="colorSpace" /> is <see langword="null" />, except with <see cref="P:Android.Graphics.Bitmap.Config.Alpha8" /> on Android 10 and later. On Android 8 through 9, an <see cref="P:Android.Graphics.Bitmap.Config.Argb8888" /> bitmap also rejects a non-RGB color space or one without an ICC parametric transfer function. Starting with Android 10, a non-null color space must be RGB and use a supported transfer function. Starting with Android 14, the BT.2020 HLG and PQ transfer functions are also supported.</exception>
       </Docs>
     </Member>
     <Member MemberName="CreateBitmap">
@@ -1143,12 +1143,12 @@
         <param name="width">The width of the bitmap.</param>
         <param name="height">The height of the bitmap.</param>
         <param name="config">The bitmap configuration to create. This value cannot be <see langword="null" />.</param>
-        <param name="hasAlpha">For <see cref="P:Android.Graphics.Bitmap.Config.Argb8888" />, <see cref="P:Android.Graphics.Bitmap.Config.RgbaF16" />, or <see cref="P:Android.Graphics.Bitmap.Config.Rgba1010102" />, specifies whether to mark the bitmap as opaque. When marked opaque, the bitmap is cleared to black instead of transparent.</param>
-        <param name="colorSpace">The color space of the bitmap. If <paramref name="config" /> is <see cref="P:Android.Graphics.Bitmap.Config.RgbaF16" /> and sRGB or Linear sRGB is supplied, the corresponding extended-range variant is assumed. This value cannot be <see langword="null" />.</param>
+        <param name="hasAlpha">For <see cref="P:Android.Graphics.Bitmap.Config.Argb8888" />, <see cref="P:Android.Graphics.Bitmap.Config.RgbaF16" />, or <see cref="P:Android.Graphics.Bitmap.Config.Rgba1010102" />, specifies whether to mark the bitmap as opaque. Opaque Argb8888 and RgbaF16 bitmaps are initialized to black instead of transparent.</param>
+        <param name="colorSpace">The color space of the bitmap. On Android 8 through 9, this value cannot be <see langword="null" />. Starting with Android 10, it can be <see langword="null" /> when <paramref name="config" /> is <see cref="P:Android.Graphics.Bitmap.Config.Alpha8" />. For <see cref="P:Android.Graphics.Bitmap.Config.RgbaF16" />, Android 8 through 9 use linear extended sRGB. Starting with Android 10, sRGB and linear sRGB use their respective extended-range variants.</param>
         <summary>Returns a mutable bitmap with the specified width and height.</summary>
         <returns>A bitmap. This value cannot be <see langword="null" />.</returns>
         <remarks>
-          <para>The initial density is determined by <paramref name="display" />.</para>
+          <para>If <paramref name="display" /> is not <see langword="null" />, its density sets the initial bitmap density. Otherwise, the default bitmap density is used.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/graphics/Bitmap#createBitmap(android.util.DisplayMetrics,%20int,%20int,%20android.graphics.Bitmap.Config,%20boolean,%20android.graphics.ColorSpace)" title="Reference documentation">Java documentation for <code>android.graphics.Bitmap.createBitmap(android.util.DisplayMetrics, int, int, android.graphics.Bitmap.Config, boolean, android.graphics.ColorSpace)</code>.</a>
@@ -1160,7 +1160,7 @@
                      and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
-        <exception cref="T:Java.Lang.IllegalArgumentException">If <paramref name="width" /> or <paramref name="height" /> is less than or equal to zero; <paramref name="config" /> is <see cref="P:Android.Graphics.Bitmap.Config.Hardware" />; <paramref name="colorSpace" /> is not RGB; its transfer function is not an ICC parametric curve; or <paramref name="colorSpace" /> is <see langword="null" />.</exception>
+        <exception cref="T:Java.Lang.IllegalArgumentException">If <paramref name="width" /> or <paramref name="height" /> is less than or equal to zero; <paramref name="config" /> is <see cref="P:Android.Graphics.Bitmap.Config.Hardware" />; or <paramref name="colorSpace" /> is <see langword="null" />, except with <see cref="P:Android.Graphics.Bitmap.Config.Alpha8" /> on Android 10 and later. On Android 8 through 9, an <see cref="P:Android.Graphics.Bitmap.Config.Argb8888" /> bitmap also rejects a non-RGB color space or one without an ICC parametric transfer function. Starting with Android 10, a non-null color space must be RGB and use a supported transfer function. Starting with Android 14, the BT.2020 HLG and PQ transfer functions are also supported.</exception>
       </Docs>
     </Member>
     <Member MemberName="CreateBitmap">
@@ -1577,7 +1577,7 @@
       <Parameters />
       <Docs>
         <summary>No special parcel contents.</summary>
-        <returns>a bitmask indicating the set of special object types marshaled by this Parcelable object instance. Value is either 0 or CONTENTS_FILE_DESCRIPTOR</returns>
+        <returns>Zero. The bitmap reports no special parcel contents.</returns>
         <remarks>
           <para>No special parcel contents.</para>
           <para>
@@ -1920,7 +1920,7 @@
         <summary>Gets information about the bitmap's native pixel buffer.</summary>
         <returns>An <see cref="T:Android.Graphics.AndroidBitmapInfo" /> containing the buffer dimensions, stride, and pixel format.</returns>
         <remarks>See the <see href="https://developer.android.com/ndk/reference/group/bitmap">Android NDK Bitmap documentation</see>.</remarks>
-        <exception cref="T:System.ArgumentException">The native bitmap is invalid.</exception>
+        <exception cref="T:System.ArgumentException">The native operation reports a bad parameter.</exception>
         <exception cref="T:System.InvalidOperationException">The native operation failed.</exception>
       </Docs>
     </Member>
@@ -2933,7 +2933,7 @@
             Call <see cref="M:Android.Graphics.Bitmap.UnlockPixels" /> when access is complete. See the
             <see href="https://developer.android.com/ndk/reference/group/bitmap">Android NDK Bitmap documentation</see>.
             </remarks>
-        <exception cref="T:System.ArgumentException">The native bitmap is invalid.</exception>
+        <exception cref="T:System.ArgumentException">The native operation reports a bad parameter.</exception>
         <exception cref="T:System.InvalidOperationException">The native operation failed.</exception>
       </Docs>
     </Member>
@@ -3073,18 +3073,16 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Immediately releases the pixel data associated with this Bitmap.</summary>
+        <summary>Releases this bitmap's reference to its pixel data and marks it as recycled.</summary>
         <remarks>
-          <para>Immediately releases the pixel data associated with this Bitmap.</para>
+          <para>Releases this bitmap's reference to its pixel data and marks it as recycled.</para>
           <para>Call this method to release a Bitmap that is certainly no longer needed, such as with a
-            Bitmap that was created as an intermediate buffer in a transformation. Calling this
-            method will release the pixel memory immediately, rather than wait for a future Garbage
-            Collection.</para>
+            Bitmap that was created as an intermediate buffer in a transformation. Other references
+            can keep the pixel memory alive.</para>
           <para>Avoid calling this method on Bitmaps that were used in a View or that may be referenced
             elsewhere, as it may be unsafe.</para>
-          <para>After calling this method, any subsequent attempt to access the bitmap's pixel data
-            (e.g., using <c>getPixels()</c> or <c>setPixels()</c>) will throw an exception, and the
-            bitmap will draw nothing. This operation cannot be reversed.</para>
+          <para>After calling this method, <c>GetPixels</c> and <c>SetPixels</c> throw an exception.
+            Drawing the recycled bitmap can also throw an exception. This operation cannot be reversed.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/graphics/Bitmap#recycle()" title="Reference documentation">Java documentation for <code>android.graphics.Bitmap.recycle()</code>.</a>
@@ -3173,7 +3171,7 @@
         <param name="other">The bitmap to compare with this bitmap, or <see langword="null" />.</param>
         <summary>Given another bitmap, return true if it has the same dimensions, config,
              and pixel data as this bitmap.</summary>
-        <returns><see langword="true" /> for the same object or matching readable pixels and size, pixel-format, alpha, color-space, and hardware metadata; otherwise <see langword="false" />. Row padding is not compared.</returns>
+        <returns><see langword="true" /> for the same object or if distinct bitmaps match; otherwise <see langword="false" />. For distinct bitmaps, dimensions, pixel formats, and readable pixels are compared. On Android 8 and later, alpha types, color spaces, and hardware storage must also match. Android 8.0 and earlier also compare color tables for indexed bitmaps. Row padding is not compared.</returns>
         <remarks>
           <para>Given another bitmap, return true if it has the same dimensions, config,
              and pixel data as this bitmap. If any of those differ, return false.
@@ -3482,7 +3480,7 @@
       <Docs>
         <summary>Unlocks the bitmap's native pixel buffer after direct access.</summary>
         <remarks>See the <see href="https://developer.android.com/ndk/reference/group/bitmap">Android NDK Bitmap documentation</see>.</remarks>
-        <exception cref="T:System.ArgumentException">The native bitmap is invalid.</exception>
+        <exception cref="T:System.ArgumentException">The native operation reports a bad parameter.</exception>
         <exception cref="T:System.InvalidOperationException">The native operation failed.</exception>
       </Docs>
     </Member>

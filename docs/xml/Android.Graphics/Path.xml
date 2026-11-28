@@ -1402,19 +1402,21 @@
       </Parameters>
       <Docs>
         <param name="otherPath">The other <c>Path</c> being interpolated to.</param>
-        <param name="t">The interpolation parameter. A value of 1 results in a <c>Path</c>
-                     equivalent to this path, a value of 0 results in one equivalent to
-                     <c>otherPath</c>.</param>
+        <param name="t">The weight assigned to this path's points. The weight assigned to
+                     <paramref name="otherPath" />'s points is 1 minus <paramref name="t" />.</param>
         <param name="interpolatedPath">The interpolated results.</param>
         <summary>This method will linearly interpolate from this path to <c>otherPath</c> given
             the interpolation parameter <c>t</c>, returning the result in
             <c>interpolatedPath</c>.</summary>
-        <returns><see langword="false" /> if the paths have different point counts; otherwise <see langword="true" /> on normal completion. This result does not verify segment compatibility.</returns>
+        <returns>On Android 14 through Android 16, <see langword="false" /> if the paths have different point counts; otherwise <see langword="true" />. On Android 17 and later, <see langword="true" /> if the paths have the same point count, operations, and conic weights; otherwise <see langword="false" />.</returns>
         <remarks>
           <para>This method will linearly interpolate from this path to <c>otherPath</c> given
             the interpolation parameter <c>t</c>, returning the result in
-            <c>interpolatedPath</c>. Interpolation will only succeed if the structures of the
-            two paths match exactly, as discussed in <c>#isInterpolatable(Path)</c>.</para>
+            <c>interpolatedPath</c>. Call <see cref="M:Android.Graphics.Path.IsInterpolatable(Android.Graphics.Path)" />
+            to check that the paths have the same structure before interpolation. On Android 14
+            through Android 16, interpolation can return <see langword="true" /> even if the operations
+            or conic weights differ. On those versions, if both paths have no points, the method returns
+            <see langword="true" /> without changing <paramref name="interpolatedPath" />.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/graphics/Path#interpolate(android.graphics.Path,%20float,%20android.graphics.Path)" title="Reference documentation">Java documentation for <code>android.graphics.Path.interpolate(android.graphics.Path, float, android.graphics.Path)</code>.</a>

@@ -79,7 +79,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies whether and how to release the incoming JNI reference, and whether to register the managed peer.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>The runtime calls this constructor to create a managed representation of an existing Java object.</para>
@@ -182,9 +182,10 @@
       <Parameters />
       <Docs>
         <summary>Returns the next element in the iteration.</summary>
-        <returns>The next element in the iteration.</returns>
+        <returns>The next segment, or a segment whose verb is <see cref="F:Android.Graphics.PathVerb.Done" /> when no operations remain.</returns>
         <remarks>
           <para>Returns the next element in the iteration.</para>
+          <para>When no operations remain, this implementation returns a segment whose verb is <see cref="F:Android.Graphics.PathVerb.Done" />.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/Iterator#next()" title="Reference documentation">Java documentation for <code>java.util.Iterator.next()</code>.</a>
@@ -260,9 +261,9 @@
       <Parameters />
       <Docs>
         <summary>Returns the next Segment element in this iterator.</summary>
-        <returns>the next segment in this iterator. This value cannot be null.</returns>
+        <returns>The next segment, or a segment whose verb is <see cref="F:Android.Graphics.PathVerb.Done" /> when no operations remain. This value cannot be null.</returns>
         <remarks>
-          <para>Returns the next Segment element in this iterator. There are two versions of next(). This version is slightly more expensive at runtime, since it allocates a new Segment object with every call. The other version, next(float[], int) requires no such allocation, but requires a little more manual effort to use.</para>
+          <para>Returns the next segment and allocates a new <see cref="T:Android.Graphics.PathIterator.Segment" /> on every call. The <see cref="M:Android.Graphics.PathIterator.Next(System.Single[],System.Int32)" /> overload fills an array without allocating a segment, though the binding may allocate a Java array to marshal the argument.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/PathIterator#next()" title="Reference documentation">Android reference for <code>android.graphics.PathIterator.next</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
