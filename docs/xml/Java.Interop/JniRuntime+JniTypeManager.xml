@@ -67,7 +67,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Marks the type manager disposed through the disposal hook.</summary>
+        <summary>Calls the disposal hook with <c>disposing</c> set to <see langword="false" />.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -164,7 +164,7 @@
       <Docs>
         <param name="type">The abstract class or interface whose invoker is to be resolved.</param>
         <summary>Supplies the invoker-type lookup hook.</summary>
-        <returns>The invoker type, or <see langword="null" /> from the base implementation.</returns>
+        <returns>The invoker type, or <see langword="null" /> if none is found. In .NET 10 for Android, the base implementation reads <c>JniTypeSignatureAttribute</c> and can construct a generic invoker. In .NET 11 for Android, the base implementation returns <see langword="null" />.</returns>
         <remarks><c>GetInvokerType</c> calls this hook only for an abstract class or interface.</remarks>
       </Docs>
     </Member>
@@ -348,7 +348,7 @@
       <Docs>
         <param name="type">The managed type whose simple JNI name is requested.</param>
         <summary>Supplies the single-name lookup hook for a managed type.</summary>
-        <returns><see langword="null" /> in the base implementation.</returns>
+        <returns>In .NET 9 and .NET 10 for Android, the base implementation returns the first name from <c>GetSimpleReferences</c>, or <see langword="null" /> if there is none. In .NET 11 for Android, it returns <see langword="null" />.</returns>
         <remarks>This hook does not resolve arrays in the base implementation.</remarks>
       </Docs>
     </Member>
@@ -371,7 +371,7 @@
       <Docs>
         <param name="type">The managed type whose simple JNI names are requested.</param>
         <summary>Supplies candidate simple JNI names for a managed type.</summary>
-        <returns>An empty sequence from the base implementation.</returns>
+        <returns>In .NET 10 for Android, the base implementation can return a name from <c>JniTypeSignatureAttribute</c>. In .NET 9 for Android, it returns an empty sequence for a valid non-array type. In .NET 11 for Android, it returns an empty sequence.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -461,7 +461,7 @@
         <param name="typeSignature">The JNI type signature to resolve.</param>
         <summary>Resolves one managed type for a JNI type signature.</summary>
         <returns>The built-in or hook-resolved type, or <see langword="null" /> when no type is found.</returns>
-        <exception cref="T:System.NotSupportedException">The signature has a nonzero array rank and the type lookup hook resolves its element type. Use <see cref="M:Java.Interop.JniRuntime.JniTypeManager.GetTypes(Java.Interop.JniTypeSignature)" /> for array signatures.</exception>
+        <exception cref="T:System.NotSupportedException">In .NET 11 for Android, the signature has a nonzero array rank and the type lookup hook resolves its element type. Use <see cref="M:Java.Interop.JniRuntime.JniTypeManager.GetTypes(Java.Interop.JniTypeSignature)" /> for array signatures.</exception>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -515,7 +515,7 @@
       <Docs>
         <param name="typeSignature">The JNI signature whose managed candidates are requested.</param>
         <summary>Supplies managed type candidates for a JNI signature.</summary>
-        <returns>An empty sequence from the base implementation.</returns>
+        <returns>In .NET 9 and .NET 10 for Android, the base implementation returns resolved candidates, including array types. In .NET 11 for Android, it returns an empty sequence.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -540,7 +540,7 @@
       <Docs>
         <param name="jniSimpleReference">The simple JNI type name whose candidates are requested.</param>
         <summary>Supplies managed type candidates for a simple JNI name.</summary>
-        <returns>An empty sequence from the base implementation.</returns>
+        <returns>In .NET 9 and .NET 10 for Android, the base implementation returns the built-in type for a recognized name, or an empty sequence. In .NET 11 for Android, it returns an empty sequence.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -611,9 +611,9 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">The managed type to describe; <see langword="null" /> produces an empty sequence.</param>
+        <param name="type">The managed type to describe. In .NET 10 and .NET 11 for Android, <see langword="null" /> produces an empty sequence.</param>
         <summary>Gets candidate JNI signatures for a managed type.</summary>
-        <returns>The built-in or hook-supplied signatures, or an empty sequence.</returns>
+        <returns>The mapped signatures, or an empty sequence if none are found.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -696,7 +696,7 @@
         <param name="type">The managed type that supplies registration metadata.</param>
         <param name="methods">The method-description span for an overriding implementation.</param>
         <summary>Provides the native-member registration extension point.</summary>
-        <remarks>The modern base implementation does nothing; derived managers supply registration behavior.</remarks>
+        <remarks>In .NET 9 and .NET 10 for Android, the base implementation attempts registration using generated or attributed callbacks. In .NET 11 for Android, the base implementation does nothing; derived managers supply registration behavior.</remarks>
       </Docs>
     </Member>
     <Member MemberName="RegisterNativeMembers">
@@ -733,7 +733,7 @@
       <Docs>
         <param name="nativeClass">The Java class whose native methods are to be registered.</param>
         <param name="type">The managed type that supplies registration metadata.</param>
-        <param name="methods">The optional method description for an overriding implementation.</param>
+        <param name="methods">The optional method description. The .NET 9 and .NET 10 base implementations pass it to registration callbacks.</param>
         <summary>Provides the obsolete string-based native registration extension point.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
