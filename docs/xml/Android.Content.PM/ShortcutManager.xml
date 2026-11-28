@@ -76,7 +76,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Controls whether the incoming JNI reference is released and whether the managed peer is registered.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -827,12 +827,10 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns <c>true</c> if the app is running on a device whose default launcher supports
-            <c>#requestPinShortcut(ShortcutInfo, IntentSender)</c>.</summary>
+        <summary>Gets whether this app can request shortcut pinning from the default launcher. This value is <c>false</c> when App Lock is enabled for the app.</summary>
         <value>The service's current decision on whether this app can request shortcut pinning.</value>
         <remarks>
-          <para>Return <c>TRUE</c> if the app is running on a device whose default launcher supports
-            <c>#requestPinShortcut(ShortcutInfo, IntentSender)</c>.</para>
+          <para>Returns <c>true</c> if this app can request shortcut pinning from the default launcher. Returns <c>false</c> when App Lock is enabled for the app.</para>
           <para>The return value may change in subsequent calls if the user changes the default launcher
             app.</para>
           <para><b>Note:</b> See also the support library counterpart
@@ -1298,10 +1296,11 @@
                Creating pinned shortcuts.</param>
         <summary>Request to create a pinned shortcut.</summary>
         <returns>
-          <c>true</c> if the launcher supports this feature.  Note the API will return without
+          <c>true</c> if the launcher confirmation activity was started. Note the API will return without
                waiting for the user to respond, so getting <c>true</c> from this API does *not* mean
                the shortcut was pinned successfully. <c>false</c> if the launcher doesn't support this
-               feature or if calling app belongs to a user-profile with items restricted on home screen.
+               feature, if calling app belongs to a user-profile with items restricted on home screen,
+               or if the confirmation activity could not be started.
                If App Lock is enabled for the calling app, shortcut pinning requests will be rejected and
                this method will return <c>false</c>.</returns>
         <remarks>
