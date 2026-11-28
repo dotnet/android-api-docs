@@ -720,7 +720,7 @@
             A <see cref="T:System.Threading.Tasks.Task`1" /> representing the asynchronous operation. The result is an <see cref="T:System.Security.Cryptography.X509Certificates.X509Certificate2" />
             containing the certificate and private key, or <see langword="null" /> if no alias is selected
             or the certificate or private key is unavailable.
-            On Android 6.0 (API level 23), an unavailable key can instead fault the task with a <see cref="T:Android.Security.KeyChainException" />.
+            On Android 6.0 through Android 9 (API levels 23 through 28), an unavailable key can instead fault the task with a <see cref="T:Android.Security.KeyChainException" />.
             </returns>
         <remarks>
             This method combines <see cref="M:Android.Security.KeyChain.ChoosePrivateKeyAliasAsync(Android.App.Activity,System.String[],Java.Security.IPrincipal[],Android.Net.Uri,System.String)" />
@@ -803,7 +803,7 @@
             A <see cref="T:System.Threading.Tasks.Task`1" /> representing the asynchronous operation. The result is an <see cref="T:System.Security.Cryptography.X509Certificates.X509Certificate2" />
             containing the certificate and private key, or <see langword="null" /> if no alias is selected
             or the certificate or private key is unavailable.
-            On Android 4.0 through Android 6.0 (API levels 14 through 23), an unavailable key can instead fault the task with a <see cref="T:Android.Security.KeyChainException" />.
+            On Android 4.0 through Android 9 (API levels 14 through 28), an unavailable key can instead fault the task with a <see cref="T:Android.Security.KeyChainException" />.
             </returns>
         <remarks>
             This method combines <see cref="M:Android.Security.KeyChain.ChoosePrivateKeyAliasAsync(Android.App.Activity,System.String[],Java.Security.IPrincipal[],System.String,System.Int32,System.String)" />
@@ -1292,7 +1292,7 @@
                          <c>KeyChainAliasCallback#alias</c>.</param>
         <summary>Returns the <c>PrivateKey</c> for the requested alias, or null if the alias does not exist
             or the caller has no permission to access it (see note on exceptions below).</summary>
-        <returns>The private key identified by <paramref name="alias" />. On Android 7.0 through Android 17 (API levels 24 through 37), the method can return <see langword="null" /> if no key is available or the caller cannot access it. On Android 4.0 through Android 6.0 (API levels 14 through 23), an unavailable key can cause a <see cref="T:Android.Security.KeyChainException" /> instead.</returns>
+        <returns>The private key identified by <paramref name="alias" />. On Android 10 through Android 17 (API levels 29 through 37), the method can return <see langword="null" /> if no key is available or the caller cannot access it. Before Android 10 (API level 29), an unavailable key can cause a <see cref="T:Android.Security.KeyChainException" /> instead.</returns>
         <remarks>
           <para>Returns the <c>PrivateKey</c> for the requested alias, or null if the alias does not exist
             or the caller has no permission to access it (see note on exceptions below).</para>
@@ -1304,7 +1304,7 @@
           <para>If the caller provides a valid alias to which it was not granted access, then the
             caller must invoke <c>#choosePrivateKeyAlias</c> again to get another valid alias
             or a grant to access the same alias.</para>
-          <para>On Android 4.0 through Android 6.0 (API levels 14 through 23), when a key associated with the specified alias is
+          <para>Before Android 10 (API level 29), when a key associated with the specified alias is
             unavailable, the method can throw a <c>KeyChainException</c> rather than return null.
             If the exception's cause (as obtained by calling <c>KeyChainException.getCause()</c>)
             is a throwable of type <c>IllegalStateException</c> then the caller lacks a grant
@@ -1359,7 +1359,7 @@
         <returns>
             An <see cref="T:System.Security.Cryptography.X509Certificates.X509Certificate2" /> containing the certificate and private key,
             or <see langword="null" /> if the private key or certificate chain is not available for the given alias.
-            On Android 4.0 through Android 6.0 (API levels 14 through 23), an unavailable key can instead cause a <see cref="T:Android.Security.KeyChainException" />.
+            On Android 4.0 through Android 9 (API levels 14 through 28), an unavailable key can instead cause a <see cref="T:Android.Security.KeyChainException" />.
             </returns>
         <remarks>
             This method combines <see cref="M:Android.Security.KeyChain.GetPrivateKey(Android.Content.Context,System.String)" /> and <see cref="M:Android.Security.KeyChain.GetCertificateChain(Android.Content.Context,System.String)" />
