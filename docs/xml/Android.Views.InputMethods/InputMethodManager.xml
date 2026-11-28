@@ -320,10 +320,10 @@
         <param name="delegatorPackageName">package name of the delegator that handled initial stylus stroke.</param>
         <param name="executor">The executor to run the callback on.</param>
         <param name="callback">Consumer callback that provides <c>true</c> if view belongs to allowed
-                           delegate package declared in
-                           <c>#prepareStylusHandwritingDelegation(View, String)</c> and handwriting
-                           session can start. Note: The caller should hold a reference to the callback.
-                           The framework only holds a weak reference.</param>
+                            delegate package declared in
+                            <c>#prepareStylusHandwritingDelegation(View, String)</c> and handwriting
+                            session can start. Note: The caller should hold a reference to the callback.
+                            The framework only holds a weak reference.</param>
         <summary>Accepts and starts a stylus handwriting session on the delegate view, if handwriting
             initiation delegation was previously requested using
             <c>#prepareStylusHandwritingDelegation(View, String)</c> from the delegator and the view
@@ -984,17 +984,18 @@
             as returned by <c>View#getWindowToken() View.getWindowToken()</c>.</param>
         <summary>Request to hide the soft input window from the context of the window
             that is currently accepting input.</summary>
-        <returns>&lt;p&gt;For apps targeting Android <c>Build.VERSION_CODES#BAKLAVA</c>, onwards, it
+        <returns>&lt;p&gt;For apps targeting Android <see cref="F:Android.OS.BuildVersionCodes.Baklava" />, onwards, it
             will always return <c>true</c>. To see when the IME is hidden, use
             <c>View.OnApplyWindowInsetsListener</c> and verify the provided <c>WindowInsets</c> for
             the visibility of IME.
             
             &lt;p&gt;For apps targeting releases before Android Baklava: returns <c>true</c> if a request
             was sent to system_server, <c>false</c> otherwise. Note: This does not return the result
-            of that request (i.e. whether the IME was actually hidden). If result is needed, use
-            <c>android.view.WindowInsetsController#hide</c> instead and set a
-            <c>View.OnApplyWindowInsetsListener</c> and verify the provided <c>WindowInsets</c> for
-            the visibility of IME.</returns>
+            of that request (i.e. whether the IME was actually hidden). To request hiding with insets,
+            use <see cref="M:Android.Views.IWindowInsetsController.Hide(System.Int32)" />. To observe
+            visibility, use a <see cref="T:Android.Views.View.IOnApplyWindowInsetsListener" /> and check
+            <see cref="M:Android.Views.WindowInsets.IsVisible(System.Int32)" /> for
+            <see cref="M:Android.Views.WindowInsets.Type.Ime" />.</returns>
         <remarks>
           <para>Synonym for <c>#hideSoftInputFromWindow(IBinder, int, ResultReceiver)</c>
             without a result: request to hide the soft input window from the
@@ -1569,12 +1570,10 @@
       </Parameters>
       <Docs>
         <param name="view">The view supplied to the legacy cursor watching query.</param>
-        <summary>Return true if the current input method wants to watch the location
-            of the input editor's cursor in its window.</summary>
+        <summary>Queries the legacy cursor-watching state.</summary>
         <returns><see langword="false" /> in the current framework implementation.</returns>
         <remarks>
-          <para>Return true if the current input method wants to watch the location
-            of the input editor's cursor in its window.</para>
+          <para>The current framework implementation returns <see langword="false" />.</para>
           <para>This member is deprecated. Use <c>InputConnection#requestCursorUpdates(int)</c> instead.</para>
           <para>
             <format type="text/html">
@@ -2142,9 +2141,10 @@
         <param name="durationMillis">the non-negative duration override in milliseconds being set, or
                 <c>-1</c> to clear the duration override.</param>
         <summary>Sets or clears the IME hide animation duration override.</summary>
+        <exception cref="T:Java.Lang.IllegalArgumentException"><paramref name="durationMillis" /> is less than <c>-1</c>.</exception>
         <remarks>
           <para>Sets or clears the IME hide animation duration override.</para>
-          <para>When set, this value is used as the requested duration for the animation of the IME hiding. This also includes animations during which the IME is animated simultaneously with other insets. Note that there are factors which may cause the actual animation duration to differ from this requested value, including: The value getting clamped to a reasonable range by the system. Call getImeHideAnimationDurationOverrideMillis(View) after calling this setter to obtain the value after it has been clamped; The current animation duration scale; Whether the relevant window is in multi-window mode, in which case the system directly controls IME animations, rather than the application.</para>
+          <para>When set, this value is used as the requested duration for the animation of the IME hiding, including animations with other insets. The actual duration can differ because the system clamps the value, because of the animation duration scale, or because the system controls IME animations in multi-window mode. Call <see cref="M:Android.Views.InputMethods.InputMethodManager.GetImeHideAnimationDurationOverrideMillis(Android.Views.View)" /> to get the clamped value.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/InputMethodManager#setImeHideAnimationDurationOverrideMillis(android.view.View,%20long)" title="Reference documentation">Android reference for <code>android.view.inputmethod.InputMethodManager.setImeHideAnimationDurationOverrideMillis</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2186,9 +2186,10 @@
         <param name="durationMillis">the non-negative duration override in milliseconds being set, or
                 <c>-1</c> to clear the duration override.</param>
         <summary>Sets or clears the IME show animation duration override.</summary>
+        <exception cref="T:Java.Lang.IllegalArgumentException"><paramref name="durationMillis" /> is less than <c>-1</c>.</exception>
         <remarks>
           <para>Sets or clears the IME show animation duration override.</para>
-          <para>When set, this value is used as the requested duration for the animation of the IME showing. This also includes animations during which the IME is animated simultaneously with other insets. Note that there are factors which may cause the actual animation duration to differ from this requested value, including: The value getting clamped to a reasonable range by the system. Call getImeShowAnimationDurationOverrideMillis(View) after calling this setter to obtain the value after it has been clamped; The current animation duration scale; Whether the relevant window is in multi-window mode, in which case the system directly controls IME animations, rather than the application.</para>
+          <para>When set, this value is used as the requested duration for the animation of the IME showing, including animations with other insets. The actual duration can differ because the system clamps the value, because of the animation duration scale, or because the system controls IME animations in multi-window mode. Call <see cref="M:Android.Views.InputMethods.InputMethodManager.GetImeShowAnimationDurationOverrideMillis(Android.Views.View)" /> to get the clamped value.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/InputMethodManager#setImeShowAnimationDurationOverrideMillis(android.view.View,%20long)" title="Reference documentation">Android reference for <code>android.view.inputmethod.InputMethodManager.setImeShowAnimationDurationOverrideMillis</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2635,12 +2636,7 @@
                         returns <c>false</c>.</param>
         <summary>Explicitly request that the current input method's soft input area be
             shown to the user, if needed.</summary>
-        <returns>
-          A status value for the request. A <c>true</c> value does not guarantee that the request
-            was delivered or that the input method is shown. To check visibility, use
-            <c>android.view.WindowInsetsController#show</c> instead and set a
-            <c>View.OnApplyWindowInsetsListener</c> and verify the provided <c>WindowInsets</c> for
-            the visibility of IME.</returns>
+        <returns>A status value for the request. A <see langword="true" /> value does not guarantee that the request was delivered or that the input method is shown. To request showing with insets, use <see cref="M:Android.Views.IWindowInsetsController.Show(System.Int32)" />. To observe visibility, use a <see cref="T:Android.Views.View.IOnApplyWindowInsetsListener" /> and check <see cref="M:Android.Views.WindowInsets.IsVisible(System.Int32)" /> for <see cref="M:Android.Views.WindowInsets.Type.Ime" />.</returns>
         <remarks>
           <para>Synonym for <c>#showSoftInput(View, int, ResultReceiver)</c> without
             a result receiver: explicitly request that the current input method's
